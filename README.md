@@ -1,2 +1,2 @@
 # cs3110-final-project
-Final Project for CS3110
+Final Project for CS 3110 - Functional Programming
