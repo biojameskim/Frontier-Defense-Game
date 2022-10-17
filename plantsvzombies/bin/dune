@@ -1,4 +1,0 @@
-(executable
- (public_name plantsvzombies)
- (name main)
- (libraries plantsvzombies))
