@@ -1,6 +1,0 @@
-(** @canonical Plantsvzombies.Board *)
-module Board = Plantsvzombies__Board
-
-
-(** @canonical Plantsvzombies.Characters *)
-module Characters = Plantsvzombies__Characters
