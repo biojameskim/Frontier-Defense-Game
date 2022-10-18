@@ -5,9 +5,17 @@ module Screen_draw = struct
   let draw_home_screen () =
     G.set_color Palette.border;
     draw_rect_from_placement ScreenCenterPlace 800 600;
-    draw_string_from_placement ScreenCenterPlace ((() |> G.size_x |> string_of_int) ^ "x" ^ (() |> G.size_y |> string_of_int));
-    let box1 = draw_button (TopCenterPlace (G.size_x () / 2, 50)) 150 50 "Play" in
-    let box2 = draw_button (TopCenterPlace (G.size_x () / 2, 100)) 150 50 "Quit" in ()
+    draw_string_from_placement ScreenCenterPlace
+      ((() |> G.size_x |> string_of_int)
+      ^ "x"
+      ^ (() |> G.size_y |> string_of_int));
+    let box1 =
+      draw_button (TopCenterPlace (G.size_x () / 2, 50)) 150 50 "Play"
+    in
+    let box2 =
+      draw_button (TopCenterPlace (G.size_x () / 2, 100)) 150 50 "Quit"
+    in
+    ()
 
   let draw screen =
     match screen with
