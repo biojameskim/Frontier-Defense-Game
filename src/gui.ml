@@ -9,8 +9,8 @@ module Screen_draw = struct
     G.fill_rect 0 0 (G.size_x ()) (G.size_y ());
     G.set_color Palette.black;
     G.moveto 0 0;
-    draw_col_lines (G.size_x ()) (G.size_y ()) 0;
-    draw_row_lines (G.size_x ()) (G.size_y ()) 0;
+    draw_col_lines (G.size_x ()) (G.size_y ()) 0 10;
+    draw_row_lines (G.size_x ()) (G.size_y ()) 0 5;
     G.set_color Palette.border;
     (*draw_rect_from_placement ScreenCenterPlace 800 600;*)
     draw_string_from_placement ScreenCenterPlace
@@ -43,5 +43,5 @@ let launch (st : State.t) =
   (* Do not use [G.open_graph "800x600"]; it will crash on Linux *)
   G.open_graph "";
   G.set_window_title "Plants vs. Zombies";
-  G.resize_window 800 720;
+  G.resize_window 1280 720;
   handle_event st
