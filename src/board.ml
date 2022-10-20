@@ -34,7 +34,7 @@ let init_row () =
     zombies = [];
     plants = [];
     peas = [];
-    lawnmower = Lawnmower { speed = 0; damage = 0; distance = 0; row = 0 };
+    lawnmower = Lawnmower { speed = 0; damage = 0; location = (0, 0); row = 0 };
   }
 
 let init () = { rows = List.init n_rows (fun _ -> init_row ()) }

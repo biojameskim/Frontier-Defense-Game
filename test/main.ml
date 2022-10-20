@@ -7,9 +7,21 @@ let trivial_tests =
     ( "trivial test 2" >:: fun _ ->
       assert_equal
         (Characters.FreezePea
-           { damage = 0; distance = 0; speed = 0; speedChange = 0; row = 1 })
+           {
+             damage = 0;
+             location = (0, 0);
+             speed = 0;
+             speedChange = 0;
+             row = 1;
+           })
         (Characters.FreezePea
-           { damage = 0; distance = 0; speed = 0; speedChange = 0; row = 1 }) );
+           {
+             damage = 0;
+             location = (0, 0);
+             speed = 0;
+             speedChange = 0;
+             row = 1;
+           }) );
   ]
 
 let gui_tests = []

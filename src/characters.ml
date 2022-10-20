@@ -1,7 +1,7 @@
 type zombie_properties = {
   hp : int;
   damage : int;
-  distance : int;
+  location : int * int;
   speed : int;
   frame : int;
   row : int;
@@ -10,7 +10,7 @@ type zombie_properties = {
 (* speed is the speed of how fast the plant shoots per state *)
 type plant_properties = {
   hp : int;
-  distance : int;
+  location : int * int;
   speed : int;
   row : int;
 }
@@ -19,7 +19,7 @@ type plant_properties = {
    all plants (at least for now) *)
 type pea_properties = {
   damage : int;
-  distance : int;
+  location : int * int;
   speed : int;
   speedChange : int;
   row : int;
@@ -28,12 +28,12 @@ type pea_properties = {
 type lawnmower_properties = {
   damage : int;
   speed : int;
-  distance : int;
+  location : int * int;
   row : int;
 }
 
 type sun_properties = {
-  distance : int;
+  location : int * int;
   row : int;
 }
 
