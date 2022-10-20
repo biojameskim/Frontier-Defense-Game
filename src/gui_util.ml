@@ -101,3 +101,17 @@ let draw_button placement w h ?(text_color = Palette.button_text)
     (CenterPlace (x', y'))
     ~color:text_color ~size:text_size msg;
   get_corner_box x y w h
+
+let rec draw_row_lines (window_x : int) (window_y : int) (curr_y : int) =
+  if curr_y < window_y then (
+    G.moveto 0 curr_y;
+    G.lineto window_x curr_y;
+    draw_row_lines window_x window_y (curr_y + (window_y / 5)))
+  else G.lineto window_x curr_y
+
+let rec draw_col_lines (window_x : int) (window_y : int) (cur_x : int) =
+  if cur_x < window_x then (
+    G.moveto cur_x window_y;
+    G.lineto cur_x 0;
+    draw_col_lines window_x window_y (cur_x + (window_x / 10)))
+  else G.lineto cur_x 0
