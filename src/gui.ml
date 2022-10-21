@@ -2,8 +2,8 @@ open Gui_util
 module G = Graphics
 
 module Screen_draw = struct
-  let num_rows = 10
-  let num_cols = 15
+  let num_rows = 5
+  let num_cols = 10
 
   let draw_home_screen () =
     G.set_color G.green;
@@ -18,8 +18,8 @@ module Screen_draw = struct
     init_lawnmowers (G.size_x ()) (G.size_y ()) num_rows num_cols
       (G.size_y () / (num_rows * 2));
 
-    draw_plants_or_zombies (G.size_x ()) (G.size_y ()) 0 5 10 true;
-    draw_plants_or_zombies (G.size_x ()) (G.size_y ()) 0 5 10 false;
+    draw_plants_or_zombies (G.size_x ()) (G.size_y ()) 0 num_rows num_cols true;
+    draw_plants_or_zombies (G.size_x ()) (G.size_y ()) 0 num_rows num_cols false;
     G.set_font "-*-fixed-medium-r-semicondensed--50-*-*-*-*-*-iso8859-1";
 
     G.set_color Palette.border;
