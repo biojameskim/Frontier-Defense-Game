@@ -1,3 +1,10 @@
+# cs3110-final-project
+Final Project for CS 3110 - Functional Programming
+
+Members:
+
+James Kim (jjk297), Eric Zhang (esz8), Derek Liu (dtl54), Suhao Jeffrey Huang (sjh292)
+
 ## Installing software
 
 ### macOS
@@ -35,7 +42,6 @@ Finally, run the following command to install opam, the OCaml package manager.
 % sudo apt-get install -y opam
 ```
 </br>
-</br>
 
 ## Installing graphics
 If you do not already have OPAM set up, run the following command:
@@ -54,7 +60,6 @@ At this point, restart your computer.
 
 - Run `make build` to build the project if it isn't built already. 
 - Then, run `make play` to play the game.  
-</br>
 </br>
 
 ## Troubleshooting
