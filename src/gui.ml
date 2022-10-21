@@ -11,6 +11,9 @@ module Screen_draw = struct
     G.moveto 0 0;
     draw_col_lines (G.size_x ()) (G.size_y ()) 0 10;
     draw_row_lines (G.size_x ()) (G.size_y ()) 0 5;
+    draw_plants_or_zombies (G.size_x ()) (G.size_y ()) 0 5 10 true;
+    draw_plants_or_zombies (G.size_x ()) (G.size_y ()) 0 5 10 false;
+    G.set_font "-*-fixed-medium-r-semicondensed--50-*-*-*-*-*-iso8859-1";
     G.set_color Palette.border;
     (*draw_rect_from_placement ScreenCenterPlace 800 600;*)
     draw_string_from_placement ScreenCenterPlace
