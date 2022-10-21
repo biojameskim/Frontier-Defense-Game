@@ -1,18 +1,24 @@
 open Gui_util
 module G = Graphics
 
-exception End
-
 module Screen_draw = struct
+  let num_rows = 10
+  let num_cols = 15
+
   let draw_home_screen () =
     G.set_color G.green;
     G.fill_rect 0 0 (G.size_x ()) (G.size_y ());
     G.set_color Palette.black;
+    (* Initialize grid layout *)
     G.moveto 0 0;
-    draw_col_lines (G.size_x ()) (G.size_y ()) 0 10;
-    draw_row_lines (G.size_x ()) (G.size_y ()) 0 5;
+    draw_col_lines (G.size_x ()) (G.size_y ()) 0 num_cols;
+    draw_row_lines (G.size_x ()) (G.size_y ()) 0 num_rows;
+    (* Initialize lawnmower layout *)
+    init_lawnmowers (G.size_x ()) (G.size_y ()) num_rows num_cols
+      (G.size_y () / (num_rows * 2));
+
     G.set_color Palette.border;
-    (*draw_rect_from_placement ScreenCenterPlace 800 600;*)
+    (* draw_rect_from_placement ScreenCenterPlace 800 600; *)
     draw_string_from_placement ScreenCenterPlace
       ((() |> G.size_x |> string_of_int)
       ^ "x"

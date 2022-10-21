@@ -119,3 +119,14 @@ let rec draw_col_lines (window_x : int) (window_y : int) (cur_x : int)
      draw_col_lines window_x window_y (cur_x + (window_x / num_cols)))
       num_cols
   else G.lineto cur_x 0
+
+let rec init_lawnmowers (window_x : int) (window_y : int) (num_rows : int)
+    (num_cols : int) (curr_y : int) =
+  if curr_y < window_y then (
+    let pos_x = window_x / (num_cols * 2) in
+    let pos_y = window_y / (num_rows * 2) in
+    G.moveto pos_x pos_y;
+    G.draw_circle pos_x curr_y 20;
+    init_lawnmowers window_x window_y num_rows num_cols
+      (curr_y + (window_y / num_rows)))
+  else G.draw_circle 0 0 0
