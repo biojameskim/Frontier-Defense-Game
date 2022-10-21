@@ -1,0 +1,30 @@
+---
+# Members of your group.
+group:
+  - name: Derek Liu
+    netid: dtl54
+  - name: Eric Zhang
+    netid: esz8
+  - name: Jeffrey Huang
+    netid: sjh292
+  - name: James Kim
+    netid: jjk297
+# Your PM.
+pm:
+  name: Derek Sanchez
+  netid: dms554
+# Set to false if you don't want your gallery entry to be public.
+publish: true
+# Pithy title
+title: "Plants v. Zombies"
+# OK if this is a Cornell Github link, but public gallery viewers won't be able to see it.
+git-repo: "https://github.com/doctakim/cs3110-final-project"
+# If you have no demo screencast, replace the url string with an empty string ""
+demo-video-url: ""
+# Write a short, attention-grabbing description of your project.
+desc: >
+  Our project is a GUI-based clone of Plants vs. Zombies. 
+  Zombie enemies spawn, move across the screen, and are killed by plants which 
+  the user buys and places into a grid. Plants may generate currency (sun), 
+  block zombies, or shoot bullets at them. The user may click plants to buy, 
+  view the quantity of sun, and select a level of difficulty.
