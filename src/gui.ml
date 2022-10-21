@@ -11,11 +11,16 @@ module Screen_draw = struct
     G.set_color Palette.black;
     (* Initialize grid layout *)
     G.moveto 0 0;
+
     draw_col_lines (G.size_x ()) (G.size_y ()) 0 num_cols;
     draw_row_lines (G.size_x ()) (G.size_y ()) 0 num_rows;
     (* Initialize lawnmower layout *)
     init_lawnmowers (G.size_x ()) (G.size_y ()) num_rows num_cols
       (G.size_y () / (num_rows * 2));
+
+    draw_plants_or_zombies (G.size_x ()) (G.size_y ()) 0 5 10 true;
+    draw_plants_or_zombies (G.size_x ()) (G.size_y ()) 0 5 10 false;
+    G.set_font "-*-fixed-medium-r-semicondensed--50-*-*-*-*-*-iso8859-1";
 
     G.set_color Palette.border;
     (* draw_rect_from_placement ScreenCenterPlace 800 600; *)

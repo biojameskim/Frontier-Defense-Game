@@ -130,3 +130,20 @@ let rec init_lawnmowers (window_x : int) (window_y : int) (num_rows : int)
     init_lawnmowers window_x window_y num_rows num_cols
       (curr_y + (window_y / num_rows)))
   else G.draw_circle 0 0 0
+
+let find_dist (window_x : int) (num_cols : int) (is_plant : bool) =
+  if is_plant = true then window_x - (window_x / num_cols / 2)
+  else
+    let box = window_x / num_cols in
+    box + (window_x / num_cols / 2)
+
+let rec draw_plants_or_zombies (window_x : int) (window_y : int) (curr_y : int)
+    (num_rows : int) (num_cols : int) (is_plant : bool) =
+  if curr_y < window_y then (
+    let half_col = find_dist window_x num_cols is_plant in
+    G.moveto half_col (curr_y + (window_y / num_rows / 2) - 25);
+    G.set_font "-*-fixed-medium-r-semicondensed--50-*-*-*-*-*-iso8859-1";
+    if is_plant then G.draw_char 'Z' else G.draw_char 'P';
+    let new_y = curr_y + (window_y / num_rows) in
+    draw_plants_or_zombies window_x window_y new_y num_rows num_cols is_plant)
+  else G.draw_char ' '
