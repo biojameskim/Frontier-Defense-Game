@@ -147,3 +147,12 @@ let rec draw_plants_or_zombies (window_x : int) (window_y : int) (curr_y : int)
     let new_y = curr_y + (window_y / num_rows) in
     draw_plants_or_zombies window_x window_y new_y num_rows num_cols is_plant)
   else G.draw_char ' '
+
+let rec color_grid_alternate (window_x : int) (window_y : int) (num_cols : int)
+    (curr_x : int) =
+  if curr_x < window_x then (
+    G.set_color (G.rgb 82 172 59);
+    let width = window_x / num_cols in
+    G.fill_rect curr_x 0 width window_y;
+    color_grid_alternate window_x window_y num_cols (curr_x + (width * 2)))
+  else G.fill_rect 0 0 0 0
