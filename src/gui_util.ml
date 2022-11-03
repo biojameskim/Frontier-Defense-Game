@@ -10,15 +10,12 @@ type text_size =
 
 let int_of_text_size text_size =
   match text_size with
-  | GiantText -> 36
+  | GiantText -> 60
   | BigText -> 24
   | RegularText -> 16
   | SmallText -> 14
   | TinyText -> 12
   | CustomSizeText x -> x
-
-type corner_box = int * int * int * int
-(** A box defined by its top-left and bottom-right corners. *)
 
 (** Represents a place on the screen and an instruction for how items with width
     [w] and height [h] should be placed relative to it. For instance,
@@ -28,44 +25,67 @@ type corner_box = int * int * int * int
     [draw_string_from_placement (CenterLeftAligned 100 100) "hello world"]
     places the text so that the center of the left edge is at [(100, 100)]. I
     think this makes the code more readable. *)
+
+type point = int * int
+type dim = int * int
+
 type placement =
-  | CenterPlace of int * int (* the center point *)
-  | TopLeftPlace of int * int (* the top-left corner point *)
-  | CenterLeftPlace of int * int
-    (* the point where the center of the left edge of the box should go *)
-  | TopCenterPlace of int * int
-    (* the point where the center of the top edge of the box should go *)
-  | ScreenCenterPlace
-  | ScreenTopLeftPlace
-(* | RightAligned of int * int *)
+  | CenterPlace of point
+  | TopLeftPlace of point
+  | CenterLeftPlace of point
+  | TopCenterPlace of point
 
-let get_rect_center x y w h = (x + (w / 2), y + (h / 2))
-let get_corner_box x y w h : corner_box = (x, y, x + w, y + h)
+and box =
+  | CornerBox of point * point
+  | PlacedBox of placement * dim
+  | CornerDimBox of point * dim
 
-let rec place_box placement w h =
-  match placement with
-  | CenterPlace (x, y) -> get_rect_center x y ~-w ~-h
-  | TopLeftPlace (x, y) -> (x, y)
-  | CenterLeftPlace (x, y) -> (x, y - (h / 2))
-  | TopCenterPlace (x, y) -> (x - (w / 2), y)
-  | ScreenCenterPlace ->
-      place_box (CenterPlace (G.size_x () / 2, G.size_y () / 2)) w h
-  | ScreenTopLeftPlace -> place_box (TopLeftPlace (0, G.size_y () - 1)) w h
+(** Get the corners of a box. *)
+let rec get_box_corners = function
+  (* Overview: CornerBox and CornerDimBox are the base cases. A PlacedBox is
+     converted to a CornerDimBox by figuring out what the top-left corner should
+     be. *)
+  | CornerBox (corner1, corner2) -> (corner1, corner2)
+  | CornerDimBox ((x, y), (w, h)) -> ((x, y), (x + w, y + h))
+  | PlacedBox (p, ((w, h) as dim)) -> (
+      match p with
+      | CenterPlace (x, y) ->
+          get_box_corners (CornerDimBox ((x - (w / 2), y - (h / 2)), dim))
+      | TopLeftPlace (x, y) -> get_box_corners (CornerDimBox ((x, y), dim))
+      | CenterLeftPlace (x, y) ->
+          get_box_corners (CornerDimBox ((x, y - (h / 2)), dim))
+      | TopCenterPlace (x, y) ->
+          get_box_corners (CornerDimBox ((x - (w / 2), y), dim)))
 
-let draw_rect_from_points x0 y0 x1 y1 =
-  assert (x0 < x1);
-  assert (y0 < y1);
-  (* current point is unchanged *)
-  G.draw_rect x0 y0 (x1 - x0) (y1 - y0)
+(** Utility function to define a placed box. *)
+let placed_box placement w h = PlacedBox (placement, (w, h))
 
-let draw_rect_from_placement placement ?(color = Palette.border) w h =
+(** Get the center point of a box. *)
+let get_box_center box =
+  let (x1, y1), (x2, y2) = get_box_corners box in
+  ((x1 + x2) / 2, (y1 + y2) / 2)
+
+(** Test if a point is in a box. *)
+let is_point_in_box box (x, y) =
+  let (x1, y1), (x2, y2) = get_box_corners box in
+  (* Printf.printf "is_point_in_box: %d %d %d %d %d %d\n" x1 y1 x2 y2 x y; *)
+  x1 <= x && x <= x2 && y1 <= y && y <= y2
+
+(** Draw a rectangle. Does not affect the current location of the pen. *)
+let draw_rect_b ?(color = Palette.border) ?bg box =
+  let (x1, y1), (x2, y2) = get_box_corners box in
+  (match bg with
+  | Some c ->
+      G.set_color c;
+      G.fill_rect x1 y1 (x2 - x1) (y2 - y1)
+  | None -> ());
   G.set_color color;
-  let x, y = place_box placement w h in
-  draw_rect_from_points x y (x + w) (y + h)
+  G.draw_rect x1 y1 (x2 - x1) (y2 - y1)
 
+(** TODO: rewrite *)
 let draw_grid placement cols rows cell_w cell_h f_draw_cell =
-  let x_corner, y_corner =
-    place_box placement (cols * cell_w) (rows * cell_h)
+  let (x_corner, y_corner), _ =
+    get_box_corners (PlacedBox (placement, (cols * cell_w, rows * cell_h)))
   in
   List.init rows (fun x -> x)
   |> List.map (fun row ->
@@ -75,32 +95,24 @@ let draw_grid placement cols rows cell_w cell_h f_draw_cell =
                   (x_corner + (col * cell_w))
                   (y_corner + (row * cell_h))))
 
-let draw_reset_state () =
-  G.moveto 0 0;
-  G.set_color Palette.failure;
-  G.set_line_width 1;
-  G.set_text_size 18
-
-let draw_string_from_placement placement ?(color = Palette.text)
-    ?(size = RegularText) msg =
+let draw_string_p placement ?(color = Palette.text) ?(size = RegularText) msg =
+  G.set_font
+    (Printf.sprintf "-*-fixed-medium-r-semicondensed--%d-*-*-*-*-*-iso8859-1"
+       (int_of_text_size size));
   G.set_color color;
-  let w, h = G.text_size msg in
-  let x, y = place_box placement w h in
+  let (x, y), _ = get_box_corners (PlacedBox (placement, G.text_size msg)) in
   G.moveto x y;
   G.set_color color;
-  G.set_text_size (int_of_text_size size);
   G.draw_string msg
 
-let draw_button placement w h ?(text_color = Palette.button_text)
-    ?(bg_color = Palette.button_bg) ?(text_size = RegularText) msg : corner_box
-    =
-  draw_rect_from_placement placement ~color:bg_color w h;
-  let x, y = place_box placement w h in
-  let x', y' = get_rect_center x y w h in
-  draw_string_from_placement
-    (CenterPlace (x', y'))
+let draw_button box ?(text_color = Palette.button_text)
+    ?(border = Palette.button_border) ?(bg = Palette.button_bg)
+    ?(text_size = BigText) msg : point * point =
+  draw_rect_b box ~color:border ~bg;
+  draw_string_p
+    (CenterPlace (get_box_center box))
     ~color:text_color ~size:text_size msg;
-  get_corner_box x y w h
+  get_box_corners box
 
 let rec draw_row_lines (window_x : int) (window_y : int) (curr_y : int)
     (num_rows : int) =
