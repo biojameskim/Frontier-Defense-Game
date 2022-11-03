@@ -28,8 +28,11 @@ let rec handle_event (st : State.t) =
   (* handle events *)
   if e.keypressed && e.key == 'q' then exit 0;
   let st =
-    if e.button then Events.handle_click (e.mouse_x, e.mouse_y) st ev else st
+    if e.button && not st.was_mouse_pressed then
+      Events.handle_click (e.mouse_x, e.mouse_y) st ev
+    else st
   in
+  let st = { st with was_mouse_pressed = e.button } in
   handle_event st
 
 let launch (st : State.t) =

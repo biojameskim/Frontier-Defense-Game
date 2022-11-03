@@ -90,8 +90,10 @@ let draw_grid placement cols rows cell_w cell_h f_draw_cell =
   |> List.iter (fun row ->
          List.init cols (fun x -> x)
          |> List.iter (fun col ->
-                f_draw_cell row col
-                  (x_corner + (col * cell_w), y_corner + (row * cell_h))))
+             let x_cell = x_corner + col * cell_w in
+             let y_cell = y_corner + row * cell_h in
+             f_draw_cell row col
+                  (x_cell, y_cell)))
 
 let draw_string_p placement ?(color = Palette.text) ?(size = RegularText) msg =
   G.set_font
