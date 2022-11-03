@@ -1,30 +1,46 @@
 open Gui_util
+open Characters
 module G = Graphics
 
 let num_rows = 5
 let num_cols = 10
 
-let draw st ev =
-  G.set_color (G.rgb 92 199 70);
-  G.fill_rect 0 0 (G.size_x ()) (G.size_y ());
-  (* Color grid alternate *)
-  G.moveto 0 0;
-  color_grid_alternate (G.size_x ()) (G.size_y ()) num_cols 0;
+let draw_dummy_graphic (x, y) str =
+  draw_string_p (CenterPlace (x + 50, y + 50)) ~size:BigText str
 
-  G.set_color Palette.black;
+let draw_cell row col (x, y) st =
+  let cell = State.get_cell row col st in
+  draw_rect_b
+    (CornerDimBox ((x, y), (100, 100)))
+    ~bg:(if col mod 2 = 0 then Palette.field_base else Palette.field_alternate);
+  match cell.plant with
+  | Some (PeaShooterPlant p) -> draw_dummy_graphic (x, y) "P"
+  | Some (IcePeaShooterPlant p) -> draw_dummy_graphic (x, y) "PI"
+  | Some (WalnutPlant p) -> draw_dummy_graphic (x, y) "PW"
+  | None -> ()
 
-  (* Initialize grid layout *)
-  G.moveto 0 0;
-  draw_col_lines (G.size_x ()) (G.size_y ()) 0 num_cols;
-  draw_row_lines (G.size_x ()) (G.size_y ()) 0 num_rows;
+let draw_row (row : Board.row) (st : State.t) =
+  row.zombies
+  |> List.iter (fun zombie ->
+         match zombie with
+         | RegularZombie { location } -> draw_dummy_graphic location "Z"
+         | TrafficConeHeadZombie { location } ->
+             draw_dummy_graphic location "ZT"
+         | BucketHeadZombie { location } -> draw_dummy_graphic location "ZB");
+  (match row.lawnmower with
+  | Some (Lawnmower { location }) -> draw_dummy_graphic location "L"
+  | None -> ());
+  row.peas
+  |> List.iter (fun pea ->
+         match pea with
+         | RegularPea { location } -> draw_dummy_graphic location "P"
+         | FreezePea { location } -> draw_dummy_graphic location "PF")
 
-  (* Initialize lawnmower layout *)
-  init_lawnmowers (G.size_x ()) (G.size_y ()) num_rows num_cols
-    (G.size_y () / (num_rows * 2));
-
-  (* Initialize zombie and plant positions *)
-  draw_plants_or_zombies (G.size_x ()) (G.size_y ()) 0 num_rows num_cols true;
-  draw_plants_or_zombies (G.size_x ()) (G.size_y ()) 0 num_rows num_cols false;
-  G.set_font "-*-fixed-medium-r-semicondensed--50-*-*-*-*-*-iso8859-1"
+let draw (st : State.t) ev =
+  draw_grid
+    (TopLeftPlace (0, 0))
+    num_cols num_rows 100 100
+    (fun row col (x, y) -> draw_cell row col (x, y) st);
+  st.board.rows |> List.iter (fun row -> draw_row row st)
 
 let tick st = st

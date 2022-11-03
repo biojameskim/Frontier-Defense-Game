@@ -4,15 +4,12 @@ type zombie_properties = {
   location : int * int;
   speed : int;
   frame : int;
-  row : int;
 }
 
 (* speed is the speed of how fast the plant shoots per state *)
 type plant_properties = {
   hp : int;
-  location : int * int;
   speed : int;
-  row : int;
 }
 
 (* speed should be just constant because the speed of the pea is the same for

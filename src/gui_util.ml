@@ -82,18 +82,16 @@ let draw_rect_b ?(color = Palette.border) ?bg box =
   G.set_color color;
   G.draw_rect x1 y1 (x2 - x1) (y2 - y1)
 
-(** TODO: rewrite *)
 let draw_grid placement cols rows cell_w cell_h f_draw_cell =
   let (x_corner, y_corner), _ =
     get_box_corners (PlacedBox (placement, (cols * cell_w, rows * cell_h)))
   in
   List.init rows (fun x -> x)
-  |> List.map (fun row ->
+  |> List.iter (fun row ->
          List.init cols (fun x -> x)
-         |> List.map (fun col ->
-                f_draw_cell col row
-                  (x_corner + (col * cell_w))
-                  (y_corner + (row * cell_h))))
+         |> List.iter (fun col ->
+                f_draw_cell row col
+                  (x_corner + (col * cell_w), y_corner + (row * cell_h))))
 
 let draw_string_p placement ?(color = Palette.text) ?(size = RegularText) msg =
   G.set_font
