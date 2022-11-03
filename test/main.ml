@@ -1,27 +1,28 @@
 open OUnit2
 open Game
+open Characters
 
 let trivial_tests =
   [
     ("trivial test" >:: fun _ -> assert_equal "abc" "abc");
     ( "trivial test 2" >:: fun _ ->
       assert_equal
-        (Characters.FreezePea
-           {
-             damage = 0;
-             location = (0, 0);
-             speed = 0;
-             speedChange = 0;
-             row = 1;
-           })
-        (Characters.FreezePea
-           {
-             damage = 0;
-             location = (0, 0);
-             speed = 0;
-             speedChange = 0;
-             row = 1;
-           }) );
+        {
+          damage = 0;
+          location = (0, 0);
+          speed = 0;
+          speedChange = 0;
+          row = 1;
+          pea_type = FreezePea;
+        }
+        {
+          damage = 0;
+          location = (0, 0);
+          speed = 0;
+          speedChange = 0;
+          row = 1;
+          pea_type = FreezePea;
+        } );
   ]
 
 let gui_tests = []

@@ -14,27 +14,31 @@ let draw_cell row col (x, y) st =
     (CornerDimBox ((x, y), (100, 100)))
     ~bg:(if col mod 2 = 0 then Palette.field_base else Palette.field_alternate);
   match cell.plant with
-  | Some (PeaShooterPlant p) -> draw_dummy_graphic (x, y) "P"
-  | Some (IcePeaShooterPlant p) -> draw_dummy_graphic (x, y) "PI"
-  | Some (WalnutPlant p) -> draw_dummy_graphic (x, y) "PW"
+  | Some { plant_type } ->
+      draw_dummy_graphic (x, y)
+        (match plant_type with
+        | PeaShooterPlant -> "P"
+        | IcePeaShooterPlant -> "PI"
+        | WalnutPlant -> "W")
   | None -> ()
 
 let draw_row (row : Board.row) (st : State.t) =
   row.zombies
-  |> List.iter (fun zombie ->
-         match zombie with
-         | RegularZombie { location } -> draw_dummy_graphic location "Z"
-         | TrafficConeHeadZombie { location } ->
-             draw_dummy_graphic location "ZT"
-         | BucketHeadZombie { location } -> draw_dummy_graphic location "ZB");
+  |> List.iter (fun { zombie_type; location } ->
+         draw_dummy_graphic location
+           (match zombie_type with
+           | RegularZombie -> "Z"
+           | TrafficConeHeadZombie -> "ZT"
+           | BucketHeadZombie -> "ZB"));
   (match row.lawnmower with
-  | Some (Lawnmower { location }) -> draw_dummy_graphic location "L"
+  | Some { location } -> draw_dummy_graphic location "L"
   | None -> ());
   row.peas
-  |> List.iter (fun pea ->
-         match pea with
-         | RegularPea { location } -> draw_dummy_graphic location "P"
-         | FreezePea { location } -> draw_dummy_graphic location "PF")
+  |> List.iter (fun { location; pea_type } ->
+         draw_dummy_graphic location
+           (match pea_type with
+           | RegularPea -> "P"
+           | FreezePea -> "PF"))
 
 let draw (st : State.t) ev =
   draw_grid
@@ -43,4 +47,10 @@ let draw (st : State.t) ev =
     (fun row col (x, y) -> draw_cell row col (x, y) st);
   st.board.rows |> List.iter (fun row -> draw_row row st)
 
-let tick st = st
+let tick (st : State.t) : State.t =
+  let new_rows =
+    st.board.rows
+    |> List.map (fun (row : Board.row) ->
+           { row with zombies = row.zombies |> List.map Characters.zombie_walk })
+  in
+  { st with board = { st.board with rows = new_rows } }
