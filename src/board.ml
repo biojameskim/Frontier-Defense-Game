@@ -1,5 +1,7 @@
 open Characters
 
+(* model, defines t (the whole board), init makes the board filled with random
+   stuff*)
 let n_cols = 10
 let n_rows = 5
 
@@ -53,4 +55,5 @@ let init_row row =
       Some { speed = 0; damage = 0; location = (10, row * 100); row = 0 };
   }
 
+(* calls the init_row function n_rows time *)
 let init () = { rows = List.init n_rows init_row }

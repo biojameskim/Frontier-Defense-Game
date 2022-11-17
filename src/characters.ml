@@ -1,3 +1,4 @@
+(* defines types for zombies and plants *)
 type zombie_type =
   | RegularZombie
   | TrafficConeHeadZombie
@@ -51,6 +52,8 @@ type sun = {
   row : int;
 }
 
+(* gives you a new record of the zombie with new distance, makes the zombies
+   walk *)
 let zombie_walk (z : zombie) : zombie =
   let x, y = z.location in
   { z with location = (x - z.speed, y) }
