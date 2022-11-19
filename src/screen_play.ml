@@ -11,7 +11,7 @@ let draw_dummy_graphic (x, y) str =
 (* draw single cell and add a clickable *)
 let draw_cell row col (x, y) st ev =
   let cell = State.get_cell row col st in
-  let box = CornerDimBox ((x, y), (100, 100)) in
+  let box = CornerDimBox ((x, y), (1100 / num_cols, 720 / num_rows)) in
   draw_rect_b box
     ~bg:(if col mod 2 = 0 then Palette.field_base else Palette.field_alternate);
   (match cell.plant with
@@ -49,8 +49,8 @@ let draw_row (row : Board.row) (st : State.t) =
 (* draws the grid *)
 let draw (st : State.t) ev =
   draw_grid
-    (TopLeftPlace (0, 0))
-    num_cols num_rows 100 100
+    (TopLeftPlace (180, 0))
+    num_cols num_rows (1100 / num_cols) (720 / num_rows)
     (fun row col (x, y) -> draw_cell row col (x, y) st ev);
   st.board.rows |> List.iter (fun row -> draw_row row st)
 
@@ -61,7 +61,8 @@ let tick (st : State.t) : State.t =
     |> List.map (fun (row : Board.row) ->
            { row with zombies = row.zombies |> List.map Characters.zombie_walk })
   in
-  { st with board = { st.board with rows = new_rows } }
+  let st = { st with board = { st.board with rows = new_rows } } in
+  { st with timer = st.timer + 1 }
 
 let get_plant_being_eaten_by_zombie (row : Board.row) (zombie : zombie) :
     plant option =

@@ -22,6 +22,7 @@ type plant_type =
 type plant = {
   hp : int;
   speed : int;
+  location : int * int;
   plant_type : plant_type;
 }
 
