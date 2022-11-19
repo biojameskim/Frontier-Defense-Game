@@ -61,6 +61,7 @@ let tick (st : State.t) : State.t =
     |> List.map (fun (row : Board.row) ->
            { row with zombies = row.zombies |> List.map Characters.zombie_walk })
   in
+
   let st = { st with board = { st.board with rows = new_rows } } in
   { st with timer = st.timer + 1 }
 
