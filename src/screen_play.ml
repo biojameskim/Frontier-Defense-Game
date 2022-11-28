@@ -76,11 +76,6 @@ let draw_shop_items ev =
   draw_shop_item 0 432 ev PeaShooterPlant;
   draw_shop_item 0 576 ev PeaShooterPlant
 
-let draw_pause_button x y =
-  let pause_button = CornerDimBox ((x, y), (40, 40)) in
-  draw_rect_b pause_button;
-  draw_string_p (CenterPlace (1260, 700)) ~size:RegularText "||"
-
 (* draws the grid *)
 let draw (st : State.t) ev =
   draw_grid
@@ -89,7 +84,10 @@ let draw (st : State.t) ev =
     (fun row col (x, y) -> draw_cell row col (x, y) st ev);
   st.board.rows |> List.iter (fun row -> draw_row row st);
   draw_shop_items ev;
-  draw_pause_button 1240 680
+  let on_pause st = st |> State.change_screen Screen.PauseScreen in
+  Events.add_clickable
+    (draw_button (placed_box (CenterPlace (1260, 700)) 40 40) "||")
+    on_pause ev
 
 let timer = 0
 
