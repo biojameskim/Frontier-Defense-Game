@@ -91,6 +91,20 @@ let draw (st : State.t) ev =
 
 let timer = 0
 
+let make_game_lost_list (st : State.t) =
+  st.board.rows
+  |> List.map (fun (row : Board.row) ->
+         List.for_all
+           (fun (zombie : zombie) ->
+             match zombie.location with
+             | x, y -> if x = 150 then true else false)
+           row.zombies)
+
+let check_game_lost st =
+  match make_game_lost_list st with
+  | [] -> st
+  | h :: t -> if h then st |> State.change_screen Screen.EndScreenLost else st
+
 (* changes to the state that should happen, add pea shot and moving *)
 let tick (st : State.t) : State.t =
   let new_rows =
@@ -100,7 +114,7 @@ let tick (st : State.t) : State.t =
   in
 
   let st = { st with board = { st.board with rows = new_rows } } in
-  { st with timer = st.timer + 1 }
+  check_game_lost st
 
 let get_plant_being_eaten_by_zombie (row : Board.row) (zombie : zombie) :
     plant option =
