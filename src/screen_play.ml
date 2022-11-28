@@ -62,6 +62,7 @@ let draw_row (row : Board.row) (st : State.t) =
            | RegularPea -> "P"
            | FreezePea -> "PF"))
 
+(* [draw_shop_items x y ev plant_type] draws the five boxes for the shop *)
 let draw_shop_item x y ev plant_type =
   let box = CornerDimBox ((x, y), (180, 144)) in
   draw_rect_b ~bg:Palette.brown box;
@@ -69,6 +70,7 @@ let draw_shop_item x y ev plant_type =
     (fun st -> { st with shop_selection = Some plant_type })
     ev
 
+(* [draw_shop_items] calls draw_shop_item five times *)
 let draw_shop_items ev =
   draw_shop_item 0 0 ev PeaShooterPlant;
   draw_shop_item 0 144 ev PeaShooterPlant;
@@ -89,26 +91,47 @@ let draw (st : State.t) ev =
     (draw_button (placed_box (CenterPlace (1260, 700)) 40 40) "||")
     on_pause ev
 
-let timer = 0
-
+(* [make_game_lost_list st] is the list of booleans (one boolean for each zombie
+   that is true if the zombie is at the x position of the end of the lawn)*)
 let make_game_lost_list (st : State.t) =
   st.board.rows
   |> List.map (fun (row : Board.row) ->
-         List.for_all
-           (fun (zombie : zombie) ->
-             match zombie.location with
-             | x, y -> if x = 150 then true else false)
-           row.zombies)
+         if row.zombies = [] then true
+         else
+           List.for_all
+             (fun (zombie : zombie) ->
+               match zombie.location with
+               | x, y -> x > 150)
+             row.zombies)
 
-let check_game_lost st =
-  match make_game_lost_list st with
+(* [is_game_lost st blist] pattern matches over blist (the bool list made from
+   make_game_lost_list) and if any are true then a zombie has reached the end of
+   the lawn, and the state switches screens to the end_lost screen *)
+let rec is_game_lost (st : State.t) blist =
+  match blist with
   | [] -> st
-  | h :: t -> if h then st |> State.change_screen Screen.EndScreenLost else st
+  | h :: t ->
+      if h then is_game_lost st t
+      else st |> State.change_screen Screen.EndScreenLost
+
+(* [check_game_lost st] checks to see if the game is lost at the current game
+   state *)
+let check_game_lost st = is_game_lost st (make_game_lost_list st)
+
+(* [timer_spawns_zombie st] checks the timer to see if another zombie should be
+   spawned. If the timer reaches a certain amount, then a zombie is spawned in a
+   random row *)
+let timer_spawns_zombie (st : State.t) =
+  if st.timer = 5000 then (
+    st.timer <- 0;
+    Board.spawn_zombie RegularZombie { rows = st.board.rows })
+  else { rows = st.board.rows }
 
 (* changes to the state that should happen, add pea shot and moving *)
 let tick (st : State.t) : State.t =
+  st.timer <- st.timer + 25;
   let new_rows =
-    st.board.rows
+    (timer_spawns_zombie st).rows
     |> List.map (fun (row : Board.row) ->
            { row with zombies = row.zombies |> List.map Characters.zombie_walk })
   in

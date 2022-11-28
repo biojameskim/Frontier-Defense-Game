@@ -2,7 +2,7 @@ type t = {
   board : Board.t;
   screen : Screen.t;
   was_mouse_pressed : bool;
-  timer : int;
+  mutable timer : int;
   mutable shop_selection : Characters.plant_type option;
 }
 

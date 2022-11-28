@@ -24,39 +24,8 @@ type t = { rows : row list }
    row. *)
 let init_row row =
   {
-    cells =
-      List.init n_cols (fun _ ->
-          {
-            plant =
-              (if Random.bool () then None
-              else
-                Some
-                  {
-                    plant_type = WalnutPlant;
-                    hp = 100;
-                    location = (10, 30);
-                    speed = 0;
-                  });
-          });
-    zombies =
-      [
-        {
-          zombie_type = RegularZombie;
-          hp = 10;
-          damage = 1;
-          location = (1280, row * 100);
-          speed = 1;
-          frame = 0;
-        };
-        {
-          zombie_type = TrafficConeHeadZombie;
-          hp = 10;
-          damage = 1;
-          location = (1280, row * 100);
-          speed = 1;
-          frame = 0;
-        };
-      ];
+    cells = List.init n_cols (fun _ -> { plant = None });
+    zombies = [];
     peas = [];
     lawnmower =
       Some { speed = 0; damage = 0; location = (10, row * 100); row = 0 };
@@ -65,17 +34,7 @@ let init_row row =
 (* calls the init_row function n_rows time *)
 let init () = { rows = List.init n_rows init_row }
 
-(* spawn a zombie in a random row *)
-
-type zombie = {
-  hp : int;
-  damage : int;
-  location : int * int;
-  speed : int;
-  frame : int;
-  zombie_type : zombie_type;
-}
-
+(* [spawn_zombie zombie_type t] spawns a zombie *)
 let spawn_zombie (zombie_type : zombie_type) (t : t) =
   let row_id = Random.int 5 in
   let row = row_id |> List.nth t.rows in
@@ -84,9 +43,10 @@ let spawn_zombie (zombie_type : zombie_type) (t : t) =
       zombie_type = RegularZombie;
       hp = 10;
       damage = 1;
-      location = (1280, row_id * 100);
-      speed = 1;
+      location = (1280, row_id * 144);
+      speed = 8;
       frame = 0;
     }
   in
-  ()
+  row.zombies <- new_zombie :: row.zombies;
+  t
