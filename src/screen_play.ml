@@ -8,6 +8,11 @@ let num_cols = 10
 let draw_dummy_graphic (x, y) str =
   draw_string_p (CenterPlace (x + 50, y + 50)) ~size:BigText str
 
+let get_plant_speed = function
+  | PeaShooterPlant -> 5
+  | IcePeaShooterPlant -> 5
+  | WalnutPlant -> 0
+
 (* draw single cell and add a clickable *)
 let draw_cell row col (x, y) st ev =
   let cell = State.get_cell row col st in
@@ -23,9 +28,20 @@ let draw_cell row col (x, y) st ev =
         | WalnutPlant -> "W")
   | None -> ());
   Events.add_clickable (get_box_corners box)
-    (fun st' ->
-      Printf.printf "clicked cell %d %d\n%!" row col;
-      st')
+    (fun st ->
+      match st.shop_selection with
+      | None -> st
+      | Some plant_type ->
+          cell.plant <-
+            Some
+              {
+                hp = 100;
+                location = (x, y);
+                plant_type;
+                speed = get_plant_speed plant_type;
+              };
+          st.shop_selection <- None;
+          st)
     ev
 
 let draw_row (row : Board.row) (st : State.t) =
@@ -46,13 +62,36 @@ let draw_row (row : Board.row) (st : State.t) =
            | RegularPea -> "P"
            | FreezePea -> "PF"))
 
+let draw_shop_item x y ev plant_type =
+  let box = CornerDimBox ((x, y), (180, 144)) in
+  draw_rect_b ~bg:Palette.brown box;
+  Events.add_clickable (get_box_corners box)
+    (fun st -> { st with shop_selection = Some plant_type })
+    ev
+
+let draw_shop_items ev =
+  draw_shop_item 0 0 ev PeaShooterPlant;
+  draw_shop_item 0 144 ev PeaShooterPlant;
+  draw_shop_item 0 288 ev WalnutPlant;
+  draw_shop_item 0 432 ev PeaShooterPlant;
+  draw_shop_item 0 576 ev PeaShooterPlant
+
+let draw_pause_button x y =
+  let pause_button = CornerDimBox ((x, y), (40, 40)) in
+  draw_rect_b pause_button;
+  draw_string_p (CenterPlace (1260, 700)) ~size:RegularText "||"
+
 (* draws the grid *)
 let draw (st : State.t) ev =
   draw_grid
     (TopLeftPlace (180, 0))
     num_cols num_rows (1100 / num_cols) (720 / num_rows)
     (fun row col (x, y) -> draw_cell row col (x, y) st ev);
-  st.board.rows |> List.iter (fun row -> draw_row row st)
+  st.board.rows |> List.iter (fun row -> draw_row row st);
+  draw_shop_items ev;
+  draw_pause_button 1240 680
+
+let timer = 0
 
 (* changes to the state that should happen, add pea shot and moving *)
 let tick (st : State.t) : State.t =

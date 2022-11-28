@@ -5,7 +5,7 @@ open Characters
 let n_cols = 10
 let n_rows = 5
 
-type cell = { plant : plant option }
+type cell = { mutable plant : plant option }
 
 type row = {
   cells : cell list;

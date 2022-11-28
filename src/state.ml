@@ -3,6 +3,7 @@ type t = {
   screen : Screen.t;
   was_mouse_pressed : bool;
   timer : int;
+  mutable shop_selection : Characters.plant_type option;
 }
 
 let init () =
@@ -11,6 +12,7 @@ let init () =
     screen = HomeScreen;
     was_mouse_pressed = false;
     timer = 0;
+    shop_selection = None;
   }
 
 let change_screen s t = { t with screen = s }
