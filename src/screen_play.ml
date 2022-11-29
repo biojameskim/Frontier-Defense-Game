@@ -75,8 +75,9 @@ let draw_shop_items ev =
   draw_shop_item 0 0 ev PeaShooterPlant;
   draw_shop_item 0 144 ev PeaShooterPlant;
   draw_shop_item 0 288 ev WalnutPlant;
-  draw_shop_item 0 432 ev PeaShooterPlant;
-  draw_shop_item 0 576 ev PeaShooterPlant
+  draw_shop_item 0 432 ev PeaShooterPlant
+
+let coins = ref 0
 
 (* draws the grid *)
 let draw (st : State.t) ev =
@@ -89,7 +90,10 @@ let draw (st : State.t) ev =
   let on_pause st = st |> State.change_screen Screen.PauseScreen in
   Events.add_clickable
     (draw_button (placed_box (CenterPlace (1260, 700)) 40 40) "||")
-    on_pause ev
+    on_pause ev;
+  let box = CornerDimBox ((0, 576), (180, 144)) in
+  draw_rect_b ~bg:Palette.stone_grey box;
+  draw_string_p (CenterPlace (150, 650)) (string_of_int !coins)
 
 (* [make_game_lost_list st] is the list of booleans (one boolean for each zombie
    that is true if the zombie is at the x position of the end of the lawn)*)
@@ -122,14 +126,21 @@ let check_game_lost st = is_game_lost st (make_game_lost_list st)
    spawned. If the timer reaches a certain amount, then a zombie is spawned in a
    random row *)
 let timer_spawns_zombie (st : State.t) =
-  if st.timer = 5000 then (
-    st.timer <- 0;
-    Board.spawn_zombie RegularZombie { rows = st.board.rows })
+  if st.timer mod 5000 = 0 then
+    Board.spawn_zombie RegularZombie { rows = st.board.rows }
   else { rows = st.board.rows }
+
+(* [coin_auto_increment st] increments the coin counter if the timer reaches a
+   certain threshold *)
+let coin_auto_increment (st : State.t) =
+  if st.timer mod 2500 = 0 then coins := !coins + 25 else ()
+
+let coin_image = failwith "unimplemented"
 
 (* changes to the state that should happen, add pea shot and moving *)
 let tick (st : State.t) : State.t =
   st.timer <- st.timer + 25;
+  coin_auto_increment st;
   let new_rows =
     (timer_spawns_zombie st).rows
     |> List.map (fun (row : Board.row) ->

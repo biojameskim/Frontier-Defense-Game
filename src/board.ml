@@ -44,7 +44,7 @@ let spawn_zombie (zombie_type : zombie_type) (t : t) =
       hp = 10;
       damage = 1;
       location = (1280, row_id * 144);
-      speed = 8;
+      speed = 1;
       frame = 0;
     }
   in
