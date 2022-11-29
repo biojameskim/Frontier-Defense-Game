@@ -11,7 +11,7 @@ type text_size =
 let int_of_text_size text_size =
   match text_size with
   | GiantText -> 60
-  | BigText -> 24
+  | BigText -> 36
   | RegularText -> 16
   | SmallText -> 14
   | TinyText -> 12
@@ -82,6 +82,11 @@ let draw_rect_b ?(color = Palette.border) ?bg box =
   G.set_color color;
   G.draw_rect x1 y1 (x2 - x1) (y2 - y1)
 
+let draw_and_fill_circle ?(color = Palette.border) x y r =
+  G.set_color color;
+  G.draw_circle x y r;
+  G.fill_circle x y r
+
 let draw_grid placement cols rows cell_w cell_h f_draw_cell =
   let (x_corner, y_corner), _ =
     get_box_corners (PlacedBox (placement, (cols * cell_w, rows * cell_h)))
@@ -90,12 +95,21 @@ let draw_grid placement cols rows cell_w cell_h f_draw_cell =
   |> List.iter (fun row ->
          List.init cols (fun x -> x)
          |> List.iter (fun col ->
-             let x_cell = x_corner + col * cell_w in
-             let y_cell = y_corner + row * cell_h in
-             f_draw_cell row col
-                  (x_cell, y_cell)))
+                let x_cell = x_corner + (col * cell_w) in
+                let y_cell = y_corner + (row * cell_h) in
+                f_draw_cell row col (x_cell, y_cell)))
 
 let draw_string_p placement ?(color = Palette.text) ?(size = RegularText) msg =
+  G.set_font
+    (Printf.sprintf "-*-fixed-medium-r-semicondensed--%d-*-*-*-*-*-iso8859-1"
+       (int_of_text_size size));
+  G.set_color color;
+  let (x, y), _ = get_box_corners (PlacedBox (placement, G.text_size msg)) in
+  G.moveto x y;
+  G.set_color color;
+  G.draw_string msg
+
+let draw_string_big placement ?(color = Palette.text) ?(size = BigText) msg =
   G.set_font
     (Printf.sprintf "-*-fixed-medium-r-semicondensed--%d-*-*-*-*-*-iso8859-1"
        (int_of_text_size size));

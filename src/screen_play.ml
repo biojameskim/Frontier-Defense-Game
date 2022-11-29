@@ -78,6 +78,7 @@ let draw_shop_items ev =
   draw_shop_item 0 432 ev PeaShooterPlant
 
 let coins = ref 0
+let level = ref 1
 
 (* draws the grid *)
 let draw (st : State.t) ev =
@@ -93,7 +94,10 @@ let draw (st : State.t) ev =
     on_pause ev;
   let box = CornerDimBox ((0, 576), (180, 144)) in
   draw_rect_b ~bg:Palette.stone_grey box;
-  draw_string_p (CenterPlace (150, 650)) (string_of_int !coins)
+  draw_string_big (CenterPlace (105, 680)) (string_of_int !coins);
+  draw_and_fill_circle ~color:Palette.coin_yellow 50 680 20;
+  draw_string_big (CenterPlace (52, 680)) "$";
+  draw_string_big (CenterPlace (80, 615)) ("Level - " ^ string_of_int !level)
 
 (* [make_game_lost_list st] is the list of booleans (one boolean for each zombie
    that is true if the zombie is at the x position of the end of the lawn)*)
@@ -116,7 +120,10 @@ let rec is_game_lost (st : State.t) blist =
   | [] -> st
   | h :: t ->
       if h then is_game_lost st t
-      else st |> State.change_screen Screen.EndScreenLost
+      else (
+        coins := 0;
+        level := 1;
+        st |> State.change_screen Screen.EndScreenLost)
 
 (* [check_game_lost st] checks to see if the game is lost at the current game
    state *)
