@@ -135,8 +135,6 @@ let timer_spawns_zombie (st : State.t) =
 let coin_auto_increment (st : State.t) =
   if st.timer mod 2500 = 0 then coins := !coins + 25 else ()
 
-let coin_image = failwith "unimplemented"
-
 (* changes to the state that should happen, add pea shot and moving *)
 let tick (st : State.t) : State.t =
   st.timer <- st.timer + 25;
