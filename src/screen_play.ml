@@ -197,6 +197,8 @@ let rec zombies_on_board (rows : Board.row list) =
   | row :: rest_of_rows ->
       List.length row.zombies + zombies_on_board rest_of_rows
 
+(* [zombies_in_level level_number] is the amount of zombies that are in each
+   level *)
 let zombies_in_level level_number : int =
   match level_number with
   | 1 -> 10
@@ -213,15 +215,16 @@ let all_lvl_zombs_spawned (st : State.t) (level_number : int) : bool =
       = zombies_in_level level_number
   | _ -> failwith "have not implemented more levels"
 
+(* [change_level_screen st ] changes the state screen to the level_change
+   screen *)
 let change_level_screen (st : State.t) =
   match st.level with
   | 1 | 2 | 3 -> st.screen <- LevelChangeScreen
   | _ -> failwith "levels not implemented"
 
+(* [change_level st] determines if all zombies in that level were killed *)
 let change_level (st : State.t) =
-  if st.zombies_killed = zombies_in_level st.level then (
-    change_level_screen st;
-    ())
+  if st.zombies_killed = zombies_in_level st.level then change_level_screen st
   else ()
 
 (* changes to the state that should happen, add pea shot and moving *)

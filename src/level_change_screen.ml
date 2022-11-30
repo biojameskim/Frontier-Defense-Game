@@ -1,7 +1,8 @@
 open Gui_util
 
-(* [draw st ev] draws the pause screen. It has a resume button, a quit button,
-   and has text at the top saying that the game is paused *)
+(* [draw st ev] draws the level_change screen. It has a resume button, a quit
+   button, and has text at the top saying that the level is completed, and asks
+   if they are ready for the next level. *)
 let draw (st : State.t) ev =
   let on_resume _ =
     st.screen <- Screen.PlayScreen;
