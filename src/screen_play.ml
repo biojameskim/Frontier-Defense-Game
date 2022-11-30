@@ -2,16 +2,62 @@ open Gui_util
 open Characters
 module G = Graphics
 
+let coins = ref 0
+let level = ref 1
 let num_rows = 5
 let num_cols = 10
 
 let draw_dummy_graphic (x, y) str =
   draw_string_p (CenterPlace (x + 50, y + 50)) ~size:BigText str
 
+(* [get_plant_hp plant] gets the hp of the specific plant *)
+let get_plant_hp (plant : plant_type) : int =
+  match plant with
+  | PeaShooterPlant -> 100
+  | IcePeaShooterPlant -> 100
+  | WalnutPlant -> 300
+
 let get_plant_speed = function
   | PeaShooterPlant -> 5
   | IcePeaShooterPlant -> 5
   | WalnutPlant -> 0
+
+(* [can_buy plant] is whether they have enough coins to buy the plant *)
+let can_buy (plant : plant_type) : bool =
+  match plant with
+  | PeaShooterPlant -> !coins - 5 >= 0
+  | IcePeaShooterPlant -> !coins - 10 >= 0
+  | WalnutPlant -> !coins - 65 >= 0
+
+(* [decerement_coins plant] decrements the coin counter by the amount that the
+   defense costs *)
+let decrement_coins (plant : plant_type) : unit =
+  match plant with
+  | PeaShooterPlant -> coins := !coins - 5
+  | IcePeaShooterPlant -> coins := !coins - 10
+  | WalnutPlant -> coins := !coins - 65
+
+(*[ buy_from_shop ] handles clicking the shop boxes and placing if coins are
+  sufficient. *)
+let buy_from_shop (x, y) box st (cell : Board.cell) ev =
+  Events.add_clickable (get_box_corners box)
+    (fun st ->
+      match st.shop_selection with
+      | None -> st
+      | Some plant_type ->
+          if can_buy plant_type then (
+            cell.plant <-
+              Some
+                {
+                  hp = get_plant_hp plant_type;
+                  location = (x, y);
+                  plant_type;
+                  speed = get_plant_speed plant_type;
+                };
+            decrement_coins plant_type);
+          st.shop_selection <- None;
+          st)
+    ev
 
 (* draw single cell and add a clickable *)
 let draw_cell row col (x, y) st ev =
@@ -27,22 +73,7 @@ let draw_cell row col (x, y) st ev =
         | IcePeaShooterPlant -> "PI"
         | WalnutPlant -> "W")
   | None -> ());
-  Events.add_clickable (get_box_corners box)
-    (fun st ->
-      match st.shop_selection with
-      | None -> st
-      | Some plant_type ->
-          cell.plant <-
-            Some
-              {
-                hp = 100;
-                location = (x, y);
-                plant_type;
-                speed = get_plant_speed plant_type;
-              };
-          st.shop_selection <- None;
-          st)
-    ev
+  buy_from_shop (x, y) box st cell ev
 
 let draw_row (row : Board.row) (st : State.t) =
   row.zombies
@@ -77,9 +108,6 @@ let draw_shop_items ev =
   draw_shop_item 0 288 ev WalnutPlant;
   draw_shop_item 0 432 ev PeaShooterPlant
 
-let coins = ref 0
-let level = ref 1
-
 (* draws the grid *)
 let draw (st : State.t) ev =
   draw_grid
@@ -97,7 +125,7 @@ let draw (st : State.t) ev =
   draw_string_big (CenterPlace (105, 680)) (string_of_int !coins);
   draw_and_fill_circle ~color:Palette.coin_yellow 50 680 20;
   draw_string_big (CenterPlace (52, 680)) "$";
-  draw_string_big (CenterPlace (80, 615)) ("Level - " ^ string_of_int !level)
+  draw_string_big (CenterPlace (90, 615)) ("Level - " ^ string_of_int !level)
 
 (* [make_game_lost_list st] is the list of booleans (one boolean for each zombie
    that is true if the zombie is at the x position of the end of the lawn)*)
