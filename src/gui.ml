@@ -19,6 +19,7 @@ let rec handle_event (st : State.t) =
   | Screen.HomeScreen -> Screen_home.draw st ev
   | Screen.PlayScreen -> Screen_play.draw st ev
   | Screen.PauseScreen -> Screen_pause.draw st ev
+  | Screen.LevelChangeScreen -> Level_change_screen.draw st ev
   | Screen.EndScreenLost -> Screen_end_lost.draw st ev);
   (* makes contents of the screen update *)
   G.synchronize ();
@@ -29,6 +30,7 @@ let rec handle_event (st : State.t) =
     | Screen.HomeScreen -> Screen_home.tick st
     | Screen.PlayScreen -> Screen_play.tick st
     | Screen.PauseScreen -> Screen_pause.tick st
+    | Screen.LevelChangeScreen -> Level_change_screen.tick st
     | Screen.EndScreenLost -> Screen_end_lost.tick st
   in
   (* handle events like quitting *)

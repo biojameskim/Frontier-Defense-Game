@@ -34,16 +34,30 @@ let init_row row =
 (* calls the init_row function n_rows time *)
 let init () = { rows = List.init n_rows init_row }
 
-(*let random_zombie_generator (number : int) : zombie_type =*)
+(* [spawn_zombie number] is the zombie that spawns *)
+let spawn_zombie (number : int) : zombie_type =
+  match number with
+  | 0 -> RegularZombie
+  | 1 -> TrafficConeHeadZombie
+  | 2 -> BucketHeadZombie
+  | _ -> failwith "impossible"
+
+(* [spawn_zombie_by_level level] spawns zombies based on which level. Random.int
+   i chooses a random integer between 0 and (i - 1) inclusive *)
+let spawn_zombie_by_level (level : int) : zombie_type =
+  match level with
+  | 1 -> spawn_zombie 0
+  | 2 -> spawn_zombie (Random.int 2)
+  | 3 -> spawn_zombie (Random.int 3)
+  | _ -> failwith "levels not implemented"
 
 (* [spawn_zombie zombie_type t] spawns a zombie *)
-let spawn_zombie (zombie_type : zombie_type) (t : t) =
+let spawn_zombie (level : int) (t : t) =
   let row_id = Random.int 5 in
   let row = row_id |> List.nth t.rows in
   let new_zombie =
     {
-      zombie_type = RegularZombie;
-      (*random_zombie_generator (Random.int 3)*)
+      zombie_type = spawn_zombie_by_level level;
       hp = 10;
       damage = 1;
       location = (1280, row_id * 144);
