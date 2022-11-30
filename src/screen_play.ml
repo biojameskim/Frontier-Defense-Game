@@ -8,6 +8,12 @@ let num_cols = 10
 let draw_dummy_graphic (x, y) str =
   draw_string_p (CenterPlace (x + 50, y + 50)) ~size:BigText str
 
+let get_plant_cost (plant : plant_type) : int =
+  match plant with
+  | PeaShooterPlant -> 5
+  | IcePeaShooterPlant -> 10
+  | WalnutPlant -> 65
+
 (* [get_plant_hp plant] gets the hp of the specific plant *)
 let get_plant_hp (plant : plant_type) : int =
   match plant with
@@ -22,18 +28,12 @@ let get_plant_speed = function
 
 (* [can_buy plant] is whether they have enough coins to buy the plant *)
 let can_buy (st : State.t) (plant : plant_type) : bool =
-  match plant with
-  | PeaShooterPlant -> st.coins - 5 >= 0
-  | IcePeaShooterPlant -> st.coins - 10 >= 0
-  | WalnutPlant -> st.coins - 65 >= 0
+  st.coins - get_plant_cost plant >= 0
 
 (* [decerement_coins plant] decrements the coin counter by the amount that the
    defense costs *)
 let decrement_coins (st : State.t) (plant : plant_type) : unit =
-  match plant with
-  | PeaShooterPlant -> st.coins <- st.coins - 5
-  | IcePeaShooterPlant -> st.coins <- st.coins - 10
-  | WalnutPlant -> st.coins <- st.coins - 65
+  st.coins <- st.coins - get_plant_cost plant
 
 (*[ buy_from_shop ] handles clicking the shop boxes and placing if coins are
   sufficient. *)
@@ -51,6 +51,7 @@ let buy_from_shop (x, y) box st (cell : Board.cell) ev =
                   location = (x, y);
                   plant_type;
                   speed = get_plant_speed plant_type;
+                  cost = get_plant_cost plant_type;
                 };
             decrement_coins st plant_type);
           st.shop_selection <- None;
@@ -149,6 +150,7 @@ let rec is_game_not_lost (st : State.t) blist =
       else (
         st.coins <- 0;
         st.level <- 1;
+        st.zombies_killed <- 0;
         st |> State.change_screen Screen.EndScreenLost)
 
 (* [check_game_lost st] checks to see if the game is lost at the current game
@@ -168,7 +170,7 @@ let should_spawn_zombie (st : State.t) (level_number : int) : bool =
 (* [timer_spawns_zombie st] checks the timer to see if another zombie should be
    spawned. If the timer reaches a certain amount, then a zombie is spawned in a
    random row *)
-let timer_spawns_zombie (st : State.t) =
+let timer_spawns_zombie (st : State.t) : Board.t =
   if should_spawn_zombie st st.level then
     Board.spawn_zombie st.level { rows = st.board.rows }
   else { rows = st.board.rows }
@@ -185,13 +187,13 @@ let is_time_to_give_coins (level_number : int) (st : State.t) : bool =
 (* [coin_auto_increment st] increments the coin counter if the timer reaches a
    certain threshold. The amount of coins you get and the timer multiple needed
    depends on the level *)
-let coin_auto_increment (st : State.t) (level_number : int) =
+let coin_auto_increment (st : State.t) (level_number : int) : unit =
   if is_time_to_give_coins level_number st then st.coins <- st.coins + 25
   else ()
 
 (* [zombies_on_board rows] is the number of zombies on the board at that given
    screen *)
-let rec zombies_on_board (rows : Board.row list) =
+let rec zombies_on_board (rows : Board.row list) : int =
   match rows with
   | [] -> 0
   | row :: rest_of_rows ->

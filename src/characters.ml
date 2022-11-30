@@ -24,6 +24,7 @@ type plant = {
   speed : int;
   location : int * int;
   plant_type : plant_type;
+  cost : int;
 }
 
 type pea_type =
