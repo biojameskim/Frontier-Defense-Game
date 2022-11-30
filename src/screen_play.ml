@@ -129,7 +129,7 @@ let draw (st : State.t) ev =
 
 (* [make_game_lost_list st] is the list of booleans (one boolean for each zombie
    that is true if the zombie is at the x position of the end of the lawn)*)
-let make_game_lost_list (st : State.t) =
+let make_game_not_lost_list (st : State.t) =
   st.board.rows
   |> List.map (fun (row : Board.row) ->
          if row.zombies = [] then true
@@ -143,11 +143,11 @@ let make_game_lost_list (st : State.t) =
 (* [is_game_lost st blist] pattern matches over blist (the bool list made from
    make_game_lost_list) and if any are true then a zombie has reached the end of
    the lawn, and the state switches screens to the end_lost screen *)
-let rec is_game_lost (st : State.t) blist =
+let rec is_game_not_lost (st : State.t) blist =
   match blist with
   | [] -> st
   | h :: t ->
-      if h then is_game_lost st t
+      if h then is_game_not_lost st t
       else (
         coins := 0;
         level := 1;
@@ -155,7 +155,7 @@ let rec is_game_lost (st : State.t) blist =
 
 (* [check_game_lost st] checks to see if the game is lost at the current game
    state *)
-let check_game_lost st = is_game_lost st (make_game_lost_list st)
+let check_game_not_lost st = is_game_not_lost st (make_game_not_lost_list st)
 
 (* [timer_spawns_zombie st] checks the timer to see if another zombie should be
    spawned. If the timer reaches a certain amount, then a zombie is spawned in a
@@ -181,7 +181,7 @@ let tick (st : State.t) : State.t =
   in
 
   let st = { st with board = { st.board with rows = new_rows } } in
-  check_game_lost st
+  check_game_not_lost st
 
 let get_plant_being_eaten_by_zombie (row : Board.row) (zombie : zombie) :
     plant option =

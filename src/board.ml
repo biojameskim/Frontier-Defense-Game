@@ -34,6 +34,8 @@ let init_row row =
 (* calls the init_row function n_rows time *)
 let init () = { rows = List.init n_rows init_row }
 
+(*let random_zombie_generator (number : int) : zombie_type =*)
+
 (* [spawn_zombie zombie_type t] spawns a zombie *)
 let spawn_zombie (zombie_type : zombie_type) (t : t) =
   let row_id = Random.int 5 in
@@ -41,6 +43,7 @@ let spawn_zombie (zombie_type : zombie_type) (t : t) =
   let new_zombie =
     {
       zombie_type = RegularZombie;
+      (*random_zombie_generator (Random.int 3)*)
       hp = 10;
       damage = 1;
       location = (1280, row_id * 144);
