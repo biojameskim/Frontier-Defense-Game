@@ -1,9 +1,12 @@
 type t = {
   board : Board.t;
-  screen : Screen.t;
+  mutable screen : Screen.t;
   was_mouse_pressed : bool;
   mutable timer : int;
   mutable shop_selection : Characters.plant_type option;
+  mutable coins : int;
+  mutable level : int;
+  mutable zombies_killed : int;
 }
 
 let init () =
@@ -13,6 +16,9 @@ let init () =
     was_mouse_pressed = false;
     timer = 0;
     shop_selection = None;
+    coins = 0;
+    level = 1;
+    zombies_killed = 0;
   }
 
 let change_screen s t = { t with screen = s }
