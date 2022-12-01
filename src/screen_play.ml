@@ -10,7 +10,7 @@ let num_cols = 10
 let draw_dummy_graphic (x, y) str =
   draw_string_p (CenterPlace (x + 50, y + 50)) ~size:BigText str
 
-(* [get_plant_hp plant] gets the hp of the specific plant *)
+(** [get_plant_hp plant] gets the hp of the specific plant *)
 let get_plant_hp (plant : plant_type) : int =
   match plant with
   | PeaShooterPlant -> 100
@@ -22,23 +22,23 @@ let get_plant_speed = function
   | IcePeaShooterPlant -> 5
   | WalnutPlant -> 0
 
-(* [can_buy plant] is whether they have enough coins to buy the plant *)
+(** [can_buy plant] is whether they have enough coins to buy the plant *)
 let can_buy (plant : plant_type) : bool =
   match plant with
   | PeaShooterPlant -> !coins - 5 >= 0
   | IcePeaShooterPlant -> !coins - 10 >= 0
   | WalnutPlant -> !coins - 65 >= 0
 
-(* [decerement_coins plant] decrements the coin counter by the amount that the
-   defense costs *)
+(** [decerement_coins plant] decrements the coin counter by the amount that the
+    defense costs *)
 let decrement_coins (plant : plant_type) : unit =
   match plant with
   | PeaShooterPlant -> coins := !coins - 5
   | IcePeaShooterPlant -> coins := !coins - 10
   | WalnutPlant -> coins := !coins - 65
 
-(*[ buy_from_shop ] handles clicking the shop boxes and placing if coins are
-  sufficient. *)
+(**[ buy_from_shop ] handles clicking the shop boxes and placing if coins are
+   sufficient. *)
 let buy_from_shop (x, y) box st (cell : Board.cell) ev =
   Events.add_clickable (get_box_corners box)
     (fun st ->
@@ -59,7 +59,7 @@ let buy_from_shop (x, y) box st (cell : Board.cell) ev =
           st)
     ev
 
-(* draw single cell and add a clickable *)
+(** draw single cell and add a clickable *)
 let draw_cell row col (x, y) st ev =
   let cell = State.get_cell row col st in
   let box = CornerDimBox ((x, y), (1100 / num_cols, 720 / num_rows)) in
@@ -75,6 +75,7 @@ let draw_cell row col (x, y) st ev =
   | None -> ());
   buy_from_shop (x, y) box st cell ev
 
+(** [draw_row] draws the char that represents each character *)
 let draw_row (row : Board.row) (st : State.t) =
   row.zombies
   |> List.iter (fun { zombie_type; location } ->
@@ -93,7 +94,7 @@ let draw_row (row : Board.row) (st : State.t) =
            | RegularPea -> "P"
            | FreezePea -> "PF"))
 
-(* [draw_shop_items x y ev plant_type] draws the five boxes for the shop *)
+(** [draw_shop_items x y ev plant_type] draws the five boxes for the shop *)
 let draw_shop_item x y ev plant_type =
   let box = CornerDimBox ((x, y), (180, 144)) in
   draw_rect_b ~bg:Palette.brown box;
@@ -101,14 +102,14 @@ let draw_shop_item x y ev plant_type =
     (fun st -> { st with shop_selection = Some plant_type })
     ev
 
-(* [draw_shop_items] calls draw_shop_item five times *)
+(** [draw_shop_items] calls draw_shop_item five times *)
 let draw_shop_items ev =
   draw_shop_item 0 0 ev PeaShooterPlant;
   draw_shop_item 0 144 ev PeaShooterPlant;
   draw_shop_item 0 288 ev WalnutPlant;
   draw_shop_item 0 432 ev PeaShooterPlant
 
-(* draws the grid *)
+(** draws the grid *)
 let draw (st : State.t) ev =
   draw_grid
     (TopLeftPlace (180, 0))
@@ -127,8 +128,9 @@ let draw (st : State.t) ev =
   draw_string_big (CenterPlace (52, 680)) "$";
   draw_string_big (CenterPlace (90, 615)) ("Level - " ^ string_of_int !level)
 
-(* [make_game_lost_list st] is the list of booleans (one boolean for each zombie
-   that is true if the zombie is at the x position of the end of the lawn)*)
+(** [make_game_lost_list st] is the list of booleans (one boolean for each
+    zombie that is false if the zombie is at the x position of the end of the
+    lawn.)*)
 let make_game_lost_list (st : State.t) =
   st.board.rows
   |> List.map (fun (row : Board.row) ->
@@ -137,12 +139,12 @@ let make_game_lost_list (st : State.t) =
            List.for_all
              (fun (zombie : zombie) ->
                match zombie.location with
-               | x, y -> x > 150)
+               | x, y -> x > 50)
              row.zombies)
 
-(* [is_game_lost st blist] pattern matches over blist (the bool list made from
-   make_game_lost_list) and if any are true then a zombie has reached the end of
-   the lawn, and the state switches screens to the end_lost screen *)
+(** [is_game_lost st blist] pattern matches over blist (the bool list made from
+    make_game_lost_list) and if any are true then a zombie has reached the end
+    of the lawn, and the state switches screens to the end_lost screen *)
 let rec is_game_lost (st : State.t) blist =
   match blist with
   | [] -> st
@@ -153,35 +155,75 @@ let rec is_game_lost (st : State.t) blist =
         level := 1;
         st |> State.change_screen Screen.EndScreenLost)
 
-(* [check_game_lost st] checks to see if the game is lost at the current game
-   state *)
+(** [check_game_lost st] checks to see if the game is lost at the current game
+    state *)
 let check_game_lost st = is_game_lost st (make_game_lost_list st)
 
-(* [timer_spawns_zombie st] checks the timer to see if another zombie should be
-   spawned. If the timer reaches a certain amount, then a zombie is spawned in a
-   random row *)
+(** [timer_spawns_zombie st] checks the timer to see if another zombie should be
+    spawned. If the timer reaches a certain amount, then a zombie is spawned in
+    a random row *)
 let timer_spawns_zombie (st : State.t) =
   if st.timer mod 5000 = 0 then
     Board.spawn_zombie RegularZombie { rows = st.board.rows }
   else { rows = st.board.rows }
 
-(* [coin_auto_increment st] increments the coin counter if the timer reaches a
-   certain threshold *)
+(** [coin_auto_increment st] increments the coin counter if the timer reaches a
+    certain threshold *)
 let coin_auto_increment (st : State.t) =
   if st.timer mod 2500 = 0 then coins := !coins + 25 else ()
 
-(* changes to the state that should happen, add pea shot and moving *)
+(** Returns true if a zombie and a lawnmower have not collided. False if
+    collided. *)
+let check_z_lm_not_collided (row : Board.row) =
+  let lm =
+    match row.lawnmower with
+    | Some lmr -> lmr
+    | None -> failwith "TODO"
+  in
+  row.zombies |> List.for_all (fun (z : zombie) -> z.location > lm.location)
+
+(** changes to the state that should happen, add pea shot and moving *)
 let tick (st : State.t) : State.t =
   st.timer <- st.timer + 25;
   coin_auto_increment st;
   let new_rows =
-    (timer_spawns_zombie st).rows
+    let new_zombie_rows =
+      (timer_spawns_zombie st).rows
+      |> List.map (fun (row : Board.row) ->
+             {
+               row with
+               zombies = row.zombies |> List.map Characters.zombie_walk;
+             })
+    in
+
+    new_zombie_rows
     |> List.map (fun (row : Board.row) ->
-           { row with zombies = row.zombies |> List.map Characters.zombie_walk })
+           let lmwr =
+             match row.lawnmower with
+             | Some lm ->
+                 lm
+                 (* set it to a dummy lawnmower that won't do anything bc x is
+                    always 0 and never > 500 *)
+             | None -> { damage = 0; speed = 0; location = (0, 0); row = 0 }
+           in
+           let x, y = lmwr.location in
+           if x > 500 then row.lawnmower <- None;
+
+           if row.lawnmower <> None && not (check_z_lm_not_collided row) then
+             match row.lawnmower with
+             | Some lm -> lm.speed <- 10
+             | None -> failwith "Impossible Branch"
+           else ();
+
+           { row with lawnmower = Characters.lawnmower_walk row.lawnmower })
   in
 
   let st = { st with board = { st.board with rows = new_rows } } in
   check_game_lost st
+
+(* if row.lawnmower != None then check_zombie_lawnmower_collision row; let lm =
+   match row.lawnmower with | Some lmr -> lmr | None -> failwith "TODO" in let
+   x, y = lm.location in if x > 1280 then row.lawnmower <- None; *)
 
 let get_plant_being_eaten_by_zombie (row : Board.row) (zombie : zombie) :
     plant option =
