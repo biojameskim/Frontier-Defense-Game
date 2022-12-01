@@ -43,7 +43,7 @@ type pea = {
 
 type lawnmower = {
   damage : int;
-  speed : int;
+  mutable speed : int;
   location : int * int;
   row : int;
 }
@@ -58,3 +58,13 @@ type sun = {
 let zombie_walk (z : zombie) : zombie =
   let x, y = z.location in
   { z with location = (x - z.speed, y) }
+
+(** [lawnmower_walk] Returns a new record of the lawnmower with new distance.
+    This can be used to update the lawnmowers on the screen, making it appear as
+    if they are moving across the screen. *)
+let lawnmower_walk (l : lawnmower option) : lawnmower option =
+  match l with
+  | Some lm ->
+      let x, y = lm.location in
+      Some { lm with location = (x + lm.speed, y) }
+  | None -> None
