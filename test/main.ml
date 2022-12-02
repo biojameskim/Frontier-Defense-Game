@@ -81,6 +81,27 @@ let make_game_not_lost_list_test (name : string) (st : State.t)
     (expected_output : bool list) : test =
   name >:: fun _ -> assert_equal expected_output (make_game_not_lost_list st)
 
+let should_spawn_zombie_test (name : string) (st : State.t) (level : int)
+    (expected_output : bool) : test =
+  name >:: fun _ ->
+  assert_equal expected_output (should_spawn_zombie st st.level)
+
+let time_to_give_coins_test (name : string) (level : int) (st : State.t)
+    (expected_output : bool) : test =
+  name >:: fun _ ->
+  assert_equal expected_output (is_time_to_give_coins st.level st)
+
+let zombies_in_lvl_test (name : string) (level : int) (expected_output : int) :
+    test =
+  name >:: fun _ -> assert_equal expected_output (zombies_in_level level)
+
+let change_level_test (name : string) (st : State.t)
+    (expected_output : Screen.t) : test =
+  name >:: fun _ ->
+  assert_equal expected_output
+    (change_level st;
+     st.screen)
+
 let screen_play_tests =
   let init_state = State.init () in
   let changed_coin_amt = { init_state with coins = 50 } in
@@ -164,7 +185,7 @@ let screen_play_tests =
                         zombie_type = RegularZombie;
                         hp = 10;
                         damage = 1;
-                        location = (149, 100);
+                        location = (49, 100);
                         speed = 1;
                         frame = 0;
                       };
@@ -175,9 +196,30 @@ let screen_play_tests =
               ];
           };
       }
-      [ true; false ]
+      [ true; false ];
+    (let lvl_one_works = { init_state with timer = 5000 } in
+     should_spawn_zombie_test "level one, should spawn" lvl_one_works
+       lvl_one_works.level true);
+    (let lvl_one_does_not_work = { init_state with timer = 4999 } in
+     should_spawn_zombie_test "level one, should not spawn"
+       lvl_one_does_not_work lvl_one_does_not_work.level false);
+    (let lvl_two_works = { init_state with timer = 4000; level = 2 } in
+     should_spawn_zombie_test "level two, should spawn" lvl_two_works
+       lvl_two_works.level true);
+    (let lvl_one_coins_works = { init_state with timer = 2500 } in
+     time_to_give_coins_test "level one should give coins"
+       lvl_one_coins_works.level lvl_one_coins_works true);
+    (let lvl_one_coins_dont_work = { init_state with timer = 2600 } in
+     time_to_give_coins_test "level one should not give coins"
+       lvl_one_coins_dont_work.level lvl_one_coins_dont_work false);
+    (let lvl_three_coins_works = { init_state with timer = 3000; level = 3 } in
+     time_to_give_coins_test "level three should give coins"
+       lvl_three_coins_works.level lvl_three_coins_works true);
+    zombies_in_lvl_test "level 1 zombies" 1 10;
+    zombies_in_lvl_test "level 1 zombies" 2 25
+    (*(let (changed_level = {init_state with }))*)
     (* have not tested buy_from_shop, draw_cell or draw_row, stopped at
-       should_spawn_zombie *);
+       changed_level *);
   ]
 
 let tests =

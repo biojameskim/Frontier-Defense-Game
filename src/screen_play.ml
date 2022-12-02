@@ -184,7 +184,7 @@ let is_time_to_give_coins (level_number : int) (st : State.t) : bool =
   match level_number with
   | 1 -> st.timer mod 2500 = 0
   | 2 -> st.timer mod 2500 = 0
-  | 3 -> st.timer mod 2500 = 0
+  | 3 -> st.timer mod 3000 = 0
   | _ -> failwith "have not implemented more levels"
 
 (** [coin_auto_increment st] increments the coin counter if the timer reaches a
@@ -283,8 +283,8 @@ let tick (st : State.t) : State.t =
 
            { row with lawnmower = Characters.lawnmower_walk row.lawnmower })
   in
-
-  let st = { st with board = { st.board with rows = new_rows } } in
+  let (new_board : Board.t) = { rows = new_rows } in
+  let st = { st with board = new_board } in
   check_game_not_lost st
 
 (* if row.lawnmower != None then check_zombie_lawnmower_collision row; let lm =
