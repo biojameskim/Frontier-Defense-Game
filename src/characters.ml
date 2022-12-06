@@ -11,6 +11,7 @@ type zombie = {
   speed : int;
   frame : int;
   zombie_type : zombie_type;
+  width : int;
 }
 
 type plant_type =
@@ -26,6 +27,7 @@ type plant = {
   location : int * int;
   plant_type : plant_type;
   cost : int;
+  width : int;
 }
 
 type pea_type =
@@ -39,6 +41,7 @@ type pea = {
   damage : int;
   mutable location : int * int;
   speed : int;
+  width : int;
 }
 
 type lawnmower = {
@@ -46,6 +49,7 @@ type lawnmower = {
   mutable speed : int;
   location : int * int;
   row : int;
+  width : int;
 }
 
 type sun = {
@@ -73,8 +77,21 @@ let spawn_pea (pl : plant) : pea =
   match pl.plant_type with
   | WalnutPlant -> failwith "Cannot spawn a pea from a walnut plant"
   | IcePeaShooterPlant ->
-      { pea_type = FreezePea; damage = 1; location = pl.location; speed = 10 }
+      {
+        pea_type = FreezePea;
+        damage = 1;
+        location = pl.location;
+        speed = 10;
+        width = 5;
+      }
   | PeaShooterPlant ->
-      { pea_type = RegularPea; damage = 1; location = pl.location; speed = 10 }
+      {
+        pea_type = RegularPea;
+        damage = 1;
+        location = pl.location;
+        speed = 10;
+        width = 5;
+      }
 
-let pea_walk ({location = (x, y)} as p: pea) : unit = p.location <- (x + p.speed, y)
+let pea_walk ({ location = x, y } as p : pea) : unit =
+  p.location <- (x + p.speed, y)

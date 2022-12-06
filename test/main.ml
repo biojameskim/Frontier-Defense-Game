@@ -13,12 +13,14 @@ let trivial_tests =
           location = (0, 0);
           speed = 0;
           pea_type = FreezePea;
+          width = 15;
         }
         {
           damage = 0;
           location = (0, 0);
           speed = 0;
           pea_type = FreezePea;
+          width = 15;
         } );
   ]
 
@@ -141,6 +143,7 @@ let screen_play_tests =
                         location = (1280, 100);
                         speed = 1;
                         frame = 0;
+                        width = 50;
                       };
                     ];
                   peas = [];
@@ -168,6 +171,7 @@ let screen_play_tests =
                         location = (1280, 100);
                         speed = 1;
                         frame = 0;
+                        width = 15;
                       };
                     ];
                   peas = [];
@@ -184,6 +188,7 @@ let screen_play_tests =
                         location = (49, 100);
                         speed = 1;
                         frame = 0;
+                        width = 15;
                       };
                     ];
                   peas = [];

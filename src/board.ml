@@ -33,6 +33,7 @@ let init_row row_id =
           damage = 10000;
           location = (145, row_id * 144);
           row = row_id;
+          width = 50;
         };
   }
 
@@ -68,6 +69,7 @@ let spawn_zombie (level : int) (t : t) =
       location = (1280, row_id * 144);
       speed = 10;
       frame = 0;
+      width = 15;
     }
   in
   row.zombies <- new_zombie :: row.zombies;
