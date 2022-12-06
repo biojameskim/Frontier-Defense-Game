@@ -263,6 +263,10 @@ let tick (st : State.t) : State.t =
              })
     in
 
+    (* Make peas walk. *)
+    current_rows
+    |> List.iter (fun (row : Board.row) -> row.peas |> List.iter pea_walk);
+
     (* Make lawnmowers collide with zombies and walk. *)
     current_rows
     |> List.iter (fun (row : Board.row) ->
@@ -287,10 +291,30 @@ let tick (st : State.t) : State.t =
                         z.hp <- z.hp - 1000)
            | None -> ());
 
+    (* Shoot peas from plants. *)
+    current_rows
+    |> List.iter (fun (r : Board.row) ->
+           r.cells
+           |> List.iter (fun ({ plant } : Board.cell) ->
+                  match plant with
+                  | Some pl ->
+                      pl.timer <- pl.timer + 1;
+                      if pl.speed <> 0 && pl.timer mod pl.speed = 0 then (
+                        print_endline "spawn pea";
+                        r.peas <- Characters.spawn_pea pl :: r.peas)
+                  | None -> ()));
+
     (* Remove zombies with non-positive HP. *)
     current_rows
     |> List.iter (fun (r : Board.row) ->
            r.zombies <- r.zombies |> List.filter (fun (z : zombie) -> z.hp > 0));
+
+    (* Remove peas off the edge of the screen. *)
+    current_rows
+    |> List.iter
+         (fun (r : Board.row) ->
+           r.peas <-
+             r.peas |> List.filter (fun ({ location = x, _ } : pea) -> x < 1280));
 
     current_rows
   in

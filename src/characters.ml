@@ -68,3 +68,13 @@ let lawnmower_walk (l : lawnmower option) : lawnmower option =
       let x, y = lm.location in
       Some { lm with location = (x + lm.speed, y) }
   | None -> None
+
+let spawn_pea (pl : plant) : pea =
+  match pl.plant_type with
+  | WalnutPlant -> failwith "Cannot spawn a pea from a walnut plant"
+  | IcePeaShooterPlant ->
+      { pea_type = FreezePea; damage = 1; location = pl.location; speed = 10 }
+  | PeaShooterPlant ->
+      { pea_type = RegularPea; damage = 1; location = pl.location; speed = 10 }
+
+let pea_walk ({location = (x, y)} as p: pea) : unit = p.location <- (x + p.speed, y)
