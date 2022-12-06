@@ -22,6 +22,7 @@ type plant_type =
 type plant = {
   hp : int;
   speed : int;
+  mutable timer : int;
   location : int * int;
   plant_type : plant_type;
   cost : int;
@@ -36,10 +37,8 @@ type pea_type =
 type pea = {
   pea_type : pea_type;
   damage : int;
-  location : int * int;
+  mutable location : int * int;
   speed : int;
-  speedChange : int;
-  row : int;
 }
 
 type lawnmower = {
