@@ -28,22 +28,23 @@ let get_plant_speed = function
   | IcePeaShooterPlant -> 50
   | WalnutPlant -> 0
 
+(** [get_plant_width plant_type] gets the width of the plant *)
 let get_plant_width = function
   | PeaShooterPlant -> 15
   | IcePeaShooterPlant -> 15
   | WalnutPlant -> 15
 
-(* [can_buy plant] is whether they have enough coins to buy the plant *)
+(** [can_buy plant st plant] is whether they have enough coins to buy the plant *)
 let can_buy (st : State.t) (plant : plant_type) : bool =
   st.coins - get_plant_cost plant >= 0
 
-(* [decerement_coins plant] decrements the coin counter by the amount that the
-   defense costs *)
+(** [decrement_coins st plant] decrements the coin counter by the amount that
+    the defense costs *)
 let decrement_coins (st : State.t) (plant : plant_type) : unit =
   st.coins <- st.coins - get_plant_cost plant
 
-(**[ buy_from_shop ] handles clicking the shop boxes and placing if coins are
-   sufficient. *)
+(** [buy_from_shop (x,y) box st cell] handles clicking the shop boxes and
+    placing if coins are sufficient. *)
 let buy_from_shop (x, y) box st (cell : Board.cell) ev =
   Events.add_clickable (get_box_corners box)
     (fun st ->
@@ -67,7 +68,7 @@ let buy_from_shop (x, y) box st (cell : Board.cell) ev =
           st)
     ev
 
-(** draw single cell and add a clickable *)
+(** [draw_cell row col (x,y) st ev] draw single cell and add a clickable *)
 let draw_cell row col (x, y) st ev =
   let cell = State.get_cell row col st in
   let box = CornerDimBox ((x, y), (1100 / num_cols, 720 / num_rows)) in
@@ -83,7 +84,7 @@ let draw_cell row col (x, y) st ev =
   | None -> ());
   buy_from_shop (x, y) box st cell ev
 
-(** [draw_row] draws the char that represents each character *)
+(** [draw_row row st] draws the char that represents each character *)
 let draw_row (row : Board.row) (st : State.t) =
   row.zombies
   |> List.iter (fun { zombie_type; location } ->
@@ -117,7 +118,7 @@ let draw_shop_items ev =
   draw_shop_item 0 288 ev WalnutPlant;
   draw_shop_item 0 432 ev IcePeaShooterPlant
 
-(** draws the grid *)
+(** [draw st ev] draws the grid *)
 let draw (st : State.t) ev =
   draw_grid
     (TopLeftPlace (180, 0))
@@ -202,16 +203,16 @@ let coin_auto_increment (st : State.t) (level_number : int) : unit =
   if is_time_to_give_coins level_number st then st.coins <- st.coins + 25
   else ()
 
-(* [zombies_on_board rows] is the number of zombies on the board at that given
-   screen *)
+(** [zombies_on_board rows] is the number of zombies on the board at that given
+    screen *)
 let rec zombies_on_board (rows : Board.row list) : int =
   match rows with
   | [] -> 0
   | row :: rest_of_rows ->
       List.length row.zombies + zombies_on_board rest_of_rows
 
-(* [zombies_in_level level_number] is the amount of zombies that are in each
-   level *)
+(** [zombies_in_level level_number] is the amount of zombies that are in each
+    level *)
 let zombies_in_level level_number : int =
   match level_number with
   | 1 -> 10
@@ -219,8 +220,8 @@ let zombies_in_level level_number : int =
   | 3 -> 50
   | _ -> failwith "have not implemented more levels "
 
-(* [all_lvl_zombs_spawned st level_number ] is if all zombies for that level are
-   on the board or have been killed *)
+(** [all_lvl_zombs_spawned st level_number] is if all zombies for that level are
+    on the board or have been killed *)
 let all_lvl_zombs_spawned (st : State.t) (level_number : int) : bool =
   match level_number with
   | 1 | 2 | 3 ->
@@ -228,24 +229,24 @@ let all_lvl_zombs_spawned (st : State.t) (level_number : int) : bool =
       = zombies_in_level level_number
   | _ -> failwith "have not implemented more levels"
 
-(* [change_level_screen st ] changes the state screen to the level_change
-   screen *)
+(** [change_level_screen st] changes the state screen to the level_change screen *)
 let change_level_screen (st : State.t) =
   match st.level with
   | 1 | 2 | 3 -> st.screen <- LevelChangeScreen
   | _ -> failwith "levels not implemented"
 
-(* [change_level st] determines if all zombies in that level were killed *)
+(** [change_level st] determines if all zombies in that level were killed *)
 let change_level (st : State.t) =
   if st.zombies_killed = zombies_in_level st.level then change_level_screen st
   else ()
 
-(* Check whether a zombie is colliding with an entity. *)
+(** [is_zombie_colliding_with_entity entity_x entity_width zombie] Check whether
+    a zombie is colliding with an entity. *)
 let is_zombie_colliding_with_entity (entity_x : int) (entity_width : int)
     ({ location = zombie_x, _; width = zombie_width } : zombie) : bool =
   abs (zombie_x - entity_x) < (entity_width / 2) + (zombie_width / 2)
 
-(** changes to the state that should happen, add pea shot and moving *)
+(** [tick st] refreshes and updates the state of the game *)
 let tick (st : State.t) : State.t =
   (* Increment the timer, add free coins, and change the level if necessary. *)
   st.timer <- st.timer + 1;
@@ -329,10 +330,6 @@ let tick (st : State.t) : State.t =
 
   (* Finally, change the state if the game is lost. *)
   check_game_not_lost st
-
-(* if row.lawnmower != None then check_zombie_lawnmower_collision row; let lm =
-   match row.lawnmower with | Some lmr -> lmr | None -> failwith "TODO" in let
-   x, y = lm.location in if x > 1280 then row.lawnmower <- None; *)
 
 let get_plant_being_eaten_by_zombie (row : Board.row) (zombie : zombie) :
     plant option =
