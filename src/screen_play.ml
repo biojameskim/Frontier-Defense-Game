@@ -232,29 +232,29 @@ let change_level (st : State.t) =
   if st.zombies_killed = zombies_in_level st.level then change_level_screen st
   else ()
 
-(** Returns true if a zombie and a lawnmower have not collided. False if
-    collided. *)
-let check_z_lm_not_collided (row : Board.row) =
-  let lm =
-    match row.lawnmower with
-    | Some lmr -> lmr
-    | None -> failwith "TODO"
-  in
-  row.zombies |> List.for_all (fun (z : zombie) -> z.location > lm.location)
+(* Check whether a zombie is colliding with an entity. *)
+let is_zombie_colliding_with_entity (entity_x : int) (entity_width : int)
+    ({ location = zombie_x, _ } : zombie) : bool =
+  let zombie_width = 15 (* TODO change later *) in
+  abs (zombie_x - entity_x) < entity_width + zombie_width
 
 (** changes to the state that should happen, add pea shot and moving *)
 let tick (st : State.t) : State.t =
+  (* Increment the timer, add free coins, and change the level if necessary. *)
   st.timer <- st.timer + 25;
   coin_auto_increment st st.level;
   change_level st;
+
   let new_rows =
-    let current_board =
+    (* Spawn zombies. *)
+    let current_rows =
       if all_lvl_zombs_spawned st st.level then st.board.rows
       else (timer_spawns_zombie st).rows
     in
 
-    let new_zombie_rows =
-      current_board
+    (* Make zombies walk. *)
+    let current_rows =
+      current_rows
       |> List.map (fun (row : Board.row) ->
              {
                row with
@@ -262,29 +262,43 @@ let tick (st : State.t) : State.t =
              })
     in
 
-    new_zombie_rows
-    |> List.map (fun (row : Board.row) ->
-           let lmwr =
-             match row.lawnmower with
-             | Some lm ->
-                 lm
-                 (* set it to a dummy lawnmower that won't do anything bc x is
-                    always 0 and never > 500 *)
-             | None -> { damage = 0; speed = 0; location = (0, 0); row = 0 }
-           in
-           let x, y = lmwr.location in
-           if x > 500 then row.lawnmower <- None;
+    (* Make lawnmowers collide with zombies and walk. *)
+    current_rows
+    |> List.iter (fun (row : Board.row) ->
+           (match row.lawnmower with
+           | Some lm ->
+               let x, _ = lm.location in
+               if x > 500 then row.lawnmower <- None
+               else if
+                 List.exists (is_zombie_colliding_with_entity x 50) row.zombies
+               then lm.speed <- 10
+           | None -> ());
+           row.lawnmower <- Characters.lawnmower_walk row.lawnmower);
 
-           if row.lawnmower <> None && not (check_z_lm_not_collided row) then
-             match row.lawnmower with
-             | Some lm -> lm.speed <- 10
-             | None -> failwith "Impossible Branch"
-           else ();
+    (* Kill zombies that hit lawnmowers. *)
+    current_rows
+    |> List.iter (fun ({ lawnmower; zombies } : Board.row) ->
+           match lawnmower with
+           | Some { location = x, _ } ->
+               zombies
+               |> List.iter (fun z ->
+                      if is_zombie_colliding_with_entity x 50 z then
+                        z.hp <- z.hp - 1000)
+           | None -> ());
 
-           { row with lawnmower = Characters.lawnmower_walk row.lawnmower })
+    (* Remove zombies with non-positive HP. *)
+    current_rows
+    |> List.iter (fun (r : Board.row) ->
+           r.zombies <- r.zombies |> List.filter (fun (z : zombie) -> z.hp > 0));
+
+    current_rows
   in
+
+  (* Create new state. *)
   let (new_board : Board.t) = { rows = new_rows } in
   let st = { st with board = new_board } in
+
+  (* Finally, change the state if the game is lost. *)
   check_game_not_lost st
 
 (* if row.lawnmower != None then check_zombie_lawnmower_collision row; let lm =

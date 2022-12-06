@@ -5,7 +5,7 @@ type zombie_type =
   | BucketHeadZombie
 
 type zombie = {
-  hp : int;
+  mutable hp : int;
   damage : int;
   location : int * int;
   speed : int;
