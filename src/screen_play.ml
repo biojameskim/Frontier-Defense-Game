@@ -15,17 +15,23 @@ let get_plant_cost (plant : plant_type) : int =
   | IcePeaShooterPlant -> 10
   | WalnutPlant -> 65
 
-(* [get_plant_hp plant] gets the hp of the specific plant *)
+(** [get_plant_hp plant] gets the hp of the specific plant *)
 let get_plant_hp (plant : plant_type) : int =
   match plant with
   | PeaShooterPlant -> 100
   | IcePeaShooterPlant -> 100
   | WalnutPlant -> 300
 
+(** [get_plant_speed plant_type] gets the speed of the plant *)
 let get_plant_speed = function
   | PeaShooterPlant -> 50
   | IcePeaShooterPlant -> 50
   | WalnutPlant -> 0
+
+let get_plant_width = function
+  | PeaShooterPlant -> 15
+  | IcePeaShooterPlant -> 15
+  | WalnutPlant -> 15
 
 (* [can_buy plant] is whether they have enough coins to buy the plant *)
 let can_buy (st : State.t) (plant : plant_type) : bool =
@@ -54,6 +60,7 @@ let buy_from_shop (x, y) box st (cell : Board.cell) ev =
                   speed = get_plant_speed plant_type;
                   cost = get_plant_cost plant_type;
                   timer = 0;
+                  width = get_plant_width plant_type;
                 };
             decrement_coins st plant_type);
           st.shop_selection <- None;
@@ -235,9 +242,8 @@ let change_level (st : State.t) =
 
 (* Check whether a zombie is colliding with an entity. *)
 let is_zombie_colliding_with_entity (entity_x : int) (entity_width : int)
-    ({ location = zombie_x, _ } : zombie) : bool =
-  let zombie_width = 15 (* TODO change later *) in
-  abs (zombie_x - entity_x) < entity_width + zombie_width
+    ({ location = zombie_x, _; width = zombie_width } : zombie) : bool =
+  abs (zombie_x - entity_x) < (entity_width / 2) + (zombie_width / 2)
 
 (** changes to the state that should happen, add pea shot and moving *)
 let tick (st : State.t) : State.t =
@@ -248,14 +254,14 @@ let tick (st : State.t) : State.t =
 
   let new_rows =
     (* Spawn zombies. *)
-    let current_rows =
+    let spawn_zombie_rows =
       if all_lvl_zombs_spawned st st.level then st.board.rows
       else (timer_spawns_zombie st).rows
     in
 
     (* Make zombies walk. *)
     let current_rows =
-      current_rows
+      spawn_zombie_rows
       |> List.map (fun (row : Board.row) ->
              {
                row with
@@ -272,7 +278,7 @@ let tick (st : State.t) : State.t =
            (match row.lawnmower with
            | Some lm ->
                let x, _ = lm.location in
-               if x > 500 then row.lawnmower <- None
+               if x > 1280 then row.lawnmower <- None
                else if
                  List.exists (is_zombie_colliding_with_entity x 50) row.zombies
                then lm.speed <- 10
