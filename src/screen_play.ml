@@ -23,8 +23,8 @@ let get_plant_hp (plant : plant_type) : int =
   | WalnutPlant -> 300
 
 let get_plant_speed = function
-  | PeaShooterPlant -> 5
-  | IcePeaShooterPlant -> 5
+  | PeaShooterPlant -> 50
+  | IcePeaShooterPlant -> 50
   | WalnutPlant -> 0
 
 (* [can_buy plant] is whether they have enough coins to buy the plant *)
@@ -53,6 +53,7 @@ let buy_from_shop (x, y) box st (cell : Board.cell) ev =
                   plant_type;
                   speed = get_plant_speed plant_type;
                   cost = get_plant_cost plant_type;
+                  timer = 0;
                 };
             decrement_coins st plant_type);
           st.shop_selection <- None;
@@ -69,9 +70,9 @@ let draw_cell row col (x, y) st ev =
   | Some { plant_type } ->
       draw_dummy_graphic (x, y)
         (match plant_type with
-        | PeaShooterPlant -> "P"
-        | IcePeaShooterPlant -> "PI"
-        | WalnutPlant -> "W")
+        | PeaShooterPlant -> "[P]"
+        | IcePeaShooterPlant -> "[PI]"
+        | WalnutPlant -> "[W]")
   | None -> ());
   buy_from_shop (x, y) box st cell ev
 
@@ -91,8 +92,8 @@ let draw_row (row : Board.row) (st : State.t) =
   |> List.iter (fun { location; pea_type } ->
          draw_dummy_graphic location
            (match pea_type with
-           | RegularPea -> "P"
-           | FreezePea -> "PF"))
+           | RegularPea -> "."
+           | FreezePea -> ".F"))
 
 (** [draw_shop_items x y ev plant_type] draws the five boxes for the shop *)
 let draw_shop_item x y ev plant_type =
@@ -107,7 +108,7 @@ let draw_shop_items ev =
   draw_shop_item 0 0 ev PeaShooterPlant;
   draw_shop_item 0 144 ev PeaShooterPlant;
   draw_shop_item 0 288 ev WalnutPlant;
-  draw_shop_item 0 432 ev PeaShooterPlant
+  draw_shop_item 0 432 ev IcePeaShooterPlant
 
 (** draws the grid *)
 let draw (st : State.t) ev =
@@ -182,9 +183,9 @@ let timer_spawns_zombie (st : State.t) : Board.t =
     threshold. It depends on the level if we want it to *)
 let is_time_to_give_coins (level_number : int) (st : State.t) : bool =
   match level_number with
-  | 1 -> st.timer mod 2500 = 0
-  | 2 -> st.timer mod 2500 = 0
-  | 3 -> st.timer mod 3000 = 0
+  | 1 -> st.timer mod 100 = 0
+  | 2 -> st.timer mod 100 = 0
+  | 3 -> st.timer mod 120 = 0
   | _ -> failwith "have not implemented more levels"
 
 (** [coin_auto_increment st] increments the coin counter if the timer reaches a
@@ -241,7 +242,7 @@ let is_zombie_colliding_with_entity (entity_x : int) (entity_width : int)
 (** changes to the state that should happen, add pea shot and moving *)
 let tick (st : State.t) : State.t =
   (* Increment the timer, add free coins, and change the level if necessary. *)
-  st.timer <- st.timer + 25;
+  st.timer <- st.timer + 1;
   coin_auto_increment st st.level;
   change_level st;
 

@@ -12,16 +12,12 @@ let trivial_tests =
           damage = 0;
           location = (0, 0);
           speed = 0;
-          speedChange = 0;
-          row = 1;
           pea_type = FreezePea;
         }
         {
           damage = 0;
           location = (0, 0);
           speed = 0;
-          speedChange = 0;
-          row = 1;
           pea_type = FreezePea;
         } );
   ]
