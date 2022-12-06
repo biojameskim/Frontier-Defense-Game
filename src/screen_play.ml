@@ -166,9 +166,9 @@ let check_game_not_lost st = is_game_not_lost st (make_game_not_lost_list st)
     zombie is spawned in a random row. This is based on levels *)
 let should_spawn_zombie (st : State.t) (level_number : int) : bool =
   match level_number with
-  | 1 -> st.timer mod 5000 = 0
-  | 2 -> st.timer mod 4000 = 0
-  | 3 -> st.timer mod 2000 = 0
+  | 1 -> st.timer mod 100 = 0
+  | 2 -> st.timer mod 200 = 0
+  | 3 -> st.timer mod 200 = 0
   | _ -> failwith "have not implemented those levels"
 
 (** [timer_spawns_zombie st] checks the timer to see if another zombie should be
@@ -262,7 +262,6 @@ let tick (st : State.t) : State.t =
                zombies = row.zombies |> List.map Characters.zombie_walk;
              })
     in
-
     (* Make peas walk. *)
     current_rows
     |> List.iter (fun (row : Board.row) -> row.peas |> List.iter pea_walk);
@@ -311,8 +310,7 @@ let tick (st : State.t) : State.t =
 
     (* Remove peas off the edge of the screen. *)
     current_rows
-    |> List.iter
-         (fun (r : Board.row) ->
+    |> List.iter (fun (r : Board.row) ->
            r.peas <-
              r.peas |> List.filter (fun ({ location = x, _ } : pea) -> x < 1280));
 
