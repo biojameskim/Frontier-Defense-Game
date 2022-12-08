@@ -113,8 +113,8 @@ let screen_play_tests =
     get_plant_hp_test "hp - PeaShooterPlant" PeaShooterPlant 100;
     get_plant_hp_test "hp - IcePeaShooterPlant" IcePeaShooterPlant 100;
     get_plant_hp_test "hp - WalnutPlant" WalnutPlant 300;
-    get_plant_speed_test "speed - PeaShooterPlant" PeaShooterPlant 5;
-    get_plant_speed_test "speed - IcePeaShooterPlant" IcePeaShooterPlant 5;
+    get_plant_speed_test "speed - PeaShooterPlant" PeaShooterPlant 50;
+    get_plant_speed_test "speed - IcePeaShooterPlant" IcePeaShooterPlant 50;
     get_plant_speed_test "speed - WalnutPlant" WalnutPlant 0;
     can_buy_test "not enough money" init_state PeaShooterPlant false;
     can_buy_test "enough money" changed_coin_amt PeaShooterPlant true;
@@ -210,7 +210,7 @@ let screen_play_tests =
     (let lvl_one_coins_works = { init_state with timer = 2500 } in
      time_to_give_coins_test "level one should give coins"
        lvl_one_coins_works.level lvl_one_coins_works true);
-    (let lvl_one_coins_dont_work = { init_state with timer = 2600 } in
+    (let lvl_one_coins_dont_work = { init_state with timer = 150 } in
      time_to_give_coins_test "level one should not give coins"
        lvl_one_coins_dont_work.level lvl_one_coins_dont_work false);
     (let lvl_three_coins_works = { init_state with timer = 3000; level = 3 } in
