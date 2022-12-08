@@ -7,6 +7,7 @@ type t = {
   mutable coins : int;
   mutable level : int;
   mutable zombies_killed : int;
+  images : Gui_util.gui_images;
 }
 
 let init () =
@@ -19,6 +20,7 @@ let init () =
     coins = 0;
     level = 1;
     zombies_killed = 0;
+    images = Gui_util.get_images ();
   }
 
 let change_screen s t = { t with screen = s }

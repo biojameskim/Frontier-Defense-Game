@@ -46,10 +46,10 @@ let rec handle_event (st : State.t) =
 
 (* launches the game, handle event waits for you to do something, and then it
    happens *)
-let launch (st : State.t) =
+let launch () =
   (* Do not use [G.open_graph "800x600"]; it will crash on Linux *)
   G.open_graph "";
   G.set_window_title "Plants vs. Zombies";
   G.resize_window 1280 720;
   G.auto_synchronize false;
-  handle_event st
+  handle_event (State.init ())
