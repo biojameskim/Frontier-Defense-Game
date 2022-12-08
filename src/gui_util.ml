@@ -1,10 +1,5 @@
 module G = Graphics
 
-type gui_images = {
-  rifle_soldier : Graphics.image;
-  base : Graphics.image;
-}
-
 type text_size =
   | GiantText
   | BigText
@@ -187,35 +182,3 @@ let rec color_grid_alternate (window_x : int) (window_y : int) (num_cols : int)
     G.fill_rect curr_x 0 width window_y;
     color_grid_alternate window_x window_y num_cols (curr_x + (width * 2)))
   else G.fill_rect 0 0 0 0
-
-(** [array_of_img img] converts images to bitmaps compatible with the Graphics
-    module. This code is copied from the CamlImages package and adapted to
-    support RGBA32 images. *)
-let array_of_img (img : Images.t) =
-  match img with
-  | Images.Rgb24 bitmap ->
-      let w = bitmap.Rgb24.width and h = bitmap.Rgb24.height in
-      Array.init h (fun i ->
-          Array.init w (fun j ->
-              let ({ r; g; b } : Color.rgb) = Rgb24.unsafe_get bitmap j i in
-              Graphics.rgb r g b))
-  | Images.Rgba32 bitmap ->
-      let w = bitmap.Rgba32.width and h = bitmap.Rgba32.height in
-      Array.init h (fun i ->
-          Array.init w (fun j ->
-              let ({ color = { r; g; b } } : Color.rgba) =
-                Rgba32.unsafe_get bitmap j i
-              in
-              Graphics.rgb r g b))
-  | _ -> failwith "Unsupported image format"
-
-(** [get_images ()] loads all images used by the GUI and returns them to be
-    added to the state. **)
-let get_images () : gui_images =
-  let get_image path =
-    Images.load path [] |> array_of_img |> Graphics.make_image
-  in
-  {
-    rifle_soldier = get_image "images/soldiers/rifle_soldier.png";
-    base = get_image "images/soldiers/base.png";
-  }
