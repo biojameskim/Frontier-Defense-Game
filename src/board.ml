@@ -31,7 +31,7 @@ let init_row row_id =
         {
           speed = 0;
           damage = 10000;
-          location = (145, row_id * 144);
+          location = (185, (720 / num_rows / 2) + (row_id * (720 / num_rows)));
           row = row_id;
           width = 50;
         };

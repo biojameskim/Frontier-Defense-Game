@@ -31,7 +31,7 @@ type dim = int * int
 
 type placement =
   | CenterPlace of point
-  | TopLeftPlace of point
+  | BottomLeftPlace of point
   | CenterLeftPlace of point
   | TopCenterPlace of point
 
@@ -51,7 +51,7 @@ let rec get_box_corners = function
       match p with
       | CenterPlace (x, y) ->
           get_box_corners (CornerDimBox ((x - (w / 2), y - (h / 2)), dim))
-      | TopLeftPlace (x, y) -> get_box_corners (CornerDimBox ((x, y), dim))
+      | BottomLeftPlace (x, y) -> get_box_corners (CornerDimBox ((x, y), dim))
       | CenterLeftPlace (x, y) ->
           get_box_corners (CornerDimBox ((x, y - (h / 2)), dim))
       | TopCenterPlace (x, y) ->
@@ -182,3 +182,10 @@ let rec color_grid_alternate (window_x : int) (window_y : int) (num_cols : int)
     G.fill_rect curr_x 0 width window_y;
     color_grid_alternate window_x window_y num_cols (curr_x + (width * 2)))
   else G.fill_rect 0 0 0 0
+
+(** [draw_image_with_placement image w h placement] draws a Graphics.image given
+    a width, height, and a placement *)
+let draw_image_with_placement (image : G.image) w h (placement : placement) =
+  let box = PlacedBox (placement, (w, h)) in
+  let (x, y), _ = get_box_corners box in
+  G.draw_image image x y

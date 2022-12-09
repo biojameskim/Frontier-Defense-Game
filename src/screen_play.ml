@@ -99,7 +99,8 @@ let draw_row (row : Board.row) (st : State.t) =
            | BucketHeadZombie -> st.images.shield_enemy_1)
            x y);
   (match row.lawnmower with
-  | Some { location = x, y } -> Graphics.draw_image st.images.horse x y
+  | Some { location = x, y } ->
+      draw_image_with_placement st.images.horse 100 70 (CenterPlace (x, y))
   | None -> ());
   row.peas
   |> List.iter (fun { location; pea_type } ->
@@ -126,7 +127,7 @@ let draw_shop_items ev =
 (** [draw st ev] draws the grid *)
 let draw (st : State.t) ev =
   draw_grid
-    (TopLeftPlace (180, 0))
+    (BottomLeftPlace (180, 0))
     num_cols num_rows (1100 / num_cols) (720 / num_rows)
     (fun row col (x, y) -> draw_cell row col (x, y) st ev);
   st.board.rows |> List.iter (fun row -> draw_row row st);
