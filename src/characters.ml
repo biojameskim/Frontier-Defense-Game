@@ -17,6 +17,7 @@ type plant_type =
   | PeaShooterPlant
   | IcePeaShooterPlant
   | WalnutPlant
+  | SunflowerPlant
 
 (* speed is the speed of how fast the plant shoots per state *)
 type plant = {
@@ -75,6 +76,7 @@ let lawnmower_walk (l : lawnmower option) : lawnmower option =
 (** [spawn_pea plant] Returns a pea based on the type of the plant *)
 let spawn_pea (pl : plant) : pea =
   match pl.plant_type with
+  | SunflowerPlant -> failwith "Cannot spawn a pea from a sunflower plant"
   | WalnutPlant -> failwith "Cannot spawn a pea from a walnut plant"
   | IcePeaShooterPlant ->
       {

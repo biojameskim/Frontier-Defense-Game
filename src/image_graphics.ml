@@ -28,7 +28,8 @@ let array_of_image img red green blue =
   | _ -> failwith "Filetype not supported"
 
 (* Takes Images.t and make it into an image that Graphics can use *)
-let to_image img = Graphics.make_image (array_of_image img 92 199 70)
+let to_image img r g b = Graphics.make_image (array_of_image img r g b)
 
 (* Draw an image *)
-let draw_image (x : int) (y : int) img = Graphics.draw_image (to_image img) x y
+let draw_image (x : int) (y : int) img r g b =
+  Graphics.draw_image (to_image img r g b) x y

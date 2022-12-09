@@ -13,6 +13,7 @@ let draw_dummy_graphic (x, y) str =
 (** [get_plant_cost plant] gets the cost of the specific plant *)
 let get_plant_cost (plant : plant_type) : int =
   match plant with
+  | SunflowerPlant -> 5
   | PeaShooterPlant -> 5
   | IcePeaShooterPlant -> 10
   | WalnutPlant -> 65
@@ -20,18 +21,21 @@ let get_plant_cost (plant : plant_type) : int =
 (** [get_plant_hp plant] gets the hp of the specific plant *)
 let get_plant_hp (plant : plant_type) : int =
   match plant with
+  | SunflowerPlant -> 50
   | PeaShooterPlant -> 100
   | IcePeaShooterPlant -> 100
   | WalnutPlant -> 300
 
 (** [get_plant_speed plant_type] gets the speed of the plant *)
 let get_plant_speed = function
+  | SunflowerPlant -> 0
   | PeaShooterPlant -> 50
   | IcePeaShooterPlant -> 50
   | WalnutPlant -> 0
 
 (** [get_plant_width plant_type] gets the width of the plant *)
 let get_plant_width = function
+  | SunflowerPlant -> 15
   | PeaShooterPlant -> 15
   | IcePeaShooterPlant -> 15
   | WalnutPlant -> 15
@@ -82,7 +86,8 @@ let draw_cell row col (x, y) st ev =
         (match plant_type with
         | PeaShooterPlant -> st.images.rifle_soldier
         | IcePeaShooterPlant -> st.images.rocket_launcher_soldier
-        | WalnutPlant -> st.images.shield_soldier)
+        | WalnutPlant -> st.images.shield_soldier
+        | SunflowerPlant -> st.images.base)
         x y
   | None -> ());
   buy_from_shop (x, y) box st cell ev
@@ -120,19 +125,34 @@ let draw_row (row : Board.row) (st : State.t) =
     shop *)
 let draw_shop_item img w h x y ev plant_type =
   let box = CornerDimBox ((x, y), (180, 144)) in
-  draw_rect_b ~bg:Palette.brown box;
-  draw_image_with_placement img w h (BottomLeftPlace (x, y));
+  draw_rect_b ~bg:Palette.plant_shop_brown box;
+  draw_image_with_placement img w h (BottomLeftPlace (x + 35, y + 25));
   Events.add_clickable (get_box_corners box)
     (fun st -> { st with shop_selection = Some plant_type })
     ev
 
 (** [draw_shop_items st ev] calls draw_shop_item five times *)
 let draw_shop_items (st : State.t) ev =
-  draw_shop_item st.images.rifle_soldier 83 100 0 0 ev PeaShooterPlant;
-  draw_shop_item st.images.rifle_soldier 83 100 0 144 ev PeaShooterPlant;
-  draw_shop_item st.images.shield_soldier 58 100 0 288 ev WalnutPlant;
-  draw_shop_item st.images.rocket_launcher_soldier 76 100 0 432 ev
-    IcePeaShooterPlant
+  draw_shop_item
+    (Image_graphics.to_image
+       (Png.load "assets/soldiers/shield_soldier.png" [])
+       196 164 132)
+    58 100 0 0 ev WalnutPlant;
+  draw_shop_item
+    (Image_graphics.to_image
+       (Png.load "assets/soldiers/rocket_launcher_soldier.png" [])
+       196 164 132)
+    76 100 0 144 ev IcePeaShooterPlant;
+  draw_shop_item
+    (Image_graphics.to_image
+       (Png.load "assets/soldiers/rifle_soldier.png" [])
+       196 164 132)
+    83 100 0 288 ev PeaShooterPlant;
+  draw_shop_item
+    (Image_graphics.to_image
+       (Png.load "assets/soldiers/base.png" [])
+       196 164 132)
+    83 100 0 432 ev SunflowerPlant
 
 (** [draw st ev] draws the grid *)
 let draw (st : State.t) ev =

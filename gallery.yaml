@@ -24,7 +24,9 @@ demo-video-url: ""
 # Write a short, attention-grabbing description of your project.
 desc: >
   Our project is a GUI-based clone of Plants vs. Zombies. 
-  Zombie enemies spawn, move across the screen, and are killed by plants which 
-  the user buys and places into a grid. Plants may generate currency (sun), 
-  block zombies, or shoot bullets at them. The user may click plants to buy, 
-  view the quantity of sun, and select a level of difficulty.
+  Enemy soldiers (Zombies) spawn, move across the screen, 
+  and are killed by Soldiers (Plants) which the user buys 
+  and places into a grid. Plants may generate currency (coins),
+  block zombies, or shoot bullets at them. The user may click 
+  plants to buy, view the quantity of coins (sun), and select 
+  a level of difficulty.

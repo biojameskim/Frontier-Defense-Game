@@ -39,34 +39,48 @@ let init () =
     zombies_killed = 0;
     images =
       {
-        horse = Image_graphics.to_image (Png.load "assets/horse.png" []);
+        horse =
+          Image_graphics.to_image (Png.load "assets/horse.png" []) 92 199 70;
         rifle_soldier =
           Image_graphics.to_image
-            (Png.load "assets/soldiers/rifle_soldier.png" []);
+            (Png.load "assets/soldiers/rifle_soldier.png" [])
+            92 199 70;
         rocket_launcher_soldier =
           Image_graphics.to_image
-            (Png.load "assets/soldiers/rocket_launcher_soldier.png" []);
+            (Png.load "assets/soldiers/rocket_launcher_soldier.png" [])
+            92 199 70;
         shield_soldier =
           Image_graphics.to_image
-            (Png.load "assets/soldiers/shield_soldier.png" []);
-        base = Image_graphics.to_image (Png.load "assets/soldiers/base.png" []);
+            (Png.load "assets/soldiers/shield_soldier.png" [])
+            92 199 70;
+        base =
+          Image_graphics.to_image
+            (Png.load "assets/soldiers/base.png" [])
+            92 199 70;
         regular_enemy =
           Image_graphics.to_image
-            (Png.load "assets/enemies/regular_enemy.png" []);
+            (Png.load "assets/enemies/regular_enemy.png" [])
+            92 199 70;
         buff_enemy =
-          Image_graphics.to_image (Png.load "assets/enemies/buff_enemy.png" []);
+          Image_graphics.to_image
+            (Png.load "assets/enemies/buff_enemy.png" [])
+            92 199 70;
         shield_enemy_1 =
           Image_graphics.to_image
-            (Png.load "assets/enemies/shield_enemy_1.png" []);
+            (Png.load "assets/enemies/shield_enemy_1.png" [])
+            92 199 70;
         shield_enemy_2 =
           Image_graphics.to_image
-            (Png.load "assets/enemies/shield_enemy_2.png" []);
+            (Png.load "assets/enemies/shield_enemy_2.png" [])
+            92 199 70;
         regular_bullet =
           Image_graphics.to_image
-            (Png.load "assets/bullets/regular_bullet.png" []);
+            (Png.load "assets/bullets/regular_bullet.png" [])
+            92 199 70;
         rocket_bullet =
           Image_graphics.to_image
-            (Png.load "assets/bullets/rocket_bullet.png" []);
+            (Png.load "assets/bullets/rocket_bullet.png" [])
+            92 199 70;
       };
   }
 
