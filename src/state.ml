@@ -11,6 +11,8 @@ type gui_images = {
   buff_enemy : Graphics.image;
   shield_enemy_1 : Graphics.image;
   shield_enemy_2 : Graphics.image;
+  regular_bullet : Graphics.image;
+  rocket_bullet : Graphics.image;
 }
 
 type t = {
@@ -59,6 +61,12 @@ let init () =
         shield_enemy_2 =
           Image_graphics.to_image
             (Png.load "assets/enemies/shield_enemy_2.png" []);
+        regular_bullet =
+          Image_graphics.to_image
+            (Png.load "assets/bullets/regular_bullet.png" []);
+        rocket_bullet =
+          Image_graphics.to_image
+            (Png.load "assets/bullets/rocket_bullet.png" []);
       };
   }
 

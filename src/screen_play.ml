@@ -106,25 +106,33 @@ let draw_row (row : Board.row) (st : State.t) =
   | None -> ());
   row.peas
   |> List.iter (fun { location; pea_type } ->
-         draw_dummy_graphic location
-           (match pea_type with
-           | RegularPea -> "."
-           | FreezePea -> ".F"))
+         let x, y = location in
+         let info =
+           match pea_type with
+           | RegularPea -> (st.images.regular_bullet, 19, 10)
+           | FreezePea -> (st.images.rocket_bullet, 20, 10)
+         in
+         let img, width, height = info in
+         draw_image_with_placement img width height
+           (CenterPlace (x + 50, y + 75)))
 
-(** [draw_shop_items x y ev plant_type] draws the five boxes for the shop *)
-let draw_shop_item x y ev plant_type =
+(** [draw_shop_items img w h x y ev plant_type] draws the five boxes for the
+    shop *)
+let draw_shop_item img w h x y ev plant_type =
   let box = CornerDimBox ((x, y), (180, 144)) in
   draw_rect_b ~bg:Palette.brown box;
+  draw_image_with_placement img w h (BottomLeftPlace (x, y));
   Events.add_clickable (get_box_corners box)
     (fun st -> { st with shop_selection = Some plant_type })
     ev
 
-(** [draw_shop_items] calls draw_shop_item five times *)
-let draw_shop_items ev =
-  draw_shop_item 0 0 ev PeaShooterPlant;
-  draw_shop_item 0 144 ev PeaShooterPlant;
-  draw_shop_item 0 288 ev WalnutPlant;
-  draw_shop_item 0 432 ev IcePeaShooterPlant
+(** [draw_shop_items st ev] calls draw_shop_item five times *)
+let draw_shop_items (st : State.t) ev =
+  draw_shop_item st.images.rifle_soldier 83 100 0 0 ev PeaShooterPlant;
+  draw_shop_item st.images.rifle_soldier 83 100 0 144 ev PeaShooterPlant;
+  draw_shop_item st.images.shield_soldier 58 100 0 288 ev WalnutPlant;
+  draw_shop_item st.images.rocket_launcher_soldier 76 100 0 432 ev
+    IcePeaShooterPlant
 
 (** [draw st ev] draws the grid *)
 let draw (st : State.t) ev =
@@ -133,7 +141,7 @@ let draw (st : State.t) ev =
     num_cols num_rows (1100 / num_cols) (720 / num_rows)
     (fun row col (x, y) -> draw_cell row col (x, y) st ev);
   st.board.rows |> List.iter (fun row -> draw_row row st);
-  draw_shop_items ev;
+  draw_shop_items st ev;
   let on_pause st = st |> State.change_screen Screen.PauseScreen in
   Events.add_clickable
     (draw_button (placed_box (CenterPlace (1260, 700)) 40 40) "||")
