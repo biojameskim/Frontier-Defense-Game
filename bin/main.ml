@@ -10,11 +10,12 @@ let main () =
     | Graphics.Graphic_failure msg ->
         Terminal.print_error ("Graphic failure: " ^ msg);
         true
-    | _ ->
+    | e ->
         Terminal.print_error
-          ("Unknown error. Backtrace:" ^ Printexc.get_backtrace ());
+          ("Error: " ^ Printexc.to_string e ^ " " ^ Printexc.get_backtrace ());
         true
   in
+
   if fatal_exception then
     Terminal.print_error "Plants vs. Zombies game stopped."
 
