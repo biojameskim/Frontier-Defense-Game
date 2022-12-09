@@ -92,12 +92,14 @@ let draw_row (row : Board.row) (st : State.t) =
   row.zombies
   |> List.iter (fun { zombie_type; location } ->
          let x, y = location in
-         Graphics.draw_image
-           (match zombie_type with
-           | RegularZombie -> st.images.regular_enemy
-           | TrafficConeHeadZombie -> st.images.buff_enemy
-           | BucketHeadZombie -> st.images.shield_enemy_1)
-           x y);
+         let info =
+           match zombie_type with
+           | RegularZombie -> (st.images.regular_enemy, 89, 100)
+           | TrafficConeHeadZombie -> (st.images.buff_enemy, 81, 100)
+           | BucketHeadZombie -> (st.images.shield_enemy_1, 99, 100)
+         in
+         let img, width, height = info in
+         draw_image_with_placement img width height (CenterPlace (x, y)));
   (match row.lawnmower with
   | Some { location = x, y } ->
       draw_image_with_placement st.images.horse 100 70 (CenterPlace (x, y))
