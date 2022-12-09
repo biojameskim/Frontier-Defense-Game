@@ -56,6 +56,23 @@ At this point, restart your computer.
 </br>
 </br>
 
+## Installing camlimages
+For this project, we used a library called camlimages to load png files onto our gui.  
+
+First, install camlimages using the following command:
+``` sh
+% opam install camlimages
+```
+Next, install additional dependencies for loading png files:
+``` sh
+% opam install conf-libpng
+```
+You will also need to install the libpng library using your computer's package manager.  
+For MacOS devices using Homebrew, that would be:
+``` sh
+% brew install libpng
+```
+
 ## Usage
 
 - Run `make build` to build the project if it isn't built already. 
