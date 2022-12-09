@@ -1,4 +1,7 @@
 open Gui_util
+open Image_graphics
+open Png
+open Images
 
 let draw st ev =
   draw_rect_b (CornerBox ((100, 100), (1280 - 100, 720 - 100)));

@@ -1,4 +1,10 @@
 (library
  (name game)
  (public_name Game)
- (libraries yojson ANSITerminal graphics camlimages))
+ (libraries
+  yojson
+  ANSITerminal
+  graphics
+  camlimages
+  camlimages.png
+  camlimages.graphics))

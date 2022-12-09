@@ -1,5 +1,7 @@
 open Gui_util
 open Characters
+open Image_graphics
+open State
 module G = Graphics
 
 let num_rows = 5
@@ -76,11 +78,12 @@ let draw_cell row col (x, y) st ev =
     ~bg:(if col mod 2 = 0 then Palette.field_base else Palette.field_alternate);
   (match cell.plant with
   | Some { plant_type } ->
-      draw_dummy_graphic (x, y)
+      Graphics.draw_image
         (match plant_type with
-        | PeaShooterPlant -> "[P]"
-        | IcePeaShooterPlant -> "[PI]"
-        | WalnutPlant -> "[W]")
+        | PeaShooterPlant -> st.images.rifle_soldier
+        | IcePeaShooterPlant -> st.images.rocket_launcher_soldier
+        | WalnutPlant -> st.images.shield_soldier)
+        x y
   | None -> ());
   buy_from_shop (x, y) box st cell ev
 
@@ -88,13 +91,15 @@ let draw_cell row col (x, y) st ev =
 let draw_row (row : Board.row) (st : State.t) =
   row.zombies
   |> List.iter (fun { zombie_type; location } ->
-         draw_dummy_graphic location
+         let x, y = location in
+         Graphics.draw_image
            (match zombie_type with
-           | RegularZombie -> "Z"
-           | TrafficConeHeadZombie -> "ZT"
-           | BucketHeadZombie -> "ZB"));
+           | RegularZombie -> st.images.regular_enemy
+           | TrafficConeHeadZombie -> st.images.buff_enemy
+           | BucketHeadZombie -> st.images.shield_enemy_1)
+           x y);
   (match row.lawnmower with
-  | Some { location } -> draw_dummy_graphic location "L"
+  | Some { location = x, y } -> Graphics.draw_image st.images.horse x y
   | None -> ());
   row.peas
   |> List.iter (fun { location; pea_type } ->

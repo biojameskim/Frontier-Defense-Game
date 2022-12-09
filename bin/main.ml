@@ -4,7 +4,7 @@ let main () =
   Terminal.print_welcome ();
   let fatal_exception =
     try
-      let _ = Gui.launch (State.init ()) in
+      let _ = Gui.launch (fun () -> State.init ()) in
       false
     with
     | Graphics.Graphic_failure msg ->
