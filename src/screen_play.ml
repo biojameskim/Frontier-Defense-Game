@@ -84,10 +84,10 @@ let draw_cell row col (x, y) st ev =
   | Some { plant_type } ->
       Graphics.draw_image
         (match plant_type with
+        | SunflowerPlant -> st.images.base
         | PeaShooterPlant -> st.images.rifle_soldier
         | IcePeaShooterPlant -> st.images.rocket_launcher_soldier
-        | WalnutPlant -> st.images.shield_soldier
-        | SunflowerPlant -> st.images.base)
+        | WalnutPlant -> st.images.shield_soldier)
         x y
   | None -> ());
   buy_from_shop (x, y) box st cell ev

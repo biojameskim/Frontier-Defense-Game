@@ -60,19 +60,19 @@ let init () =
         regular_enemy =
           Image_graphics.to_image
             (Png.load "assets/enemies/regular_enemy.png" [])
-            92 199 70;
+            82 172 59;
         buff_enemy =
           Image_graphics.to_image
             (Png.load "assets/enemies/buff_enemy.png" [])
-            92 199 70;
+            82 172 59;
         shield_enemy_1 =
           Image_graphics.to_image
             (Png.load "assets/enemies/shield_enemy_1.png" [])
-            92 199 70;
+            82 172 59;
         shield_enemy_2 =
           Image_graphics.to_image
             (Png.load "assets/enemies/shield_enemy_2.png" [])
-            92 199 70;
+            82 172 59;
         regular_bullet =
           Image_graphics.to_image
             (Png.load "assets/bullets/regular_bullet.png" [])
