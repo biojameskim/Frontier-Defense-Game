@@ -11,10 +11,10 @@ let draw st ev =
     (CenterPlace (1280 / 2, 500))
     ~size:GiantText "Plants vs. Zombies";
   Events.add_clickable
-    (draw_button (placed_box (CenterPlace (1280 / 2, 195)) 100 50) "Play")
+    (draw_button (placed_box (CenterPlace (1280 / 2, 195)) 130 50) "Play")
     on_play ev;
   Events.add_clickable
-    (draw_button (placed_box (CenterPlace (1280 / 2, 135)) 100 50) "Quit")
+    (draw_button (placed_box (CenterPlace (1280 / 2, 135)) 130 50) "Quit")
     on_quit ev
 
 let tick st = st
