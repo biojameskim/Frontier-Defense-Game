@@ -386,18 +386,6 @@ let tick (st : State.t) : State.t =
                       if pl.speed <> 0 && pl.timer mod pl.speed = 0 then
                         r.peas <- Characters.spawn_pea pl :: r.peas
                   | None -> ()));
-
-    (* Remove zombies with non-positive HP. *)
-    current_rows
-    |> List.iter (fun (r : Board.row) ->
-           r.zombies <- r.zombies |> List.filter (fun (z : zombie) -> z.hp > 0));
-
-    (* Remove peas off the edge of the screen. *)
-    current_rows
-    |> List.iter (fun (r : Board.row) ->
-           r.peas <-
-             r.peas |> List.filter (fun ({ location = x, _ } : pea) -> x < 1280));
-
     (* Check collisions between peas and zombies, and subtract hp from zombies
        as needed *)
     current_rows
@@ -436,6 +424,17 @@ let tick (st : State.t) : State.t =
                    row.peas <-
                      List.filter (is_pea_not_colliding_with_zombie h) ps
              end);
+    (* Remove zombies with non-positive HP. *)
+    current_rows
+    |> List.iter (fun (r : Board.row) ->
+           r.zombies <- r.zombies |> List.filter (fun (z : zombie) -> z.hp > 0));
+
+    (* Remove peas off the edge of the screen. *)
+    current_rows
+    |> List.iter (fun (r : Board.row) ->
+           r.peas <-
+             r.peas |> List.filter (fun ({ location = x, _ } : pea) -> x < 1280));
+
     current_rows
   in
 
