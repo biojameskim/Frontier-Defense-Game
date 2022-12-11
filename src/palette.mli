@@ -1,6 +1,6 @@
 (** Represents the color palette used for the game. *)
 
-module G = Graphics
+module G := Graphics
 
 val black : G.color
 (** [black] represents the color black. *)
