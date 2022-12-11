@@ -3,6 +3,7 @@ module G = Graphics
 type text_size =
   | GiantText
   | BigText
+  | MediumText
   | RegularText
   | SmallText
   | TinyText
@@ -12,6 +13,7 @@ let int_of_text_size text_size =
   match text_size with
   | GiantText -> 60
   | BigText -> 36
+  | MediumText -> 22
   | RegularText -> 16
   | SmallText -> 14
   | TinyText -> 12

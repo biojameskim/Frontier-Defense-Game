@@ -6,6 +6,7 @@ module G = Graphics
 type text_size =
   | GiantText
   | BigText
+  | MediumText
   | RegularText
   | SmallText
   | TinyText

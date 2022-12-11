@@ -106,10 +106,12 @@ let draw_cell row col (x, y) st ev =
   | None -> ());
   buy_from_shop (x, y) box st cell ev
 
-let draw_coin x y r text is_top_coin =
+let draw_coin x y r text is_top_coin needs_offset =
   draw_and_fill_circle ~color:Palette.coin_yellow x y r;
   if is_top_coin then draw_string_p ~size:text (CenterPlace (x, y)) "$"
-  else draw_string_p ~size:text (CenterPlace (x - 5, y)) "$"
+  else
+    let dollar_offset = if needs_offset then 7 else 5 in
+    draw_string_p ~size:text (CenterPlace (x - dollar_offset, y)) "$"
 
 (** [draw_row row st] draws the char that represents each character *)
 
@@ -154,8 +156,17 @@ let draw_shop_item img w h x y ev plant_type =
   let box = CornerDimBox ((x, y), (180, 144)) in
   draw_rect_b ~bg:Palette.plant_shop_brown box;
   draw_image_with_placement img w h (BottomLeftPlace (x + 35, y + 25));
-  draw_coin (x + 150) (y + 120) 15 SmallText false;
+  let needs_offset = if get_plant_cost plant_type >= 10 then true else false in
+  draw_coin (x + 150) (y + 120) 15 SmallText false needs_offset;
   draw_coin_amount (x + 155) (y + 120) plant_type;
+  let plant_string, offset =
+    match plant_type with
+    | SunflowerPlant -> ("Base", 60)
+    | PeaShooterPlant -> ("Rifleman", 50)
+    | IcePeaShooterPlant -> ("Rocket Launcher", 10)
+    | WalnutPlant -> ("Shield", 50)
+  in
+  draw_string_p (BottomLeftPlace (x + offset, y)) plant_string ~size:MediumText;
   Events.add_clickable (get_box_corners box)
     (fun st -> { st with shop_selection = Some plant_type })
     ev
@@ -185,7 +196,7 @@ let draw (st : State.t) ev =
   draw_string_p ~size:BigText (CenterPlace (105, 680)) (string_of_int st.coins);
 
   (* draws top coin that tracks how many coins you have *)
-  draw_coin 50 680 20 BigText true;
+  draw_coin 50 680 20 BigText true false;
   draw_string_p ~size:BigText
     (CenterPlace (90, 615))
     ("Level - " ^ string_of_int st.level)

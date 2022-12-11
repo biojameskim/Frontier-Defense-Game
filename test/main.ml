@@ -122,8 +122,8 @@ let screen_play_tests =
   in
   [
     get_plant_cost_test "cost - PeaShooterPlant" PeaShooterPlant 5;
-    get_plant_cost_test "cost - PeaShooterPlant" IcePeaShooterPlant 10;
-    get_plant_cost_test "cost - PeaShooterPlant" WalnutPlant 65;
+    get_plant_cost_test "cost - IcePeaShooterPlant" IcePeaShooterPlant 10;
+    get_plant_cost_test "cost - WalnutPlant" WalnutPlant 25;
     get_plant_hp_test "hp - PeaShooterPlant" PeaShooterPlant 100;
     get_plant_hp_test "hp - IcePeaShooterPlant" IcePeaShooterPlant 100;
     get_plant_hp_test "hp - WalnutPlant" WalnutPlant 300;
