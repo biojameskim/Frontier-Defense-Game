@@ -430,13 +430,16 @@ let tick (st : State.t) : State.t =
     |> List.iter (fun (row : Board.row) ->
            match row.peas with
            | [] -> ()
-           | ps -> begin
-               match row.zombies with
-               | [] -> ()
-               | h :: t ->
-                   row.peas <-
-                     List.filter (is_pea_not_colliding_with_zombie h) ps
-             end);
+           | ps ->
+               let rec destroy zbs =
+                 match zbs with
+                 | [] -> ()
+                 | h :: t ->
+                     row.peas <-
+                       List.filter (is_pea_not_colliding_with_zombie h) ps;
+                     destroy t
+               in
+               destroy row.zombies);
     (* Remove zombies with non-positive HP. *)
     current_rows
     |> List.iter (fun (r : Board.row) ->
