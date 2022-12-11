@@ -282,6 +282,30 @@ let is_zombie_colliding_with_entity (entity_x : int) (entity_width : int)
     ({ location = zombie_x, _; width = zombie_width } : zombie) : bool =
   abs (zombie_x - entity_x) < (entity_width / 2) + (zombie_width / 2)
 
+(** [is_pea_colliding_with_zombie] checks whether a zombie is colliding with a
+    pea if nt is false, and checks if a zombie is NOT colliding with a pea if nt
+    is true *)
+let is_zombie_colliding_with_pea (nt : bool) (pea : pea)
+    ({ location = zombie_x, zombie_y; width = zombie_width } : zombie) : bool =
+  let pea_x = fst pea.location in
+  let check = abs (zombie_x - pea_x) < (zombie_width / 2) + (pea.width / 2) in
+  if nt then not check else check
+
+(** [is_pea_colliding_with_zombie] checks whether a pea is NOT colliding with a
+    zombie *)
+let is_pea_not_colliding_with_zombie
+    ({ location = zombie_x, zombie_y; width = zombie_width } : zombie)
+    (pea : pea) : bool =
+  let pea_x = fst pea.location in
+  not (abs (zombie_x - pea_x) < (zombie_width / 2) + (pea.width / 2))
+
+(** [damage_zombie] subtracts a pea's damage from a zombie's hp if they are
+    colliding*)
+let damage_zombie (zombie : zombie) (pea : pea) : unit =
+  if not (is_pea_not_colliding_with_zombie zombie pea) then
+    zombie.hp <- zombie.hp - pea.damage
+  else ()
+
 (** [tick st] refreshes and updates the state of the game *)
 let tick (st : State.t) : State.t =
   (* Increment the timer, add free coins, and change the level if necessary. *)
@@ -332,7 +356,6 @@ let tick (st : State.t) : State.t =
                       if is_zombie_colliding_with_entity x 50 z then
                         z.hp <- z.hp - 1000)
            | None -> ());
-
     (* Shoot peas from plants. *)
     current_rows
     |> List.iter (fun (r : Board.row) ->
@@ -357,6 +380,44 @@ let tick (st : State.t) : State.t =
            r.peas <-
              r.peas |> List.filter (fun ({ location = x, _ } : pea) -> x < 1280));
 
+    (* Check collisions between peas and zombies, and subtract hp from zombies
+       as needed *)
+    current_rows
+    |> List.iter (fun (row : Board.row) ->
+           match row.zombies with
+           | [] -> ()
+           | zbs ->
+               let rec iter_peas ps =
+                 match ps with
+                 | [] -> ()
+                 | h :: t ->
+                     row.zombies <-
+                       (let collided =
+                          List.filter (is_zombie_colliding_with_pea false h) zbs
+                        in
+                        if List.length collided > 0 then (
+                          let zb = List.nth collided 0 in
+                          damage_zombie zb h;
+                          zb
+                          :: List.filter
+                               (is_zombie_colliding_with_pea true h)
+                               zbs)
+                        else row.zombies);
+                     iter_peas t
+               in
+               iter_peas row.peas);
+    (* Check collisions between peas and zombies, and remove peas if needed*)
+    current_rows
+    |> List.iter (fun (row : Board.row) ->
+           match row.peas with
+           | [] -> ()
+           | ps -> begin
+               match row.zombies with
+               | [] -> ()
+               | h :: t ->
+                   row.peas <-
+                     List.filter (is_pea_not_colliding_with_zombie h) ps
+             end);
     current_rows
   in
 
