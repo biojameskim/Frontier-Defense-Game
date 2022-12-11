@@ -32,6 +32,7 @@ type gui_images = {
   rocket_launcher_soldier_shop : Graphics.image;
   shield_soldier_shop : Graphics.image;
   base_shop : Graphics.image;
+  shovel : Graphics.image;
 }
 
 type t = {
@@ -40,6 +41,7 @@ type t = {
   was_mouse_pressed : bool;
   mutable timer : int;
   mutable shop_selection : Characters.plant_type option;
+  mutable is_shovel_selected : bool;
   mutable coins : int;
   mutable level : int;
   mutable zombies_killed : int;
@@ -54,6 +56,7 @@ let init () =
     was_mouse_pressed = false;
     timer = 0;
     shop_selection = None;
+    is_shovel_selected = false;
     coins = 0;
     level = 1;
     zombies_killed = 0;
@@ -157,6 +160,8 @@ let init () =
           Image_graphics.to_image
             (Png.load "assets/bullets/rocket_bullet.png" [])
             92 199 70;
+        shovel =
+          Image_graphics.to_image (Png.load "assets/shovel.png" []) 82 172 59;
         rocket_bullet_tutorial =
           Image_graphics.to_image
             (Png.load "assets/bullets/rocket_bullet.png" [])

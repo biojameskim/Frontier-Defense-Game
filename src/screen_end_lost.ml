@@ -7,7 +7,7 @@ let draw st ev =
     ~size:GiantText "Your frontier has been invaded";
   draw_string_p
     (CenterPlace (1280 / 2, 420))
-    ~size:GiantText "Better luck next time!";
+    ~size:BigText "Better luck next time!";
   Events.add_clickable
     (draw_button (placed_box (CenterPlace (1280 / 2, 195)) 130 50) "Restart")
     (fun (st : State.t) -> State.init ())

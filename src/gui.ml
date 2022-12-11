@@ -53,7 +53,7 @@ let rec handle_event (st : State.t) =
 let launch (st : unit -> State.t) =
   (* Do not use [G.open_graph "800x600"]; it will crash on Linux *)
   G.open_graph "";
-  G.set_window_title "Plants vs. Zombies";
+  G.set_window_title "Frontier Defense";
   G.resize_window 1280 720;
   G.auto_synchronize false;
   handle_event (st ())
