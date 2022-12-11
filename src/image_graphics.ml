@@ -5,9 +5,6 @@ open Images
 (* Note: Part of this function was adapted from the original source code of
    camlimages in [graphic_image.ml]. Source:
    https://gitlab.com/camlspotter/camlimages/-/blob/hg-b4.2.6/src/graphic_image.ml *)
-
-(** [array_of_image img] takes in an Images.t and converts it to a 2d array of
-    colors *)
 let array_of_image img red green blue =
   match img with
   | Rgba32 bitmap ->
@@ -30,6 +27,5 @@ let array_of_image img red green blue =
 (* Takes Images.t and make it into an image that Graphics can use *)
 let to_image img r g b = Graphics.make_image (array_of_image img r g b)
 
-(* Draw an image *)
 let draw_image (x : int) (y : int) img r g b =
   Graphics.draw_image (to_image img r g b) x y
