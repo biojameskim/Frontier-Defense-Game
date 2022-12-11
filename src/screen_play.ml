@@ -56,7 +56,7 @@ let buy_from_shop (x, y) box st (cell : Board.cell) ev =
     (fun st ->
       match st.shop_selection with
       | None -> st
-      | Some plant_type -> 
+      | Some plant_type ->
           if can_buy st plant_type then (
             cell.plant <-
               Some
@@ -74,14 +74,17 @@ let buy_from_shop (x, y) box st (cell : Board.cell) ev =
           st)
     ev
 
-    let use_shovel (x, y) box st (cell : Board.cell) ev =
-      Events.add_clickable (get_box_corners box)
-        (fun st -> if st.is_shovel_selected = true then 
-              (cell.plant <- None;
-              st.is_shovel_selected <- false;
-              st.shop_selection <- None);
-              st)
-        ev; ()
+let use_shovel (x, y) box st (cell : Board.cell) ev =
+  Events.add_clickable (get_box_corners box)
+    (fun st ->
+      if st.is_shovel_selected = true then (
+        cell.plant <- None;
+        st.is_shovel_selected <- false;
+        st.shop_selection <- None);
+      st)
+    ev;
+  ()
+
 (** [draw_cell row col (x,y) st ev] draw single cell and add a clickable *)
 let draw_cell row col (x, y) st ev =
   let cell = State.get_cell row col st in
@@ -117,7 +120,7 @@ let draw_cell row col (x, y) st ev =
        ());
       ()
   | None -> ());
-  use_shovel (x,y) box st cell ev
+  use_shovel (x, y) box st cell ev
 
 let draw_coin x y r text is_top_coin needs_offset =
   draw_and_fill_circle ~color:Palette.coin_yellow x y r;
@@ -190,7 +193,9 @@ let draw_shop_item img w h x y (st : State.t) ev plant_type =
   in
   draw_string_p (BottomLeftPlace (x + offset, y)) plant_string ~size:MediumText;
   Events.add_clickable (get_box_corners box)
-    (fun st -> if st.is_shovel_selected then st.is_shovel_selected <- false; { st with shop_selection = Some plant_type })
+    (fun st ->
+      if st.is_shovel_selected then st.is_shovel_selected <- false;
+      { st with shop_selection = Some plant_type })
     ev
 
 (** [draw_shop_items st ev] calls draw_shop_item five times *)
