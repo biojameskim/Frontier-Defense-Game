@@ -16,6 +16,10 @@ type gui_images = {
   shield_enemy_2 : Graphics.image;
   regular_bullet : Graphics.image;
   rocket_bullet : Graphics.image;
+  rifle_soldier_shop : Graphics.image;
+  rocket_launcher_soldier_shop : Graphics.image;
+  shield_soldier_shop : Graphics.image;
+  base_shop : Graphics.image;
 }
 (** [gui_images] is the type that represents all the images that are used in the
     game. *)

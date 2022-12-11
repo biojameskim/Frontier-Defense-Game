@@ -162,26 +162,11 @@ let draw_shop_item img w h x y ev plant_type =
 
 (** [draw_shop_items st ev] calls draw_shop_item five times *)
 let draw_shop_items (st : State.t) ev =
-  draw_shop_item
-    (Image_graphics.to_image
-       (Png.load "assets/soldiers/shield_soldier.png" [])
-       196 164 132)
-    58 100 0 0 ev WalnutPlant;
-  draw_shop_item
-    (Image_graphics.to_image
-       (Png.load "assets/soldiers/rocket_launcher_soldier.png" [])
-       196 164 132)
-    76 100 0 144 ev IcePeaShooterPlant;
-  draw_shop_item
-    (Image_graphics.to_image
-       (Png.load "assets/soldiers/rifle_soldier.png" [])
-       196 164 132)
-    83 100 0 288 ev PeaShooterPlant;
-  draw_shop_item
-    (Image_graphics.to_image
-       (Png.load "assets/soldiers/base.png" [])
-       196 164 132)
-    83 100 0 432 ev SunflowerPlant
+  draw_shop_item st.images.shield_soldier_shop 58 100 0 0 ev WalnutPlant;
+  draw_shop_item st.images.rocket_launcher_soldier_shop 76 100 0 144 ev
+    IcePeaShooterPlant;
+  draw_shop_item st.images.rifle_soldier_shop 83 100 0 288 ev PeaShooterPlant;
+  draw_shop_item st.images.base_shop 83 100 0 432 ev SunflowerPlant
 
 (** [draw st ev] draws the grid *)
 let draw (st : State.t) ev =

@@ -17,6 +17,10 @@ type gui_images = {
   shield_enemy_2 : Graphics.image;
   regular_bullet : Graphics.image;
   rocket_bullet : Graphics.image;
+  rifle_soldier_shop : Graphics.image;
+  rocket_launcher_soldier_shop : Graphics.image;
+  shield_soldier_shop : Graphics.image;
+  base_shop : Graphics.image;
 }
 
 type t = {
@@ -70,6 +74,18 @@ let init () =
           Image_graphics.to_image
             (Png.load "assets/soldiers/shield_soldier.png" [])
             82 172 59;
+        rifle_soldier_shop =
+          Image_graphics.to_image
+            (Png.load "assets/soldiers/rifle_soldier.png" [])
+            196 164 132;
+        rocket_launcher_soldier_shop =
+          Image_graphics.to_image
+            (Png.load "assets/soldiers/rocket_launcher_soldier.png" [])
+            196 164 132;
+        shield_soldier_shop =
+          Image_graphics.to_image
+            (Png.load "assets/soldiers/shield_soldier.png" [])
+            196 164 132;
         base_light =
           Image_graphics.to_image
             (Png.load "assets/soldiers/base.png" [])
@@ -78,6 +94,10 @@ let init () =
           Image_graphics.to_image
             (Png.load "assets/soldiers/base.png" [])
             82 172 59;
+        base_shop =
+          Image_graphics.to_image
+            (Png.load "assets/soldiers/base.png" [])
+            196 164 132;
         regular_enemy =
           Image_graphics.to_image
             (Png.load "assets/enemies/regular_enemy.png" [])
