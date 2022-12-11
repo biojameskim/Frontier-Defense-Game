@@ -14,10 +14,10 @@ let draw (st : State.t) ev =
   in
   draw_string_p (CenterPlace (1280 / 2, 500)) ~size:GiantText level_string;
   Events.add_clickable
-    (draw_button (placed_box (CenterPlace (1280 / 2, 195)) 100 50) "Resume")
+    (draw_button (placed_box (CenterPlace (1280 / 2, 195)) 130 50) "Resume")
     on_resume ev;
   Events.add_clickable
-    (draw_button (placed_box (CenterPlace (1280 / 2, 135)) 100 50) "Quit")
+    (draw_button (placed_box (CenterPlace (1280 / 2, 135)) 130 50) "Quit")
     on_quit ev
 
 let tick st = st

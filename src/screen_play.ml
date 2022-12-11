@@ -468,6 +468,7 @@ let tick (st : State.t) : State.t =
   (* Finally, change the state if the game is lost. *)
   check_game_not_lost st
 
+(***************************************************************************)
 let get_plant_being_eaten_by_zombie (row : Board.row) (zombie : zombie) :
     plant option =
   raise (Failure "unimplemented")
@@ -493,3 +494,4 @@ let process_row (st_old : State.t) : State.t =
   (*(row : row)*) raise (Failure "Unimplemented")
 (*List.fold_left process_zombies st_old (List.nth st_old.board.rows
   row).zombies*)
+(***************************************************************************)
