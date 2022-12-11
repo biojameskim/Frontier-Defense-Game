@@ -238,7 +238,7 @@ let screen_play_tests =
   ]
 
 let tests =
-  "plantsvzombies test suite"
+  "frontier_defense test suite"
   >::: List.flatten
          [
            trivial_tests;
