@@ -60,7 +60,7 @@ let spawn_zombie (level : int) (t : t) =
       hp = 10;
       damage = 1;
       location = (1280, (720 / num_rows / 2) + (row_id * (720 / num_rows)));
-      speed = 10;
+      speed = 5;
       frame = 0;
       width = 15;
     }

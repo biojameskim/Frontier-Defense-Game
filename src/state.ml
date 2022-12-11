@@ -28,6 +28,7 @@ type t = {
   mutable coins : int;
   mutable level : int;
   mutable zombies_killed : int;
+  mutable zombies_on_board : int;
   images : gui_images;
 }
 
@@ -41,6 +42,7 @@ let init () =
     coins = 0;
     level = 1;
     zombies_killed = 0;
+    zombies_on_board = 0;
     images =
       (* background color *)
       {

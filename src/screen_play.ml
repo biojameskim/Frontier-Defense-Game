@@ -271,13 +271,12 @@ let coin_auto_increment (st : State.t) (level_number : int) : unit =
   if is_time_to_give_coins level_number st then st.coins <- st.coins + 25
   else ()
 
-(** [zombies_on_board rows] is the number of zombies on the board at that given
-    screen *)
-let rec zombies_on_board (rows : Board.row list) : int =
+
+let rec zombies_on_board_row (rows : Board.row list) : int =
   match rows with
   | [] -> 0
   | row :: rest_of_rows ->
-      List.length row.zombies + zombies_on_board rest_of_rows
+      List.length row.zombies + zombies_on_board_row rest_of_rows
 
 (** [zombies_in_level level_number] is the amount of zombies that are in each
     level *)
@@ -293,7 +292,7 @@ let zombies_in_level level_number : int =
 let all_lvl_zombs_spawned (st : State.t) (level_number : int) : bool =
   match level_number with
   | 1 | 2 | 3 ->
-      st.zombies_killed + zombies_on_board st.board.rows
+      st.zombies_killed + st.zombies_on_board
       = zombies_in_level level_number
   | _ -> failwith "have not implemented more levels"
 
@@ -338,8 +337,15 @@ let damage_zombie (zombie : zombie) (pea : pea) : unit =
     zombie.hp <- zombie.hp - pea.damage
   else ()
 
+  let rec add_to_zombies_killed (st : State.t) (zlist : zombie list) =
+     match zlist with 
+  |[] -> ()
+  |h :: t -> if h.hp <= 0 then (st.zombies_killed <- st.zombies_killed + 1; 
+add_to_zombies_killed st t) else add_to_zombies_killed st t
 (** [tick st] refreshes and updates the state of the game *)
 let tick (st : State.t) : State.t =
+  print_endline (string_of_int st.zombies_killed);
+  print_endline (string_of_int st.level);
   (* Increment the timer, add free coins, and change the level if necessary. *)
   st.timer <- st.timer + 1;
   coin_auto_increment st st.level;
@@ -365,6 +371,8 @@ let tick (st : State.t) : State.t =
     current_rows
     |> List.iter (fun (row : Board.row) -> row.peas |> List.iter pea_walk);
 
+    (* changes the field for number of zombies on the board *)
+    st.zombies_on_board <- zombies_on_board_row current_rows;
     (* Make lawnmowers collide with zombies and walk. *)
     current_rows
     |> List.iter (fun (row : Board.row) ->
@@ -437,6 +445,9 @@ let tick (st : State.t) : State.t =
                    row.peas <-
                      List.filter (is_pea_not_colliding_with_zombie h) ps
              end);
+
+    (* add number of zombies with non_postive HP to st.zombies_killed *)
+    current_rows |> List.iter(fun (r: Board.row) -> add_to_zombies_killed st r.zombies);
     (* Remove zombies with non-positive HP. *)
     current_rows
     |> List.iter (fun (r : Board.row) ->

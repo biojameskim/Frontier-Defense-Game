@@ -8,7 +8,7 @@ let draw (st : State.t) ev =
   in
   let on_quit _ = exit 0 in
   let level_string =
-    "Level " ^ string_of_int st.level ^ "completed. Ready for level "
+    "Level " ^ string_of_int st.level ^ " completed. Ready for level "
     ^ string_of_int (st.level + 1)
     ^ "?"
   in
