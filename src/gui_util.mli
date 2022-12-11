@@ -1,6 +1,6 @@
 (** Represents utilities for the gui *)
 
-module G = Graphics
+module G := Graphics
 
 (** [text_size] is a type representing custom variants for varying text sizes. *)
 type text_size =
