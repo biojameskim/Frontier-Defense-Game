@@ -1,10 +1,7 @@
-(* *)
 type clickable = {
   corners : Gui_util.point * Gui_util.point;
   on_click : State.t -> State.t;
 }
-(** Represents a clickable object on the screen. Stores its bounding box and a
-    function to run on click. *)
 
 type t = { clickables : clickable Queue.t }
 
@@ -18,7 +15,6 @@ let make () = { clickables = Queue.create () }
 (* on_click should primarily change the state.t, so it takes in a state and
    outputs the new state *)
 
-(** Handle a user's mouse click. *)
 let handle_click (mouse_x, mouse_y) (st : State.t) t =
   let st_ref = ref st in
   Queue.iter
@@ -32,7 +28,7 @@ let handle_click (mouse_x, mouse_y) (st : State.t) t =
     t.clickables;
   !st_ref
 
-(* add_clickable names the region on the screen that is clickable and onclick is
-   the function that should be run when you click on it. t is the events.t*)
+(* corners names the region on the screen that is clickable and onclick is the
+   function that should be run when you click on it. t is the events.t *)
 let add_clickable corners on_click t =
   Queue.add { corners; on_click } t.clickables

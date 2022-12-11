@@ -183,10 +183,10 @@ let draw (st : State.t) ev =
     on_pause ev;
   let box = CornerDimBox ((0, 576), (180, 144)) in
   draw_rect_b ~bg:Palette.stone_grey box;
-  draw_string_big (CenterPlace (105, 680)) (string_of_int st.coins);
+  draw_string_p ~size:BigText (CenterPlace (105, 680)) (string_of_int st.coins);
   draw_and_fill_circle ~color:Palette.coin_yellow 50 680 20;
-  draw_string_big (CenterPlace (52, 680)) "$";
-  draw_string_big (CenterPlace (90, 615)) ("Level - " ^ string_of_int st.level)
+  draw_string_p ~size:BigText (CenterPlace (52, 680)) "$";
+  draw_string_p ~size:BigText (CenterPlace (90, 615)) ("Level - " ^ string_of_int st.level)
 
 (** [make_game_not_lost_list st] is the list of booleans (one boolean for each
     zombie that is false if the zombie is at the x position of the end of the
