@@ -31,6 +31,7 @@ type gui_images = {
   rocket_launcher_soldier_shop : Graphics.image;
   shield_soldier_shop : Graphics.image;
   base_shop : Graphics.image;
+  shovel : Graphics.image;
 }
 (** [gui_images] is the type that represents all the images that are used in the
     game. *)
@@ -41,6 +42,7 @@ type t = {
   was_mouse_pressed : bool;
   mutable timer : int;
   mutable shop_selection : Characters.plant_type option;
+  mutable is_shovel_selected : bool;
   mutable coins : int;
   mutable level : int;
   mutable zombies_killed : int;

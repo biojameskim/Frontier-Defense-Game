@@ -69,7 +69,7 @@ let is_point_in_box box (x, y) =
   (* Printf.printf "is_point_in_box: %d %d %d %d %d %d\n" x1 y1 x2 y2 x y; *)
   x1 <= x && x <= x2 && y1 <= y && y <= y2
 
-let draw_rect_b ?(color = Palette.border) ?bg box =
+let draw_rect_b ?(color = Palette.border) ?bg ?(border_width = 1) box =
   let (x1, y1), (x2, y2) = get_box_corners box in
   (match bg with
   | Some c ->
@@ -77,10 +77,15 @@ let draw_rect_b ?(color = Palette.border) ?bg box =
       G.fill_rect x1 y1 (x2 - x1) (y2 - y1)
   | None -> ());
   G.set_color color;
-  G.draw_rect x1 y1 (x2 - x1) (y2 - y1)
+  G.set_line_width border_width;
+  let padding = border_width / 2 in
+  G.draw_rect (x1 + padding) (y1 + padding)
+    (x2 - x1 - (2 * padding))
+    (y2 - y1 - (2 * padding))
 
 let draw_and_fill_circle ?(color = Palette.border) x y r =
   G.set_color color;
+  G.set_line_width 1;
   G.draw_circle x y r;
   G.fill_circle x y r
 
