@@ -14,7 +14,7 @@ type clickable = {
     its bounding box and a function to run on click. *)
 
 type t = {
-  clickables : clickable Queue.t;
+  mutable clickables : clickable list;
   mouse : Gui_util.point;
 }
 (** A value of type [t] contains a container of clickables and the coordinate of
@@ -24,8 +24,8 @@ val make : Gui_util.point -> t
 (** [make p] creates a value of type [t] given coordinates of mouse [p]. **)
 
 val handle_click : State.t -> t -> State.t
-(** [handle_click st t] runs click handlers for each clickable that the user's
-    mouse is inside. *)
+(** [handle_click st t] checks the clickables to see which ones the user's mouse
+    is inside and executes the most recently inserted clickable callback. *)
 
 val add_clickable :
   Gui_util.point * Gui_util.point -> (State.t -> State.t) -> t -> unit

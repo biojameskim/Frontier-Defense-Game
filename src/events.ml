@@ -4,25 +4,25 @@ type clickable = {
 }
 
 type t = {
-  clickables : clickable Queue.t;
+  mutable clickables : clickable list;
   mouse : Gui_util.point;
 }
 
-let make mouse = { clickables = Queue.create (); mouse }
+let make mouse = { clickables = []; mouse }
 
 let handle_click (st : State.t) t =
-  let st_ref = ref st in
-  Queue.iter
+  List.find_map
     (fun { corners = corner1, corner2; on_click } ->
       if
         Gui_util.is_point_in_box (Gui_util.CornerBox (corner1, corner2)) t.mouse
         (* we feed onclick the old state, and it gives us new state *)
-      then st_ref := on_click !st_ref)
-    t.clickables;
-  !st_ref
+      then Some (on_click st)
+      else None)
+    t.clickables
+  |> Option.value ~default:st
 
 let add_clickable corners on_click t =
-  Queue.add { corners; on_click } t.clickables
+  t.clickables <- { corners; on_click } :: t.clickables
 
 let add_clickable_return_hover ((corner1, corner2) as corners) on_click t =
   add_clickable corners on_click t;
