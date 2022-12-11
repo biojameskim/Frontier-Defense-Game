@@ -52,7 +52,7 @@ let decrement_coins (st : State.t) (plant : plant_type) : unit =
 (** [buy_from_shop (x,y) box st cell] handles clicking the shop boxes and
     placing if coins are sufficient. *)
 let buy_from_shop (x, y) box st (cell : Board.cell) ev =
-  Events.add_clickable (get_box_corners box)
+  Events.add_clickable_return_hover (get_box_corners box)
     (fun st ->
       match st.shop_selection with
       | None -> st
@@ -78,9 +78,14 @@ let buy_from_shop (x, y) box st (cell : Board.cell) ev =
 let draw_cell row col (x, y) st ev =
   let cell = State.get_cell row col st in
   let box = CornerDimBox ((x, y), (1100 / num_cols, 720 / num_rows)) in
+  let is_hovering =
+    buy_from_shop (x, y) box st cell ev && st.shop_selection <> None
+  in
   draw_rect_b box
-    ~bg:(if col mod 2 = 0 then Palette.field_base else Palette.field_alternate);
-  (match cell.plant with
+    ~bg:(if col mod 2 = 0 then Palette.field_base else Palette.field_alternate)
+    ~color:(if is_hovering then Palette.coin_yellow else Palette.border)
+    ~border_width:(if is_hovering then 5 else 1);
+  match cell.plant with
   | Some { plant_type } ->
       (let info =
          match plant_type with
@@ -103,8 +108,7 @@ let draw_cell row col (x, y) st ev =
          (CenterPlace (get_box_center box));
        ());
       ()
-  | None -> ());
-  buy_from_shop (x, y) box st cell ev
+  | None -> ()
 
 let draw_coin x y r text is_top_coin needs_offset =
   draw_and_fill_circle ~color:Palette.coin_yellow x y r;
@@ -150,11 +154,20 @@ let draw_coin_amount x y plant_type =
     (CenterPlace (x, y))
     (string_of_int (get_plant_cost plant_type))
 
-(** [draw_shop_items img w h x y ev plant_type] draws the five boxes for the
+(** [draw_shop_items img w h x y st ev plant_type] draws the five boxes for the
     shop *)
-let draw_shop_item img w h x y ev plant_type =
+let draw_shop_item img w h x y (st : State.t) ev plant_type =
   let box = CornerDimBox ((x, y), (180, 144)) in
-  draw_rect_b ~bg:Palette.plant_shop_brown box;
+  let is_hovering =
+    Events.add_clickable_return_hover (get_box_corners box)
+      (fun st -> { st with shop_selection = Some plant_type })
+      ev
+    || st.shop_selection = Some plant_type
+  in
+  if is_hovering then
+    draw_rect_b ~bg:Palette.plant_shop_brown ~color:Palette.coin_yellow
+      ~border_width:15 box
+  else draw_rect_b ~bg:Palette.plant_shop_brown box;
   draw_image_with_placement img w h (BottomLeftPlace (x + 35, y + 25));
   let needs_offset = if get_plant_cost plant_type >= 10 then true else false in
   draw_coin (x + 150) (y + 120) 15 SmallText false needs_offset;
@@ -166,18 +179,15 @@ let draw_shop_item img w h x y ev plant_type =
     | IcePeaShooterPlant -> ("Rocket Launcher", 10)
     | WalnutPlant -> ("Shield", 50)
   in
-  draw_string_p (BottomLeftPlace (x + offset, y)) plant_string ~size:MediumText;
-  Events.add_clickable (get_box_corners box)
-    (fun st -> { st with shop_selection = Some plant_type })
-    ev
+  draw_string_p (BottomLeftPlace (x + offset, y)) plant_string ~size:MediumText
 
 (** [draw_shop_items st ev] calls draw_shop_item five times *)
 let draw_shop_items (st : State.t) ev =
-  draw_shop_item st.images.shield_soldier_shop 58 100 0 0 ev WalnutPlant;
-  draw_shop_item st.images.rocket_launcher_soldier_shop 76 100 0 144 ev
+  draw_shop_item st.images.shield_soldier_shop 58 100 0 0 st ev WalnutPlant;
+  draw_shop_item st.images.rocket_launcher_soldier_shop 76 100 0 144 st ev
     IcePeaShooterPlant;
-  draw_shop_item st.images.rifle_soldier_shop 83 100 0 288 ev PeaShooterPlant;
-  draw_shop_item st.images.base_shop 83 100 0 432 ev SunflowerPlant
+  draw_shop_item st.images.rifle_soldier_shop 83 100 0 288 st ev PeaShooterPlant;
+  draw_shop_item st.images.base_shop 83 100 0 432 st ev SunflowerPlant
 
 (** [draw st ev] draws the grid *)
 let draw (st : State.t) ev =
