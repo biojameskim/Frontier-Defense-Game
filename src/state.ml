@@ -65,15 +65,15 @@ let init () =
         rifle_soldier_dark =
           Image_graphics.to_image
             (Png.load "assets/soldiers/rifle_soldier.png" [])
-            196 164 132;
+            82 172 59;
         rocket_launcher_soldier_dark =
           Image_graphics.to_image
             (Png.load "assets/soldiers/rocket_launcher_soldier.png" [])
-            196 164 132;
+            82 172 59;
         shield_soldier_dark =
           Image_graphics.to_image
             (Png.load "assets/soldiers/shield_soldier.png" [])
-            196 164 132;
+            82 172 59;
         rifle_soldier_shop =
           Image_graphics.to_image
             (Png.load "assets/soldiers/rifle_soldier.png" [])
