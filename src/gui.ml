@@ -5,12 +5,13 @@ let rec handle_event (st : State.t) =
   (* wait *)
   let e = G.wait_next_event [ G.Poll ] in
   (* initialize event handlers *)
-  let ev = Events.make () in
+  let ev = Events.make (G.mouse_pos ()) in
   (* initialize draw *)
   G.clear_graph ();
   G.moveto 0 0;
   G.set_color Palette.failure;
-  G.set_line_width 1;
+  G.set_line_width 100;
+  (* helps discover failure to explicitly set line width *)
   G.set_text_size 18;
 
   (* draw takes a state, and draws the thing on the screen given the state, and
@@ -40,8 +41,7 @@ let rec handle_event (st : State.t) =
   (* handle events like quitting *)
   if e.keypressed && e.key == 'q' then exit 0;
   let st =
-    if e.button && not st.was_mouse_pressed then
-      Events.handle_click (e.mouse_x, e.mouse_y) st ev
+    if e.button && not st.was_mouse_pressed then Events.handle_click st ev
     else st
   in
   (* makes sure the mouse held down is only one click *)
