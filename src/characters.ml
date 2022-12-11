@@ -7,7 +7,7 @@ type zombie = {
   mutable hp : int;
   damage : int;
   location : int * int;
-  speed : int;
+  mutable speed : int;
   frame : int;
   zombie_type : zombie_type;
   width : int;
@@ -21,7 +21,7 @@ type plant_type =
 
 (* speed is the speed of how fast the plant shoots per state *)
 type plant = {
-  hp : int;
+  mutable hp : int;
   speed : int;
   mutable timer : int;
   location : int * int;

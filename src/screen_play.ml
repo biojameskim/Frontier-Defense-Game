@@ -49,54 +49,53 @@ let can_buy (st : State.t) (plant : plant_type) : bool =
 let decrement_coins (st : State.t) (plant : plant_type) : unit =
   st.coins <- st.coins - get_plant_cost plant
 
-(** [buy_from_shop (x,y) box st cell] handles clicking the shop boxes and
-    placing if coins are sufficient. *)
-let buy_from_shop (x, y) box st (cell : Board.cell) ev =
+(* [buy_from_shop (x,y) box st cell] handles clicking the shop boxes and placing
+   if coins are sufficient. *)
+(*use shovel as well *)
+let handle_clickable (x, y) box (st : State.t) (cell : Board.cell)
+    (ev : Events.t) =
   Events.add_clickable_return_hover (get_box_corners box)
     (fun st ->
-      match st.shop_selection with
-      | None -> st
-      | Some plant_type ->
-          if can_buy st plant_type then (
-            cell.plant <-
-              Some
-                {
-                  hp = get_plant_hp plant_type;
-                  location = (x, y);
-                  plant_type;
-                  speed = get_plant_speed plant_type;
-                  cost = get_plant_cost plant_type;
-                  timer = 0;
-                  width = get_plant_width plant_type;
-                };
-            decrement_coins st plant_type);
-          st.shop_selection <- None;
-          st)
-    ev
-
-let use_shovel (x, y) box st (cell : Board.cell) ev =
-  Events.add_clickable (get_box_corners box)
-    (fun st ->
-      if st.is_shovel_selected = true then (
+      let st1 =
+        match st.shop_selection with
+        | None -> st
+        | Some plant_type ->
+            if can_buy st plant_type then (
+              cell.plant <-
+                Some
+                  {
+                    hp = get_plant_hp plant_type;
+                    location = (x, y);
+                    plant_type;
+                    speed = get_plant_speed plant_type;
+                    cost = get_plant_cost plant_type;
+                    timer = 0;
+                    width = get_plant_width plant_type;
+                  };
+              decrement_coins st plant_type);
+            st.shop_selection <- None;
+            st
+      in
+      if st1.is_shovel_selected = true then (
         cell.plant <- None;
-        st.is_shovel_selected <- false;
-        st.shop_selection <- None);
-      st)
-    ev;
-  ()
+        st1.is_shovel_selected <- false;
+        st1.shop_selection <- None);
+      st1)
+    ev
 
 (** [draw_cell row col (x,y) st ev] draw single cell and add a clickable *)
 let draw_cell row col (x, y) st ev =
   let cell = State.get_cell row col st in
   let box = CornerDimBox ((x, y), (1100 / num_cols, 720 / num_rows)) in
   let is_hovering =
-    buy_from_shop (x, y) box st cell ev && st.shop_selection <> None
+    handle_clickable (x, y) box st cell ev
+    && (st.shop_selection <> None || st.is_shovel_selected)
   in
   draw_rect_b box
     ~bg:(if col mod 2 = 0 then Palette.field_base else Palette.field_alternate)
     ~color:(if is_hovering then Palette.coin_yellow else Palette.border)
     ~border_width:(if is_hovering then 5 else 1);
-  (match cell.plant with
+  match cell.plant with
   | Some { plant_type } ->
       (let info =
          match plant_type with
@@ -119,8 +118,7 @@ let draw_cell row col (x, y) st ev =
          (CenterPlace (get_box_center box));
        ());
       ()
-  | None -> ());
-  use_shovel (x, y) box st cell ev
+  | None -> ()
 
 let draw_coin x y r text is_top_coin needs_offset =
   draw_and_fill_circle ~color:Palette.coin_yellow x y r;
@@ -218,13 +216,7 @@ let draw (st : State.t) ev =
   Events.add_clickable
     (draw_button (placed_box (CenterPlace (1265, 700)) 40 40) "||")
     on_pause ev;
-  let shovel_center = PlacedBox (CenterPlace (1228, 65), (52, 100)) in
-  Events.add_clickable
-    (get_box_corners shovel_center)
-    (fun st ->
-      st.is_shovel_selected <- true;
-      st)
-    ev;
+
   let box = CornerDimBox ((0, 576), (180, 144)) in
   draw_rect_b ~bg:Palette.stone_grey box;
   draw_string_p ~size:BigText (CenterPlace (105, 680)) (string_of_int st.coins);
@@ -234,7 +226,21 @@ let draw (st : State.t) ev =
   draw_string_p ~size:BigText
     (CenterPlace (90, 615))
     ("Level - " ^ string_of_int st.level);
-  draw_image_with_placement st.images.shovel 52 100 (CenterPlace (1228, 65))
+
+  (* draws shovel and handles clicks *)
+  let shovel_box = PlacedBox (CenterPlace (1228, 65), (52, 100)) in
+  let is_shovel_hovered =
+    Events.add_clickable_return_hover
+      (get_box_corners shovel_box)
+      (fun st ->
+        st.is_shovel_selected <- true;
+        st)
+      ev
+  in
+  draw_image_with_placement st.images.shovel 52 100 (CenterPlace (1228, 65));
+  if is_shovel_hovered then
+    let shovel_border_box = PlacedBox (CenterPlace (1228, 65), (78, 126)) in
+    draw_rect_b shovel_border_box ~color:Palette.coin_yellow ~border_width:8
 
 (** [make_game_not_lost_list st] is the list of booleans (one boolean for each
     zombie that is false if the zombie is at the x position of the end of the
@@ -352,7 +358,8 @@ let is_zombie_colliding_with_pea (nt : bool) (pea : pea)
   if nt then not check else check
 
 (** [is_pea_colliding_with_zombie] checks whether a pea is NOT colliding with a
-    zombie *)
+    zombie. This is the same method as [is_zombie_colliding_with_pea], but with
+    inputs in different order since it's needed in [tick] as helper function *)
 let is_pea_not_colliding_with_zombie
     ({ location = zombie_x, zombie_y; width = zombie_width } : zombie)
     (pea : pea) : bool =
@@ -377,7 +384,6 @@ let rec add_to_zombies_killed (st : State.t) (zlist : zombie list) =
 
 (** [tick st] refreshes and updates the state of the game *)
 let tick (st : State.t) : State.t =
-  print_endline (string_of_bool st.is_shovel_selected);
   (* Increment the timer, add free coins, and change the level if necessary. *)
   st.timer <- st.timer + 1;
   coin_auto_increment st st.level;
@@ -401,7 +407,33 @@ let tick (st : State.t) : State.t =
     (* Make peas walk. *)
     current_rows
     |> List.iter (fun (row : Board.row) -> row.peas |> List.iter pea_walk);
-
+    (* Facilitate collisions between plants and zombies, including everything to
+       be done*)
+    current_rows
+    |> List.iter (fun (row : Board.row) ->
+           match row.zombies with
+           | [] -> ()
+           | h :: t ->
+               let rec iter_plants (pls : Board.cell list) =
+                 match pls with
+                 | [] -> ()
+                 | { plant = None } :: t -> iter_plants t
+                 | cell :: t -> (
+                     match cell.plant with
+                     | None -> ()
+                     | Some plt ->
+                         let x, y = plt.location in
+                         if is_zombie_colliding_with_entity x plt.width h then (
+                           plt.hp <- plt.hp - h.damage;
+                           h.speed <- 0;
+                           if plt.hp <= 0 then (
+                             cell.plant <- None;
+                             h.speed <- 5)
+                           else ();
+                           iter_plants t)
+                         else iter_plants t)
+               in
+               iter_plants row.cells);
     (* changes the field for number of zombies on the board *)
     st.zombies_on_board <- zombies_on_board_row current_rows;
     (* Make lawnmowers collide with zombies and walk. *)
