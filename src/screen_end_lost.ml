@@ -3,8 +3,11 @@ open Gui_util
 let draw st ev =
   let on_quit _ = exit 0 in
   draw_string_p
-    (CenterPlace (1280 / 2, 500))
-    ~size:GiantText "You lost, better luck next time!";
+    (CenterPlace (1280 / 2, 520))
+    ~size:GiantText "Your frontier has been invaded";
+  draw_string_p
+    (CenterPlace (1280 / 2, 420))
+    ~size:GiantText "Better luck next time!";
   Events.add_clickable
     (draw_button (placed_box (CenterPlace (1280 / 2, 195)) 130 50) "Restart")
     (fun (st : State.t) -> State.init ())

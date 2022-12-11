@@ -477,31 +477,3 @@ let tick (st : State.t) : State.t =
 
   (* Finally, change the state if the game is lost. *)
   check_game_not_lost st
-
-(***************************************************************************)
-let get_plant_being_eaten_by_zombie (row : Board.row) (zombie : zombie) :
-    plant option =
-  raise (Failure "unimplemented")
-(*List.find_opt (fun cell -> test_plant_collision_with_zombie row )*)
-
-let test_plant_collision_with_zombie (plant : plant) (zombie : zombie) =
-  raise (Failure "unimplemented")
-
-let zombie_eat_plant (plant : plant) (zombie : zombie) = ()
-
-let change_board_plant (st_old : State.t) =
-  (*List.fold_left process_row st_old st_old.board.rows)*)
-  raise (Failure "unimplemented")
-
-(* fold left over all the old states, accumulator is the state *)
-(* process row should be getting its row from process_row's state.old *)
-
-let make_zombies_eat_plants (st_old : State.t) : State.t =
-  raise (Failure "unimplemented")
-(*List.fold_left process_row st_old [0;1;2;3;4]*)
-
-let process_row (st_old : State.t) : State.t =
-  (*(row : row)*) raise (Failure "Unimplemented")
-(*List.fold_left process_zombies st_old (List.nth st_old.board.rows
-  row).zombies*)
-(***************************************************************************)
