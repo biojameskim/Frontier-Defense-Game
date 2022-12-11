@@ -57,7 +57,7 @@ let buy_from_shop (x, y) box st (cell : Board.cell) ev =
       match st.shop_selection with
       | None -> st
       | Some plant_type ->
-          if can_buy st plant_type then (
+          if can_buy st plant_type && cell.plant = None then (
             cell.plant <-
               Some
                 {
@@ -78,6 +78,9 @@ let use_shovel (x, y) box st (cell : Board.cell) ev =
   Events.add_clickable (get_box_corners box)
     (fun st ->
       if st.is_shovel_selected = true then (
+        if cell.plant = None then (st.is_shovel_selected <- false; 
+        st.message <- Some "Cell is already empty!";
+          st.message_length <- Some 80);
         cell.plant <- None;
         st.is_shovel_selected <- false;
         st.shop_selection <- None);
@@ -206,6 +209,11 @@ let draw_shop_items (st : State.t) ev =
   draw_shop_item st.images.rifle_soldier_shop 83 100 0 288 st ev PeaShooterPlant;
   draw_shop_item st.images.base_shop 83 100 0 432 st ev SunflowerPlant
 
+let display_message st =
+  match st.message with
+  | None -> ()
+  | Some str -> draw_string_p (CenterPlace (1280 / 2, 360)) ~size:MediumText str
+
 (** [draw st ev] draws the grid *)
 let draw (st : State.t) ev =
   draw_grid
@@ -234,7 +242,8 @@ let draw (st : State.t) ev =
   draw_string_p ~size:BigText
     (CenterPlace (90, 615))
     ("Level - " ^ string_of_int st.level);
-  draw_image_with_placement st.images.shovel 52 100 (CenterPlace (1228, 65))
+  draw_image_with_placement st.images.shovel 52 100 (CenterPlace (1228, 65));
+  display_message st
 
 (** [make_game_not_lost_list st] is the list of booleans (one boolean for each
     zombie that is false if the zombie is at the x position of the end of the
@@ -375,13 +384,27 @@ let rec add_to_zombies_killed (st : State.t) (zlist : zombie list) =
         add_to_zombies_killed st t)
       else add_to_zombies_killed st t
 
+let shovel_message st =
+  if st.is_shovel_selected then (
+    st.message <- Some "Select cell to delete defense, press c to cancel";
+    st.message_length <- Some 99999) else
+      (if st.message = Some "Select cell to delete defense, press c to cancel" 
+        then (st.message <- None;
+      st.message_length <- None))
+
+let manage_message_length st = match st.message_length with 
+|None -> ()
+|Some i -> print_endline (string_of_int i);
+if i <= 0 then (st.message_length <- None; st.message <- None) else
+  st.message_length <- Some (i - 1)   
 (** [tick st] refreshes and updates the state of the game *)
 let tick (st : State.t) : State.t =
-  print_endline (string_of_bool st.is_shovel_selected);
   (* Increment the timer, add free coins, and change the level if necessary. *)
   st.timer <- st.timer + 1;
   coin_auto_increment st st.level;
   change_level st;
+  shovel_message st;
+  manage_message_length st;
   let new_rows =
     (* Spawn zombies. *)
     let spawn_zombie_rows =

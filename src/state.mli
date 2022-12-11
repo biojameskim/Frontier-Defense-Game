@@ -47,6 +47,8 @@ type t = {
   mutable level : int;
   mutable zombies_killed : int;
   mutable zombies_on_board : int;
+  mutable message : string option;
+  mutable message_length : int option;
   images : gui_images;
 }
 (** [t] is the type that represents the current state of the game. *)
