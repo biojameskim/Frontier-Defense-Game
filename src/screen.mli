@@ -8,4 +8,5 @@ type t =
   | PauseScreen
   | LevelChangeScreen
   | EndScreenLost
-      (** [t] is the type that represents the various screens in the game. *)
+
+(** [t] is the type that represents the various screens in the game. *)
