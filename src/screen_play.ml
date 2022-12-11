@@ -189,7 +189,7 @@ let draw (st : State.t) ev =
   draw_shop_items st ev;
   let on_pause st = st |> State.change_screen Screen.PauseScreen in
   Events.add_clickable
-    (draw_button (placed_box (CenterPlace (1260, 700)) 40 40) "||")
+    (draw_button (placed_box (CenterPlace (1265, 700)) 40 40) "||")
     on_pause ev;
   let box = CornerDimBox ((0, 576), (180, 144)) in
   draw_rect_b ~bg:Palette.stone_grey box;

@@ -3,7 +3,9 @@ open Gui_util
 let draw st ev =
   let on_resume st = st |> State.change_screen Screen.PlayScreen in
   let on_quit _ = exit 0 in
-  draw_string_p (CenterPlace (1280 / 2, 500)) ~size:GiantText "Paused";
+  draw_string_p
+    (CenterPlace (1280 / 2, 500))
+    ~size:GiantText "Ready to go back into war?";
   Events.add_clickable
     (draw_button (placed_box (CenterPlace (1280 / 2, 195)) 130 50) "Resume")
     on_resume ev;

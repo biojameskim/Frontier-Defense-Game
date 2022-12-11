@@ -1,7 +1,6 @@
 open Gui_util
 
 let draw st ev =
-  draw_rect_b (CornerBox ((100, 100), (1280 - 100, 720 - 100)));
   let on_quit _ = exit 0 in
   draw_string_p
     (CenterPlace (1280 / 2, 500))
