@@ -17,6 +17,8 @@ let rec handle_event (st : State.t) =
      has an accumator of events *)
   (match st.screen with
   | Screen.HomeScreen -> Screen_home.draw st ev
+  | Screen.TutorialScreen1 -> Screen_tutorial1.draw st ev
+  | Screen.TutorialScreen2 -> Screen_tutorial2.draw st ev
   | Screen.PlayScreen -> Screen_play.draw st ev
   | Screen.PauseScreen -> Screen_pause.draw st ev
   | Screen.LevelChangeScreen -> Level_change_screen.draw st ev
@@ -28,6 +30,8 @@ let rec handle_event (st : State.t) =
   let st =
     match st.screen with
     | Screen.HomeScreen -> Screen_home.tick st
+    | Screen.TutorialScreen1 -> Screen_tutorial1.tick st
+    | Screen.TutorialScreen2 -> Screen_tutorial2.tick st
     | Screen.PlayScreen -> Screen_play.tick st
     | Screen.PauseScreen -> Screen_pause.tick st
     | Screen.LevelChangeScreen -> Level_change_screen.tick st
