@@ -341,9 +341,8 @@ let tick (st : State.t) : State.t =
                   match plant with
                   | Some pl ->
                       pl.timer <- pl.timer + 1;
-                      if pl.speed <> 0 && pl.timer mod pl.speed = 0 then (
-                        print_endline "spawn pea";
-                        r.peas <- Characters.spawn_pea pl :: r.peas)
+                      if pl.speed <> 0 && pl.timer mod pl.speed = 0 then
+                        r.peas <- Characters.spawn_pea pl :: r.peas
                   | None -> ()));
 
     (* Remove zombies with non-positive HP. *)
