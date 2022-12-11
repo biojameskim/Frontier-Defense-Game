@@ -29,8 +29,8 @@ let get_plant_hp (plant : plant_type) : int =
 (** [get_plant_speed plant_type] gets the speed of the plant *)
 let get_plant_speed = function
   | SunflowerPlant -> 0
-  | PeaShooterPlant -> 50
-  | IcePeaShooterPlant -> 50
+  | PeaShooterPlant -> 125
+  | IcePeaShooterPlant -> 250
   | WalnutPlant -> 0
 
 (** [get_plant_width plant_type] gets the width of the plant *)
@@ -56,7 +56,7 @@ let buy_from_shop (x, y) box st (cell : Board.cell) ev =
     (fun st ->
       match st.shop_selection with
       | None -> st
-      | Some plant_type ->
+      | Some plant_type -> 
           if can_buy st plant_type then (
             cell.plant <-
               Some
@@ -74,6 +74,14 @@ let buy_from_shop (x, y) box st (cell : Board.cell) ev =
           st)
     ev
 
+    let use_shovel (x, y) box st (cell : Board.cell) ev =
+      Events.add_clickable (get_box_corners box)
+        (fun st -> if st.is_shovel_selected = true then 
+              (cell.plant <- None;
+              st.is_shovel_selected <- false;
+              st.shop_selection <- None);
+              st)
+        ev; ()
 (** [draw_cell row col (x,y) st ev] draw single cell and add a clickable *)
 let draw_cell row col (x, y) st ev =
   let cell = State.get_cell row col st in
@@ -104,6 +112,7 @@ let draw_cell row col (x, y) st ev =
        ());
       ()
   | None -> ());
+  use_shovel (x,y) box st cell ev;
   buy_from_shop (x, y) box st cell ev
 
 let draw_coin x y r text is_top_coin needs_offset =
@@ -168,7 +177,7 @@ let draw_shop_item img w h x y ev plant_type =
   in
   draw_string_p (BottomLeftPlace (x + offset, y)) plant_string ~size:MediumText;
   Events.add_clickable (get_box_corners box)
-    (fun st -> { st with shop_selection = Some plant_type })
+    (fun st -> if st.is_shovel_selected then st.is_shovel_selected <- false; { st with shop_selection = Some plant_type })
     ev
 
 (** [draw_shop_items st ev] calls draw_shop_item five times *)
@@ -191,6 +200,13 @@ let draw (st : State.t) ev =
   Events.add_clickable
     (draw_button (placed_box (CenterPlace (1265, 700)) 40 40) "||")
     on_pause ev;
+  let shovel_center = PlacedBox (CenterPlace (1228, 65), (52, 100)) in
+  Events.add_clickable
+    (get_box_corners shovel_center)
+    (fun st ->
+      st.is_shovel_selected <- true;
+      st)
+    ev;
   let box = CornerDimBox ((0, 576), (180, 144)) in
   draw_rect_b ~bg:Palette.stone_grey box;
   draw_string_p ~size:BigText (CenterPlace (105, 680)) (string_of_int st.coins);
@@ -199,7 +215,8 @@ let draw (st : State.t) ev =
   draw_coin 50 680 20 BigText true false;
   draw_string_p ~size:BigText
     (CenterPlace (90, 615))
-    ("Level - " ^ string_of_int st.level)
+    ("Level - " ^ string_of_int st.level);
+  draw_image_with_placement st.images.shovel 52 100 (CenterPlace (1228, 65))
 
 (** [make_game_not_lost_list st] is the list of booleans (one boolean for each
     zombie that is false if the zombie is at the x position of the end of the
@@ -238,9 +255,9 @@ let check_game_not_lost st = is_game_not_lost st (make_game_not_lost_list st)
     zombie is spawned in a random row. This is based on levels *)
 let should_spawn_zombie (st : State.t) (level_number : int) : bool =
   match level_number with
-  | 1 -> st.timer mod 100 = 0
-  | 2 -> st.timer mod 200 = 0
-  | 3 -> st.timer mod 200 = 0
+  | 1 -> st.timer mod 250 = 0
+  | 2 -> st.timer mod 250 = 0
+  | 3 -> st.timer mod 250 = 0
   | _ -> failwith "have not implemented those levels"
 
 (** [timer_spawns_zombie st] checks the timer to see if another zombie should be
@@ -255,9 +272,9 @@ let timer_spawns_zombie (st : State.t) : Board.t =
     threshold. It depends on the level if we want it to *)
 let is_time_to_give_coins (level_number : int) (st : State.t) : bool =
   match level_number with
-  | 1 -> st.timer mod 100 = 0
-  | 2 -> st.timer mod 100 = 0
-  | 3 -> st.timer mod 120 = 0
+  | 1 -> st.timer mod 250 = 0
+  | 2 -> st.timer mod 250 = 0
+  | 3 -> st.timer mod 250 = 0
   | _ -> failwith "have not implemented more levels"
 
 (** [coin_auto_increment st] increments the coin counter if the timer reaches a
@@ -342,11 +359,11 @@ let rec add_to_zombies_killed (st : State.t) (zlist : zombie list) =
 
 (** [tick st] refreshes and updates the state of the game *)
 let tick (st : State.t) : State.t =
+  print_endline (string_of_bool st.is_shovel_selected);
   (* Increment the timer, add free coins, and change the level if necessary. *)
   st.timer <- st.timer + 1;
   coin_auto_increment st st.level;
   change_level st;
-
   let new_rows =
     (* Spawn zombies. *)
     let spawn_zombie_rows =
