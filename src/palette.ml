@@ -12,7 +12,4 @@ let field_alternate = G.rgb 82 172 59
 let plant_shop_brown = G.rgb 196 164 132
 let stone_grey = G.rgb 145 142 133
 let coin_yellow = G.rgb 243 199 13
-
-(* Used for testing in order to indicate that a color should not be rendered
-   onto the screen. *)
 let failure = G.magenta

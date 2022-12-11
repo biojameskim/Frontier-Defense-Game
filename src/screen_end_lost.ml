@@ -1,7 +1,5 @@
 open Gui_util
 
-(* [draw st ev] draws the end_lost screen. It has a restart button, a quit
-   button, and has text at the top saying that they lost the game *)
 let draw st ev =
   draw_rect_b (CornerBox ((100, 100), (1280 - 100, 720 - 100)));
   let on_quit _ = exit 0 in
