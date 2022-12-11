@@ -3,10 +3,14 @@ open Image_graphics
 (* Load all images in initial state to optimize cost *)
 type gui_images = {
   horse : Graphics.image;
-  rifle_soldier : Graphics.image;
-  rocket_launcher_soldier : Graphics.image;
-  shield_soldier : Graphics.image;
-  base : Graphics.image;
+  rifle_soldier_light : Graphics.image;
+  rocket_launcher_soldier_light : Graphics.image;
+  shield_soldier_light : Graphics.image;
+  rifle_soldier_dark : Graphics.image;
+  rocket_launcher_soldier_dark : Graphics.image;
+  shield_soldier_dark : Graphics.image;
+  base_light : Graphics.image;
+  base_dark : Graphics.image;
   regular_enemy : Graphics.image;
   buff_enemy : Graphics.image;
   shield_enemy_1 : Graphics.image;
@@ -38,25 +42,42 @@ let init () =
     level = 1;
     zombies_killed = 0;
     images =
+      (* background color *)
       {
         horse =
           Image_graphics.to_image (Png.load "assets/horse.png" []) 92 199 70;
-        rifle_soldier =
+        rifle_soldier_light =
           Image_graphics.to_image
             (Png.load "assets/soldiers/rifle_soldier.png" [])
             92 199 70;
-        rocket_launcher_soldier =
+        rocket_launcher_soldier_light =
           Image_graphics.to_image
             (Png.load "assets/soldiers/rocket_launcher_soldier.png" [])
             92 199 70;
-        shield_soldier =
+        shield_soldier_light =
           Image_graphics.to_image
             (Png.load "assets/soldiers/shield_soldier.png" [])
             92 199 70;
-        base =
+        rifle_soldier_dark =
+          Image_graphics.to_image
+            (Png.load "assets/soldiers/rifle_soldier.png" [])
+            82 172 59;
+        rocket_launcher_soldier_dark =
+          Image_graphics.to_image
+            (Png.load "assets/soldiers/rocket_launcher_soldier.png" [])
+            82 172 59;
+        shield_soldier_dark =
+          Image_graphics.to_image
+            (Png.load "assets/soldiers/shield_soldier.png" [])
+            82 172 59;
+        base_light =
           Image_graphics.to_image
             (Png.load "assets/soldiers/base.png" [])
             92 199 70;
+        base_dark =
+          Image_graphics.to_image
+            (Png.load "assets/soldiers/base.png" [])
+            82 172 59;
         regular_enemy =
           Image_graphics.to_image
             (Png.load "assets/enemies/regular_enemy.png" [])

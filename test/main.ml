@@ -7,6 +7,14 @@ open Screen_play
    reads the images. *)
 let _ = Graphics.open_graph ""
 
+let compare_states (st1 : State.t) (st2 : State.t) =
+  st1.board = st2.board && st1.screen = st2.screen
+  && st1.was_mouse_pressed = st2.was_mouse_pressed
+  && st1.timer = st2.timer
+  && st1.shop_selection = st2.shop_selection
+  && st1.coins = st2.coins && st1.level = st2.level
+  && st1.zombies_killed = st2.zombies_killed
+
 let trivial_tests =
   [
     ("trivial test" >:: fun _ -> assert_equal "abc" "abc");
@@ -49,7 +57,8 @@ let state_tests =
     ( "state change_screen" >:: fun _ ->
       assert_equal
         { init_state with screen = Screen.PauseScreen }
-        (init_state |> State.change_screen Screen.PauseScreen) );
+        (init_state |> State.change_screen Screen.PauseScreen)
+        ~cmp:compare_states );
   ]
 
 let get_plant_cost_test (name : string) (plant : plant_type)
@@ -77,7 +86,8 @@ let decrement_coins_test (name : string) (st : State.t) (plant : plant_type)
 
 let is_game_not_lost_test (name : string) (st : State.t) (blist : bool list)
     (expected_output : State.t) : test =
-  name >:: fun _ -> assert_equal expected_output (is_game_not_lost st blist)
+  name >:: fun _ ->
+  assert_equal expected_output (is_game_not_lost st blist) ~cmp:compare_states
 
 let make_game_not_lost_list_test (name : string) (st : State.t)
     (expected_output : bool list) : test =
