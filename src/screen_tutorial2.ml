@@ -5,6 +5,7 @@ open Images
 
 let draw (st : State.t) ev =
   let on_quit _ = exit 0 in
+  let on_home st = st |> State.change_screen Screen.HomeScreen in
   let on_play st = st |> State.change_screen Screen.PlayScreen in
   draw_string_p (CenterPlace (1280 / 2, 650)) ~size:GiantText "Tutorial";
   draw_string_p
@@ -20,8 +21,9 @@ let draw (st : State.t) ev =
   draw_string_p (CenterPlace (420, 270)) ~size:MediumText "Generates currency";
   draw_image_with_placement st.images.base_dark 83 100 (CenterPlace (420, 350));
   (* draws coin *)
-  draw_and_fill_circle ~color:Palette.coin_yellow 640 360 40;
-  draw_string_p ~size:GiantText (CenterPlace (643, 360)) "$";
+  draw_and_fill_circle ~color:Palette.coin_yellow 650 350 40;
+  draw_string_p (CenterPlace (653, 270)) ~size:MediumText "Currency";
+  draw_string_p ~size:GiantText (CenterPlace (652, 350)) "$";
   (* draws and explains soldiers *)
   draw_string_p (CenterPlace (990, 460)) ~size:MediumText "Soldiers";
   draw_string_p (CenterPlace (850, 420)) ~size:MediumText "Rifleman";
@@ -33,8 +35,11 @@ let draw (st : State.t) ev =
   draw_string_p (CenterPlace (1100, 420)) ~size:MediumText "Guard";
   draw_image_with_placement st.images.shield_soldier_dark 58 100
     (CenterPlace (1100, 350));
-  draw_string_p (CenterPlace (990, 270)) ~size:MediumText "Defends off enemies";
+  draw_string_p (CenterPlace (980, 270)) ~size:MediumText "Defends off enemies";
   (* adds play and quit button*)
+  Events.add_clickable
+    (draw_button (placed_box (CenterPlace (65, 80)) 130 50) "Home")
+    on_home ev;
   Events.add_clickable
     (draw_button (placed_box (CenterPlace (65, 25)) 130 50) "Quit")
     on_quit ev;
