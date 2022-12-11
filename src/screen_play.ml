@@ -162,26 +162,11 @@ let draw_shop_item img w h x y ev plant_type =
 
 (** [draw_shop_items st ev] calls draw_shop_item five times *)
 let draw_shop_items (st : State.t) ev =
-  draw_shop_item
-    (Image_graphics.to_image
-       (Png.load "assets/soldiers/shield_soldier.png" [])
-       196 164 132)
-    58 100 0 0 ev WalnutPlant;
-  draw_shop_item
-    (Image_graphics.to_image
-       (Png.load "assets/soldiers/rocket_launcher_soldier.png" [])
-       196 164 132)
-    76 100 0 144 ev IcePeaShooterPlant;
-  draw_shop_item
-    (Image_graphics.to_image
-       (Png.load "assets/soldiers/rifle_soldier.png" [])
-       196 164 132)
-    83 100 0 288 ev PeaShooterPlant;
-  draw_shop_item
-    (Image_graphics.to_image
-       (Png.load "assets/soldiers/base.png" [])
-       196 164 132)
-    83 100 0 432 ev SunflowerPlant
+  draw_shop_item st.images.shield_soldier_shop 58 100 0 0 ev WalnutPlant;
+  draw_shop_item st.images.rocket_launcher_soldier_shop 76 100 0 144 ev
+    IcePeaShooterPlant;
+  draw_shop_item st.images.rifle_soldier_shop 83 100 0 288 ev PeaShooterPlant;
+  draw_shop_item st.images.base_shop 83 100 0 432 ev SunflowerPlant
 
 (** [draw st ev] draws the grid *)
 let draw (st : State.t) ev =
@@ -271,7 +256,6 @@ let coin_auto_increment (st : State.t) (level_number : int) : unit =
   if is_time_to_give_coins level_number st then st.coins <- st.coins + 25
   else ()
 
-
 let rec zombies_on_board_row (rows : Board.row list) : int =
   match rows with
   | [] -> 0
@@ -292,8 +276,7 @@ let zombies_in_level level_number : int =
 let all_lvl_zombs_spawned (st : State.t) (level_number : int) : bool =
   match level_number with
   | 1 | 2 | 3 ->
-      st.zombies_killed + st.zombies_on_board
-      = zombies_in_level level_number
+      st.zombies_killed + st.zombies_on_board = zombies_in_level level_number
   | _ -> failwith "have not implemented more levels"
 
 (** [change_level_screen st] changes the state screen to the level_change screen *)
@@ -337,11 +320,15 @@ let damage_zombie (zombie : zombie) (pea : pea) : unit =
     zombie.hp <- zombie.hp - pea.damage
   else ()
 
-  let rec add_to_zombies_killed (st : State.t) (zlist : zombie list) =
-     match zlist with 
-  |[] -> ()
-  |h :: t -> if h.hp <= 0 then (st.zombies_killed <- st.zombies_killed + 1; 
-add_to_zombies_killed st t) else add_to_zombies_killed st t
+let rec add_to_zombies_killed (st : State.t) (zlist : zombie list) =
+  match zlist with
+  | [] -> ()
+  | h :: t ->
+      if h.hp <= 0 then (
+        st.zombies_killed <- st.zombies_killed + 1;
+        add_to_zombies_killed st t)
+      else add_to_zombies_killed st t
+
 (** [tick st] refreshes and updates the state of the game *)
 let tick (st : State.t) : State.t =
   print_endline (string_of_int st.zombies_killed);
@@ -438,16 +425,19 @@ let tick (st : State.t) : State.t =
     |> List.iter (fun (row : Board.row) ->
            match row.peas with
            | [] -> ()
-           | ps -> begin
-               match row.zombies with
-               | [] -> ()
-               | h :: t ->
-                   row.peas <-
-                     List.filter (is_pea_not_colliding_with_zombie h) ps
-             end);
-
+           | ps ->
+               let rec destroy zbs =
+                 match zbs with
+                 | [] -> ()
+                 | h :: t ->
+                     row.peas <-
+                       List.filter (is_pea_not_colliding_with_zombie h) ps;
+                     destroy t
+               in
+               destroy row.zombies);
     (* add number of zombies with non_postive HP to st.zombies_killed *)
-    current_rows |> List.iter(fun (r: Board.row) -> add_to_zombies_killed st r.zombies);
+    current_rows
+    |> List.iter (fun (r : Board.row) -> add_to_zombies_killed st r.zombies);
     (* Remove zombies with non-positive HP. *)
     current_rows
     |> List.iter (fun (r : Board.row) ->
