@@ -9,7 +9,8 @@ type gui_images = {
   rifle_soldier_dark : Graphics.image;
   rocket_launcher_soldier_dark : Graphics.image;
   shield_soldier_dark : Graphics.image;
-  base : Graphics.image;
+  base_light : Graphics.image;
+  base_dark : Graphics.image;
   regular_enemy : Graphics.image;
   buff_enemy : Graphics.image;
   shield_enemy_1 : Graphics.image;
@@ -69,10 +70,14 @@ let init () =
           Image_graphics.to_image
             (Png.load "assets/soldiers/shield_soldier.png" [])
             82 172 59;
-        base =
+        base_light =
           Image_graphics.to_image
             (Png.load "assets/soldiers/base.png" [])
             92 199 70;
+        base_dark =
+          Image_graphics.to_image
+            (Png.load "assets/soldiers/base.png" [])
+            82 172 59;
         regular_enemy =
           Image_graphics.to_image
             (Png.load "assets/enemies/regular_enemy.png" [])

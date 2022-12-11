@@ -84,7 +84,9 @@ let draw_cell row col (x, y) st ev =
   | Some { plant_type } ->
       (let info =
          match plant_type with
-         | SunflowerPlant -> (st.images.base, 94, 100)
+         | SunflowerPlant ->
+             if col mod 2 = 0 then (st.images.base_light, 94, 100)
+             else (st.images.base_dark, 94, 100)
          | PeaShooterPlant ->
              if col mod 2 = 0 then (st.images.rifle_soldier_light, 83, 100)
              else (st.images.rifle_soldier_dark, 83, 100)
@@ -186,7 +188,9 @@ let draw (st : State.t) ev =
   draw_string_p ~size:BigText (CenterPlace (105, 680)) (string_of_int st.coins);
   draw_and_fill_circle ~color:Palette.coin_yellow 50 680 20;
   draw_string_p ~size:BigText (CenterPlace (52, 680)) "$";
-  draw_string_p ~size:BigText (CenterPlace (90, 615)) ("Level - " ^ string_of_int st.level)
+  draw_string_p ~size:BigText
+    (CenterPlace (90, 615))
+    ("Level - " ^ string_of_int st.level)
 
 (** [make_game_not_lost_list st] is the list of booleans (one boolean for each
     zombie that is false if the zombie is at the x position of the end of the
