@@ -317,12 +317,24 @@ let is_zombie_colliding_with_pea (nt : bool) (pea : pea)
   if nt then not check else check
 
 (** [is_pea_colliding_with_zombie] checks whether a pea is NOT colliding with a
-    zombie *)
+    zombie. This is the same method as [is_zombie_colliding_with_pea], but with
+    inputs in different order since it's needed in [tick] as helper function *)
 let is_pea_not_colliding_with_zombie
     ({ location = zombie_x, zombie_y; width = zombie_width } : zombie)
     (pea : pea) : bool =
   let pea_x = fst pea.location in
   not (abs (zombie_x - pea_x) < (zombie_width / 2) + (pea.width / 2))
+
+(** [is_pea_colliding_with_zombie] checks whether a zombie is colliding with a
+    pea if nt is false, and checks if a zombie is NOT colliding with a pea if nt
+    is true *)
+let is_zombie_colliding_with_plant (nt : bool) (plant : plant)
+    ({ location = zombie_x, zombie_y; width = zombie_width } : zombie) : bool =
+  let plant_x = fst plant.location in
+  let check =
+    abs (zombie_x - plant_x) < (zombie_width / 2) + (plant.width / 2)
+  in
+  if nt then not check else check
 
 (** [damage_zombie] subtracts a pea's damage from a zombie's hp if they are
     colliding*)
@@ -366,7 +378,32 @@ let tick (st : State.t) : State.t =
     (* Make peas walk. *)
     current_rows
     |> List.iter (fun (row : Board.row) -> row.peas |> List.iter pea_walk);
-
+    (* Facilitate collisions between plants and zombies, including everything to
+       be done*)
+    current_rows
+    |> List.iter (fun (row : Board.row) ->
+           match row.zombies with
+           | [] -> ()
+           | h :: t ->
+               let rec iter_plants (pls : Board.cell list) =
+                 match pls with
+                 | [] -> ()
+                 | { plant = None } :: t -> iter_plants t
+                 | cell :: t -> (
+                     match cell.plant with
+                     | None -> ()
+                     | Some plt ->
+                         if is_zombie_colliding_with_plant false plt h then (
+                           plt.hp <- plt.hp - h.damage;
+                           h.speed <- 0;
+                           if plt.hp <= 0 then (
+                             cell.plant <- None;
+                             h.speed <- 5)
+                           else ();
+                           iter_plants t)
+                         else iter_plants t)
+               in
+               iter_plants row.cells);
     (* changes the field for number of zombies on the board *)
     st.zombies_on_board <- zombies_on_board_row current_rows;
     (* Make lawnmowers collide with zombies and walk. *)
