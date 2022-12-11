@@ -104,16 +104,6 @@ let draw_string_p placement ?(color = Palette.text) ?(size = RegularText) msg =
   G.set_color color;
   G.draw_string msg
 
-let draw_string_big placement ?(color = Palette.text) ?(size = BigText) msg =
-  G.set_font
-    (Printf.sprintf "-*-fixed-medium-r-semicondensed--%d-*-*-*-*-*-iso8859-1"
-       (int_of_text_size size));
-  G.set_color color;
-  let (x, y), _ = get_box_corners (PlacedBox (placement, G.text_size msg)) in
-  G.moveto x y;
-  G.set_color color;
-  G.draw_string msg
-
 let draw_button box ?(text_color = Palette.button_text)
     ?(border = Palette.button_border) ?(bg = Palette.button_bg)
     ?(text_size = BigText) msg : point * point =

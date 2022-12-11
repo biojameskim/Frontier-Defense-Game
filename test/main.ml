@@ -3,6 +3,10 @@ open Game
 open Characters
 open Screen_play
 
+(* This is a hacky workaround to get State.init () to not throw an error as it
+   reads the images. *)
+let _ = Graphics.open_graph ""
+
 let trivial_tests =
   [
     ("trivial test" >:: fun _ -> assert_equal "abc" "abc");
