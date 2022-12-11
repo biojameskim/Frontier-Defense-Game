@@ -239,8 +239,8 @@ let draw (st : State.t) ev =
   in
   draw_image_with_placement st.images.shovel 52 100 (CenterPlace (1228, 65));
   if is_shovel_hovered then
-    let shovel_border_box = PlacedBox (CenterPlace (1228, 65), (70, 118)) in
-    draw_rect_b shovel_border_box ~color:Palette.coin_yellow ~border_width:5
+    let shovel_border_box = PlacedBox (CenterPlace (1228, 65), (78, 126)) in
+    draw_rect_b shovel_border_box ~color:Palette.coin_yellow ~border_width:8
 
 (** [make_game_not_lost_list st] is the list of booleans (one boolean for each
     zombie that is false if the zombie is at the x position of the end of the
@@ -366,17 +366,6 @@ let is_pea_not_colliding_with_zombie
   let pea_x = fst pea.location in
   not (abs (zombie_x - pea_x) < (zombie_width / 2) + (pea.width / 2))
 
-(** [is_pea_colliding_with_zombie] checks whether a zombie is colliding with a
-    pea if nt is false, and checks if a zombie is NOT colliding with a pea if nt
-    is true *)
-let is_zombie_colliding_with_plant (nt : bool) (plant : plant)
-    ({ location = zombie_x, zombie_y; width = zombie_width } : zombie) : bool =
-  let plant_x = fst plant.location in
-  let check =
-    abs (zombie_x - plant_x) < (zombie_width / 2) + (plant.width / 2)
-  in
-  if nt then not check else check
-
 (** [damage_zombie] subtracts a pea's damage from a zombie's hp if they are
     colliding*)
 let damage_zombie (zombie : zombie) (pea : pea) : unit =
@@ -395,7 +384,6 @@ let rec add_to_zombies_killed (st : State.t) (zlist : zombie list) =
 
 (** [tick st] refreshes and updates the state of the game *)
 let tick (st : State.t) : State.t =
-  print_endline (string_of_bool st.is_shovel_selected);
   (* Increment the timer, add free coins, and change the level if necessary. *)
   st.timer <- st.timer + 1;
   coin_auto_increment st st.level;
@@ -434,7 +422,8 @@ let tick (st : State.t) : State.t =
                      match cell.plant with
                      | None -> ()
                      | Some plt ->
-                         if is_zombie_colliding_with_plant false plt h then (
+                         let x, y = plt.location in
+                         if is_zombie_colliding_with_entity x plt.width h then (
                            plt.hp <- plt.hp - h.damage;
                            h.speed <- 0;
                            if plt.hp <= 0 then (
