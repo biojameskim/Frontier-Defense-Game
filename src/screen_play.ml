@@ -16,7 +16,7 @@ let get_plant_cost (plant : plant_type) : int =
   | SunflowerPlant -> 5
   | PeaShooterPlant -> 5
   | IcePeaShooterPlant -> 10
-  | WalnutPlant -> 65
+  | WalnutPlant -> 25
 
 (** [get_plant_hp plant] gets the hp of the specific plant *)
 let get_plant_hp (plant : plant_type) : int =
@@ -106,6 +106,11 @@ let draw_cell row col (x, y) st ev =
   | None -> ());
   buy_from_shop (x, y) box st cell ev
 
+let draw_coin x y r text is_top_coin =
+  draw_and_fill_circle ~color:Palette.coin_yellow x y r;
+  if is_top_coin then draw_string_p ~size:text (CenterPlace (x, y)) "$"
+  else draw_string_p ~size:text (CenterPlace (x - 5, y)) "$"
+
 (** [draw_row row st] draws the char that represents each character *)
 
 let draw_row (row : Board.row) (st : State.t) =
@@ -138,12 +143,19 @@ let draw_row (row : Board.row) (st : State.t) =
          draw_image_with_placement img width height
            (CenterPlace (offset_x, offset_y)))
 
+let draw_coin_amount x y plant_type =
+  draw_string_p ~size:RegularText
+    (CenterPlace (x, y))
+    (string_of_int (get_plant_cost plant_type))
+
 (** [draw_shop_items img w h x y ev plant_type] draws the five boxes for the
     shop *)
 let draw_shop_item img w h x y ev plant_type =
   let box = CornerDimBox ((x, y), (180, 144)) in
   draw_rect_b ~bg:Palette.plant_shop_brown box;
   draw_image_with_placement img w h (BottomLeftPlace (x + 35, y + 25));
+  draw_coin (x + 150) (y + 120) 15 SmallText false;
+  draw_coin_amount (x + 155) (y + 120) plant_type;
   Events.add_clickable (get_box_corners box)
     (fun st -> { st with shop_selection = Some plant_type })
     ev
@@ -186,8 +198,9 @@ let draw (st : State.t) ev =
   let box = CornerDimBox ((0, 576), (180, 144)) in
   draw_rect_b ~bg:Palette.stone_grey box;
   draw_string_p ~size:BigText (CenterPlace (105, 680)) (string_of_int st.coins);
-  draw_and_fill_circle ~color:Palette.coin_yellow 50 680 20;
-  draw_string_p ~size:BigText (CenterPlace (52, 680)) "$";
+
+  (* draws top coin that tracks how many coins you have *)
+  draw_coin 50 680 20 BigText true;
   draw_string_p ~size:BigText
     (CenterPlace (90, 615))
     ("Level - " ^ string_of_int st.level)
