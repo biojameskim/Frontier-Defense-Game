@@ -331,8 +331,6 @@ let rec add_to_zombies_killed (st : State.t) (zlist : zombie list) =
 
 (** [tick st] refreshes and updates the state of the game *)
 let tick (st : State.t) : State.t =
-  print_endline (string_of_int st.zombies_killed);
-  print_endline (string_of_int st.level);
   (* Increment the timer, add free coins, and change the level if necessary. *)
   st.timer <- st.timer + 1;
   coin_auto_increment st st.level;
