@@ -57,15 +57,10 @@ type sun = {
   row : int;
 }
 
-(** [zombie_walk zombie] gives you a new zombie with new distance, makes the
-    zombies walk *)
 let zombie_walk (z : zombie) : zombie =
   let x, y = z.location in
   { z with location = (x - z.speed, y) }
 
-(** [lawnmower_walk lawnmower] Returns a new lawnmower with updated distance.
-    This can be used to update the lawnmowers on the screen, making it appear as
-    if they are moving across the screen. *)
 let lawnmower_walk (l : lawnmower option) : lawnmower option =
   match l with
   | Some lm ->
@@ -73,10 +68,9 @@ let lawnmower_walk (l : lawnmower option) : lawnmower option =
       Some { lm with location = (x + lm.speed, y) }
   | None -> None
 
-(** [spawn_pea plant] Returns a pea based on the type of the plant *)
 let spawn_pea (pl : plant) : pea =
   match pl.plant_type with
-  | SunflowerPlant -> failwith "Cannot spawn a pea from a sunflower plant"
+  | SunflowerPlant -> failwith "Cannot spawn a pea from a sunflower"
   | WalnutPlant -> failwith "Cannot spawn a pea from a walnut plant"
   | IcePeaShooterPlant ->
       {
@@ -95,6 +89,5 @@ let spawn_pea (pl : plant) : pea =
         width = 5;
       }
 
-(** [pea_walk pea] Returns a new pea with updated location. *)
 let pea_walk ({ location = x, y } as p : pea) : unit =
   p.location <- (x + p.speed, y)

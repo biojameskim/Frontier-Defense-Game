@@ -40,7 +40,6 @@ and box =
   | PlacedBox of placement * dim
   | CornerDimBox of point * dim
 
-(** Get the corners of a box. *)
 let rec get_box_corners = function
   (* Overview: CornerBox and CornerDimBox are the base cases. A PlacedBox is
      converted to a CornerDimBox by figuring out what the top-left corner should
@@ -57,21 +56,17 @@ let rec get_box_corners = function
       | TopCenterPlace (x, y) ->
           get_box_corners (CornerDimBox ((x - (w / 2), y), dim)))
 
-(** Utility function to define a placed box. *)
 let placed_box placement w h = PlacedBox (placement, (w, h))
 
-(** Get the center point of a box. *)
 let get_box_center box =
   let (x1, y1), (x2, y2) = get_box_corners box in
   ((x1 + x2) / 2, (y1 + y2) / 2)
 
-(** Test if a point is in a box. *)
 let is_point_in_box box (x, y) =
   let (x1, y1), (x2, y2) = get_box_corners box in
   (* Printf.printf "is_point_in_box: %d %d %d %d %d %d\n" x1 y1 x2 y2 x y; *)
   x1 <= x && x <= x2 && y1 <= y && y <= y2
 
-(** Draw a rectangle. Does not affect the current location of the pen. *)
 let draw_rect_b ?(color = Palette.border) ?bg box =
   let (x1, y1), (x2, y2) = get_box_corners box in
   (match bg with
@@ -109,16 +104,6 @@ let draw_string_p placement ?(color = Palette.text) ?(size = RegularText) msg =
   G.set_color color;
   G.draw_string msg
 
-let draw_string_big placement ?(color = Palette.text) ?(size = BigText) msg =
-  G.set_font
-    (Printf.sprintf "-*-fixed-medium-r-semicondensed--%d-*-*-*-*-*-iso8859-1"
-       (int_of_text_size size));
-  G.set_color color;
-  let (x, y), _ = get_box_corners (PlacedBox (placement, G.text_size msg)) in
-  G.moveto x y;
-  G.set_color color;
-  G.draw_string msg
-
 let draw_button box ?(text_color = Palette.button_text)
     ?(border = Palette.button_border) ?(bg = Palette.button_bg)
     ?(text_size = BigText) msg : point * point =
@@ -128,63 +113,6 @@ let draw_button box ?(text_color = Palette.button_text)
     ~color:text_color ~size:text_size msg;
   get_box_corners box
 
-let rec draw_row_lines (window_x : int) (window_y : int) (curr_y : int)
-    (num_rows : int) =
-  if curr_y < window_y then
-    (G.moveto 0 curr_y;
-     G.lineto window_x curr_y;
-     draw_row_lines window_x window_y (curr_y + (window_y / num_rows)))
-      num_rows
-  else G.lineto window_x curr_y
-
-let rec draw_col_lines (window_x : int) (window_y : int) (cur_x : int)
-    (num_cols : int) =
-  if cur_x < window_x then
-    (G.moveto cur_x window_y;
-     G.lineto cur_x 0;
-     draw_col_lines window_x window_y (cur_x + (window_x / num_cols)))
-      num_cols
-  else G.lineto cur_x 0
-
-let rec init_lawnmowers (window_x : int) (window_y : int) (num_rows : int)
-    (num_cols : int) (curr_y : int) =
-  if curr_y < window_y then (
-    let pos_x = window_x / (num_cols * 2) in
-    let pos_y = window_y / (num_rows * 2) in
-    G.moveto pos_x pos_y;
-    G.draw_circle pos_x curr_y 20;
-    init_lawnmowers window_x window_y num_rows num_cols
-      (curr_y + (window_y / num_rows)))
-  else G.draw_circle 0 0 0
-
-let find_dist (window_x : int) (num_cols : int) (is_plant : bool) =
-  if is_plant = true then window_x - (window_x / num_cols / 2)
-  else
-    let box = window_x / num_cols in
-    box + (window_x / num_cols / 2)
-
-let rec draw_plants_or_zombies (window_x : int) (window_y : int) (curr_y : int)
-    (num_rows : int) (num_cols : int) (is_plant : bool) =
-  if curr_y < window_y then (
-    let half_col = find_dist window_x num_cols is_plant in
-    G.moveto half_col (curr_y + (window_y / num_rows / 2) - 25);
-    G.set_font "-*-fixed-medium-r-semicondensed--50-*-*-*-*-*-iso8859-1";
-    if is_plant then G.draw_char 'Z' else G.draw_char 'P';
-    let new_y = curr_y + (window_y / num_rows) in
-    draw_plants_or_zombies window_x window_y new_y num_rows num_cols is_plant)
-  else G.draw_char ' '
-
-let rec color_grid_alternate (window_x : int) (window_y : int) (num_cols : int)
-    (curr_x : int) =
-  if curr_x < window_x then (
-    G.set_color (G.rgb 82 172 59);
-    let width = window_x / num_cols in
-    G.fill_rect curr_x 0 width window_y;
-    color_grid_alternate window_x window_y num_cols (curr_x + (width * 2)))
-  else G.fill_rect 0 0 0 0
-
-(** [draw_image_with_placement image w h placement] draws a Graphics.image given
-    a width, height, and a placement *)
 let draw_image_with_placement (image : G.image) w h (placement : placement) =
   let box = PlacedBox (placement, (w, h)) in
   let (x, y), _ = get_box_corners box in

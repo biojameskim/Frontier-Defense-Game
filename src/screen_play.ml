@@ -82,17 +82,32 @@ let draw_cell row col (x, y) st ev =
     ~bg:(if col mod 2 = 0 then Palette.field_base else Palette.field_alternate);
   (match cell.plant with
   | Some { plant_type } ->
-      Graphics.draw_image
-        (match plant_type with
-        | PeaShooterPlant -> st.images.rifle_soldier
-        | IcePeaShooterPlant -> st.images.rocket_launcher_soldier
-        | WalnutPlant -> st.images.shield_soldier
-        | SunflowerPlant -> st.images.base)
-        x y
+      (let info =
+         match plant_type with
+         | SunflowerPlant ->
+             if col mod 2 = 0 then (st.images.base_light, 94, 100)
+             else (st.images.base_dark, 94, 100)
+         | PeaShooterPlant ->
+             if col mod 2 = 0 then (st.images.rifle_soldier_light, 83, 100)
+             else (st.images.rifle_soldier_dark, 83, 100)
+         | IcePeaShooterPlant ->
+             if col mod 2 = 0 then
+               (st.images.rocket_launcher_soldier_light, 76, 100)
+             else (st.images.rocket_launcher_soldier_dark, 76, 100)
+         | WalnutPlant ->
+             if col mod 2 = 0 then (st.images.shield_soldier_light, 58, 100)
+             else (st.images.shield_soldier_dark, 58, 100)
+       in
+       let img, width, height = info in
+       draw_image_with_placement img width height
+         (CenterPlace (get_box_center box));
+       ());
+      ()
   | None -> ());
   buy_from_shop (x, y) box st cell ev
 
 (** [draw_row row st] draws the char that represents each character *)
+
 let draw_row (row : Board.row) (st : State.t) =
   row.zombies
   |> List.iter (fun { zombie_type; location } ->
@@ -114,12 +129,14 @@ let draw_row (row : Board.row) (st : State.t) =
          let x, y = location in
          let info =
            match pea_type with
-           | RegularPea -> (st.images.regular_bullet, 19, 10)
-           | FreezePea -> (st.images.rocket_bullet, 20, 10)
+           | RegularPea -> (st.images.regular_bullet, 19, 10, 42, 25)
+           | FreezePea -> (st.images.rocket_bullet, 20, 10, 38, 20)
          in
-         let img, width, height = info in
+         let img, width, height, offset_x, offset_y = info in
+         let offset_x = x + 50 + offset_x in
+         let offset_y = y + 75 + offset_y in
          draw_image_with_placement img width height
-           (CenterPlace (x + 50, y + 75)))
+           (CenterPlace (offset_x, offset_y)))
 
 (** [draw_shop_items img w h x y ev plant_type] draws the five boxes for the
     shop *)
@@ -168,10 +185,12 @@ let draw (st : State.t) ev =
     on_pause ev;
   let box = CornerDimBox ((0, 576), (180, 144)) in
   draw_rect_b ~bg:Palette.stone_grey box;
-  draw_string_big (CenterPlace (105, 680)) (string_of_int st.coins);
+  draw_string_p ~size:BigText (CenterPlace (105, 680)) (string_of_int st.coins);
   draw_and_fill_circle ~color:Palette.coin_yellow 50 680 20;
-  draw_string_big (CenterPlace (52, 680)) "$";
-  draw_string_big (CenterPlace (90, 615)) ("Level - " ^ string_of_int st.level)
+  draw_string_p ~size:BigText (CenterPlace (52, 680)) "$";
+  draw_string_p ~size:BigText
+    (CenterPlace (90, 615))
+    ("Level - " ^ string_of_int st.level)
 
 (** [make_game_not_lost_list st] is the list of booleans (one boolean for each
     zombie that is false if the zombie is at the x position of the end of the
@@ -364,9 +383,8 @@ let tick (st : State.t) : State.t =
                   match plant with
                   | Some pl ->
                       pl.timer <- pl.timer + 1;
-                      if pl.speed <> 0 && pl.timer mod pl.speed = 0 then (
-                        print_endline "spawn pea";
-                        r.peas <- Characters.spawn_pea pl :: r.peas)
+                      if pl.speed <> 0 && pl.timer mod pl.speed = 0 then
+                        r.peas <- Characters.spawn_pea pl :: r.peas
                   | None -> ()));
 
     (* Remove zombies with non-positive HP. *)
