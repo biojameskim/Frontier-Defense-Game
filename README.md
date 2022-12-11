@@ -1,4 +1,4 @@
-# Plants vs. Zombies
+# Frontier Defense
 
 This project is a GUI-based clone of Plants vs. Zombies. 
 

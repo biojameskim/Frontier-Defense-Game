@@ -16,7 +16,6 @@ let main () =
         true
   in
 
-  if fatal_exception then
-    Terminal.print_error "Plants vs. Zombies game stopped."
+  if fatal_exception then Terminal.print_error "Frontier Defense game stopped."
 
 let () = main ()

@@ -75,17 +75,17 @@ let spawn_pea (pl : plant) : pea =
   | IcePeaShooterPlant ->
       {
         pea_type = FreezePea;
-        damage = 5;
+        damage = 4;
         location = pl.location;
-        speed = 10;
+        speed = 5;
         width = 5;
       }
   | PeaShooterPlant ->
       {
         pea_type = RegularPea;
-        damage = 5;
+        damage = 4;
         location = pl.location;
-        speed = 10;
+        speed = 5;
         width = 5;
       }
 

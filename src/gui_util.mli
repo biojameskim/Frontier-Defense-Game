@@ -49,10 +49,11 @@ val is_point_in_box : box -> int * int -> bool
 (** [is_point_in_box b p] returns a bool that represents whether point [p]
     exists within box [b]. *)
 
-val draw_rect_b : ?color:G.color -> ?bg:G.color -> box -> unit
-(** [draw_rect_b ~color:c ~bg:bg b] draws a rectangle of border color [c],
-    background color [bg] and bounds of [box]. Does not affect the current
-    location of the pen. *)
+val draw_rect_b :
+  ?color:G.color -> ?bg:G.color -> ?border_width:int -> box -> unit
+(** [draw_rect_b ~color:c ~bg:bg b] draws a rectangle with border color [c],
+    border width [border_width] background color [bg] and bounds of [box]. Does
+    not affect the current location of the pen. *)
 
 val draw_and_fill_circle : ?color:G.color -> int -> int -> int -> unit
 (** [draw_and_fill_circle ~color:c x y r] draws a circle with border color [c],

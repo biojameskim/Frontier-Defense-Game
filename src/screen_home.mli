@@ -1,6 +1,6 @@
 (** Represents the home screen in the game. *)
 
-val draw : 'a -> Events.t -> unit
+val draw : State.t -> Events.t -> unit
 (** [draw st ev] draws the home screen given a state [st] and event [ev]. *)
 
 val tick : 'a -> 'a

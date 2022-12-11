@@ -16,7 +16,7 @@ pm:
 # Set to false if you don't want your gallery entry to be public.
 publish: true
 # Pithy title
-title: "Plants v. Zombies"
+title: "Frontier Defense"
 # OK if this is a Cornell Github link, but public gallery viewers won't be able to see it.
 git-repo: "https://github.com/doctakim/cs3110-final-project"
 # If you have no demo screencast, replace the url string with an empty string ""
