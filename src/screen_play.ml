@@ -441,33 +441,66 @@ let tick (st : State.t) : State.t =
        be done*)
     current_rows
     |> List.iter (fun (row : Board.row) ->
-           match row.zombies with
-           | [] -> ()
-           | h :: t ->
-               let rec iter_plants (pls : Board.cell list) =
-                 match pls with
-                 | [] -> ()
-                 | { plant = None } :: t ->
-                     h.speed <- 5;
-                     iter_plants t
-                 | cell :: t -> (
-                     match cell.plant with
-                     | None -> ()
-                     | Some plt ->
-                         let x, y = plt.location in
-                         if is_zombie_colliding_with_entity x plt.width h then (
-                           plt.hp <- plt.hp - h.damage;
-                           h.speed <- 0;
-                           if plt.hp <= 0 then (
-                             cell.plant <- None;
-                             h.speed <- 5)
-                           else ();
-                           iter_plants t)
-                         else iter_plants t)
-               in
-               iter_plants row.cells);
+           let rec iter_zombie (zombies : zombie list) =
+             match zombies with
+             | [] -> ()
+             | h :: t ->
+                 (* if List.filter (fun (p : Board.cell) -> (match p.plant with
+                    | None -> false | Some plt ->
+                    is_zombie_colliding_with_entity (fst plt.location) plt.width
+                    h)) row.cells *)
+                 (let rec iter_plants (pls : Board.cell list)
+                      (was_eating : bool) =
+                    let colliding =
+                      List.filter
+                        (fun (plt : Board.cell) ->
+                          match plt.plant with
+                          | None -> false
+                          | Some plant ->
+                              let x, y = plant.location in
+                              if is_zombie_colliding_with_entity x plant.width h
+                              then true
+                              else false)
+                        pls
+                    in
+                    if List.length colliding > 0 then
+                      List.iter
+                        (fun (plt : Board.cell) ->
+                          match plt.plant with
+                          | None -> ()
+                          | Some plant ->
+                              if Some plant = (List.nth colliding 0).plant then (
+                                plant.hp <- plant.hp - h.damage;
+                                h.speed <- 0;
+                                if plant.hp <= 0 then h.speed <- 5 else ())
+                              else ())
+                        pls
+                    else h.speed <- 5
+                    (* match pls with | [] -> () | cell :: t -> ( match
+                       cell.plant with | None -> if was_eating then h.speed <- 5
+                       else iter_plants t false | Some plt -> let x, y =
+                       plt.location in if is_zombie_colliding_with_entity x
+                       plt.width h then ( plt.hp <- plt.hp - h.damage; h.speed
+                       <- 0; if plt.hp <= 0 then ( cell.plant <- None; h.speed
+                       <- 5) else ()) else ( h.speed <- 5; iter_plants t
+                       false)) *)
+                  in
+
+                  iter_plants row.cells false);
+                 iter_zombie t
+           in
+           iter_zombie row.zombies);
     (* changes the field for number of zombies on the board *)
     st.zombies_on_board <- zombies_on_board_row current_rows;
+    (* Removes all plants that have non-positive HP on board *)
+    current_rows
+    |> List.iter (fun (row : Board.row) ->
+           List.iter
+             (fun (cell : Board.cell) ->
+               match cell.plant with
+               | None -> ()
+               | Some plant -> if plant.hp <= 0 then cell.plant <- None else ())
+             row.cells);
     (* Make lawnmowers collide with zombies and walk. *)
     current_rows
     |> List.iter (fun (row : Board.row) ->
