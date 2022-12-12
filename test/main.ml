@@ -138,24 +138,24 @@ let manage_message_length_test (name : string) (st : State.t)
 
 let screen_play_tests =
   let init_state = State.init () in
-  let changed_coin_amt = { init_state with coins = 50 } in
+  let changed_coin_amt = { init_state with coins = 1000 } in
   let changed_state_coin_screen =
-    { init_state with coins = 50; screen = PlayScreen; zombies_killed = 15 }
+    { init_state with coins = 1000; screen = PlayScreen; zombies_killed = 15 }
   in
   [
-    get_plant_cost_test "cost - PeaShooterPlant" PeaShooterPlant 5;
-    get_plant_cost_test "cost - IcePeaShooterPlant" IcePeaShooterPlant 10;
-    get_plant_cost_test "cost - WalnutPlant" WalnutPlant 25;
-    get_plant_hp_test "hp - PeaShooterPlant" PeaShooterPlant 100;
-    get_plant_hp_test "hp - IcePeaShooterPlant" IcePeaShooterPlant 100;
-    get_plant_hp_test "hp - WalnutPlant" WalnutPlant 300;
-    get_plant_speed_test "speed - PeaShooterPlant" PeaShooterPlant 125;
-    get_plant_speed_test "speed - IcePeaShooterPlant" IcePeaShooterPlant 250;
+    get_plant_cost_test "cost - PeaShooterPlant" PeaShooterPlant 100;
+    get_plant_cost_test "cost - IcePeaShooterPlant" IcePeaShooterPlant 175;
+    get_plant_cost_test "cost - WalnutPlant" WalnutPlant 50;
+    get_plant_hp_test "hp - PeaShooterPlant" PeaShooterPlant 300;
+    get_plant_hp_test "hp - IcePeaShooterPlant" IcePeaShooterPlant 600;
+    get_plant_hp_test "hp - WalnutPlant" WalnutPlant 4000;
+    get_plant_speed_test "speed - PeaShooterPlant" PeaShooterPlant 22;
+    get_plant_speed_test "speed - IcePeaShooterPlant" IcePeaShooterPlant 22;
     get_plant_speed_test "speed - WalnutPlant" WalnutPlant 0;
     can_buy_test "not enough money" init_state PeaShooterPlant false;
     can_buy_test "enough money" changed_coin_amt PeaShooterPlant true;
     decrement_coins_test "decrements coins - PeaShooter" changed_coin_amt
-      PeaShooterPlant 45;
+      PeaShooterPlant 900;
     is_game_not_lost_test "did not lose" changed_state_coin_screen
       [ true; true; true; true ] changed_state_coin_screen;
     is_game_not_lost_test "did lose" changed_state_coin_screen
@@ -243,7 +243,7 @@ let screen_play_tests =
     (let lvl_two_works = { init_state with timer = 4000; level = 2 } in
      should_spawn_zombie_test "level two, should spawn" lvl_two_works
        lvl_two_works.level true);
-    (let lvl_one_coins_works = { init_state with timer = 2500 } in
+    (let lvl_one_coins_works = { init_state with timer = 2400 } in
      time_to_give_coins_test "level one should give coins"
        lvl_one_coins_works.level lvl_one_coins_works true);
     (let lvl_one_coins_dont_work = { init_state with timer = 150 } in
@@ -293,19 +293,13 @@ let screen_play_tests =
        { init_state with level = 3; zombies_killed = 50 }
      in
      change_level_test "end game" changed_lvl_screen EndScreenWin);
-    (let shovel_message_tester =
-       { init_state with is_shovel_selected = true }
-     in
-     shovel_message_test "should have a message" shovel_message_tester
-       (Some "Select cell to delete defense"));
-    shovel_message_test "should have a message" init_state None;
     manage_message_length_test "no message length" init_state None;
     manage_message_length_test "should be one less"
       { init_state with messages = [ ("My message", 100) ] }
-      (Some 99)
+      (Some 99);
     (*(let (changed_level = {init_state with }))*)
     (* have not tested buy_from_shop, draw_cell or draw_row, stopped at
-       changed_level *);
+       changed_level *)
   ]
 
 let tests =
