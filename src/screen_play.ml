@@ -12,9 +12,6 @@ module G = Graphics
 let num_rows = 5
 let num_cols = 10
 
-let draw_dummy_graphic (x, y) str =
-  draw_string_p (CenterPlace (x + 50, y + 50)) ~size:BigText str
-
 let get_plant_cost (plant : plant_type) : int =
   match plant with
   | SunflowerPlant -> 50
@@ -49,8 +46,10 @@ let can_buy (st : State.t) (plant : plant_type) : bool =
 let decrement_coins (st : State.t) (plant : plant_type) : unit =
   st.coins <- st.coins - get_plant_cost plant
 
-let handle_clickable (x, y) box (st : State.t) (cell : Board.cell)
-    (ev : Events.t) =
+(* [buy_from_shop (x,y) box st cell] handles clicking the shop boxes and placing
+   if coins are sufficient. *)
+(*use shovel as well *)
+let handle_clickable box (st : State.t) (cell : Board.cell) (ev : Events.t) =
   Events.add_clickable_return_hover (get_box_corners box)
     (fun st ->
       let st1 =
@@ -62,28 +61,29 @@ let handle_clickable (x, y) box (st : State.t) (cell : Board.cell)
                 Some
                   {
                     hp = get_plant_hp plant_type;
-                    location = (x, y);
+                    location = get_box_center box;
                     plant_type;
                     speed = get_plant_speed plant_type;
                     cost = get_plant_cost plant_type;
                     timer = 0;
                     width = get_plant_width plant_type;
                   };
-              decrement_coins st plant_type)
-            else if cell.plant = None then (
-              st.message <- Some "Not enough currency";
-              st.message_length <- Some 80);
+              decrement_coins st plant_type;
+              if st.timer < 40 * 30 && plant_type <> SunflowerPlant then
+                st
+                |> State.trigger_warning BuyBasesWarning
+                     "Suggestion: buy more bases to get coins faster" 80)
+            else if cell.plant = None then
+              st |> State.add_message "Not enough currency" 80;
             st.shop_selection <- None;
             st
       in
       if st1.is_shovel_selected = true then (
-        if cell.plant = None then (
-          st1.is_shovel_selected <- false;
-          st1.message <- Some "Cell is already empty!";
-          st1.message_length <- Some 80);
-        cell.plant <- None;
-        st1.is_shovel_selected <- false;
-        st1.shop_selection <- None);
+        let _ = st1 |> State.update_shovel false in
+        st1.shop_selection <- None;
+        if cell.plant = None then
+          st1 |> State.add_message "Cell is already empty!" 80;
+        cell.plant <- None);
       st1)
     ev
 
@@ -91,7 +91,7 @@ let draw_cell row col (x, y) st ev =
   let cell = State.get_cell row col st in
   let box = CornerDimBox ((x, y), (1100 / num_cols, 720 / num_rows)) in
   let is_hovering =
-    handle_clickable (x, y) box st cell ev
+    handle_clickable box st cell ev
     && (st.shop_selection <> None || st.is_shovel_selected)
   in
   draw_rect_b box
@@ -182,8 +182,10 @@ let draw_shop_item img w h x y (st : State.t) ev plant_type =
   draw_string_p (BottomLeftPlace (x + offset, y)) plant_string ~size:MediumText;
   Events.add_clickable (get_box_corners box)
     (fun st ->
-      if st.is_shovel_selected then st.is_shovel_selected <- false;
-      { st with shop_selection = Some plant_type })
+      {
+        (st |> State.update_shovel false) with
+        shop_selection = Some plant_type;
+      })
     ev
 
 let draw_shop_items (st : State.t) ev =
@@ -194,17 +196,18 @@ let draw_shop_items (st : State.t) ev =
   draw_shop_item st.images.base_shop 83 100 0 432 st ev SunflowerPlant
 
 let display_message st =
-  match st.message with
-  | None -> ()
-  | Some str -> draw_string_p (CenterPlace (1280 / 2, 360)) ~size:BigText str
+  st.messages |> List.map fst |> String.concat " " |> print_endline;
+  st.messages
+  |> List.iteri (fun i (msg, _) ->
+         draw_string_p
+           (CenterPlace (1280 / 2, 360 - (i * 80)))
+           ~size:BigText msg)
 
 let manage_shovel st ev =
   if st.is_shovel_selected then
     Events.add_clickable
       (draw_button (placed_box (CenterPlace (1225, 70)) 110 50) "Cancel")
-      (fun st ->
-        st.is_shovel_selected <- false;
-        st)
+      (State.update_shovel false)
       ev
 
 (** [draw st ev] draws the grid *)
@@ -234,10 +237,7 @@ let draw (st : State.t) ev =
   let is_shovel_hovered =
     Events.add_clickable_return_hover
       (get_box_corners shovel_box)
-      (fun st ->
-        st.is_shovel_selected <- true;
-        st)
-      ev
+      (State.update_shovel true) ev
   in
   draw_image_with_placement st.images.shovel 52 100 (CenterPlace (1228, 65));
   (if is_shovel_hovered then
@@ -389,22 +389,7 @@ let rec add_to_zombies_killed (st : State.t) (zlist : zombie list) =
         add_to_zombies_killed st t)
       else add_to_zombies_killed st t
 
-let shovel_message st =
-  if st.is_shovel_selected then (
-    st.message <- Some "Select cell to delete defense";
-    st.message_length <- Some 99999)
-  else if st.message = Some "Select cell to delete defense" then (
-    st.message <- None;
-    st.message_length <- None)
-
-let manage_message_length st =
-  match st.message_length with
-  | None -> ()
-  | Some i ->
-      if i <= 0 then (
-        st.message_length <- None;
-        st.message <- None)
-      else st.message_length <- Some (i - 1)
+let manage_message_length = reduce_message_durations
 
 (** [tick st] refreshes and updates the state of the game *)
 let tick (st : State.t) : State.t =
@@ -412,7 +397,6 @@ let tick (st : State.t) : State.t =
   st.timer <- st.timer + 1;
   coin_auto_increment st st.level;
   change_level st;
-  shovel_message st;
   manage_message_length st;
   let new_rows =
     (* Spawn zombies. *)

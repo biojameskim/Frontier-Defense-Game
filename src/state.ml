@@ -1,5 +1,8 @@
 open Image_graphics
 
+type warning = BuyBasesWarning
+type message = string * int
+
 (* Load all images in initial state to optimize cost *)
 type gui_images = {
   horse : Graphics.image;
@@ -46,10 +49,10 @@ type t = {
   mutable level : int;
   mutable zombies_killed : int;
   mutable zombies_on_board : int;
-  mutable message : string option;
-  mutable message_length : int option;
+  mutable messages : message list;
   images : gui_images;
   mutable raw_last_tick_time : float;
+  mutable warnings_given : warning list;
 }
 
 let init () =
@@ -64,9 +67,9 @@ let init () =
     level = 1;
     zombies_killed = 0;
     zombies_on_board = 0;
-    message = None;
-    message_length = None;
+    messages = [];
     raw_last_tick_time = Unix.gettimeofday ();
+    warnings_given = [];
     images =
       (* background color *)
       {
@@ -191,5 +194,34 @@ let init () =
       };
   }
 
-let change_screen s t = { t with screen = s }
+let change_screen s t =
+  t.screen <- s;
+  t
+
 let get_cell row col t = List.nth (List.nth t.board.rows row).cells col
+
+let remove_message msg t =
+  t.messages <- t.messages |> List.filter (fun (msg', _) -> msg <> msg')
+
+let add_message msg duration ?(allow_duplication = false) t =
+  if not allow_duplication then remove_message msg t;
+  t.messages <- (msg, duration) :: t.messages
+
+let trigger_warning warning msg duration t =
+  if not (List.mem warning t.warnings_given) then (
+    add_message msg duration t;
+    t.warnings_given <- warning :: t.warnings_given)
+
+let reduce_message_durations t =
+  t.messages <-
+    t.messages
+    |> List.filter_map (fun (msg, duration) ->
+           if duration <= 0 then None else Some (msg, duration - 1))
+
+let update_shovel is_shovel_selected t =
+  t.is_shovel_selected <- is_shovel_selected;
+  let msg = "Select cell to delete defense" in
+  if t.is_shovel_selected then
+    t |> add_message msg 99999 ~allow_duplication:false
+  else t |> remove_message msg;
+  t

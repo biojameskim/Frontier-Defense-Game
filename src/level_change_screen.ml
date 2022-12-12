@@ -2,11 +2,9 @@ open Gui_util
 
 let draw (st : State.t) ev =
   let on_resume _ =
-    st.screen <- Screen.PlayScreen;
     st.level <- st.level + 1;
-    st.message <- Some ("Level " ^ string_of_int st.level);
-    st.message_length <- Some 120;
-    st
+    st |> State.add_message ("Level" ^ string_of_int st.level) 120;
+    st |> State.change_screen PlayScreen
   in
   let on_quit _ = exit 0 in
   let level_completed_string =
