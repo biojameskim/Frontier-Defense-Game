@@ -9,6 +9,10 @@ the user buys and places into a grid. Plants may generate currency (coins),
 block zombies, or shoot bullets at them. The user may click plants to buy, 
 view the quantity of coins (sun), and select a level of difficulty.
   
+<img width="500" alt="home_screen" src="https://user-images.githubusercontent.com/100223126/207003807-4af87941-876c-4278-abee-1cceeee1ca27.png">
+
+<img width="500" alt="screen_play" src="https://user-images.githubusercontent.com/100223126/207003813-c2cba357-7240-4cfc-a88f-f917b032ea3b.png">
+
 This game was created in OCaml for a Final Project for CS 3110 - Data Structures and Functional Programming
 
 Members:
