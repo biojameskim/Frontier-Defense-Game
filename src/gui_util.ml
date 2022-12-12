@@ -114,7 +114,10 @@ let draw_string_p placement ?(color = Palette.text) ?(size = RegularText) msg =
 let draw_button box ?(text_color = Palette.button_text)
     ?(border = Palette.button_border) ?(bg = Palette.button_bg)
     ?(text_size = BigText) msg : point * point =
-  draw_rect_b box ~color:border ~bg;
+  (* This is a little bit of a hack. Ideally, draw_button receives a clickable
+     from which we can get the box and check whether it is hovering. *)
+  let is_hovered = is_point_in_box box (G.mouse_pos ()) in
+  draw_rect_b box ~color:border ~bg ~border_width:(if is_hovered then 5 else 1);
   draw_string_p
     (CenterPlace (get_box_center box))
     ~color:text_color ~size:text_size msg;
