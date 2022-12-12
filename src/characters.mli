@@ -81,3 +81,7 @@ val pea_walk : pea -> unit
 (** [pea_walk pea] updates the location of a pea. This can be used to update the
     peas on the screen, making it appear as if they are moving across the
     screen. *)
+
+val spawn_zombie : Gui_util.point -> zombie_type -> zombie
+(** [spawn_zombie location zombie_type] returns a zombie at the given location
+    and with the given type. *)

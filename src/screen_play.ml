@@ -4,6 +4,11 @@ open Image_graphics
 open State
 module G = Graphics
 
+(* The general principle in balancing the game was to look at the video game
+   Plants vs. Zombies 1 and make things go twice as fast. *)
+(* https://plantsvszombies.fandom.com/wiki/Damage_per_shot was useful for some
+   hard-to-find statistics for game balance. *)
+
 let num_rows = 5
 let num_cols = 10
 
@@ -13,24 +18,26 @@ let draw_dummy_graphic (x, y) str =
 (** [get_plant_cost plant] gets the cost of the specific plant *)
 let get_plant_cost (plant : plant_type) : int =
   match plant with
-  | SunflowerPlant -> 5
-  | PeaShooterPlant -> 5
-  | IcePeaShooterPlant -> 10
-  | WalnutPlant -> 25
+  | SunflowerPlant -> 50
+  | PeaShooterPlant -> 100
+  | IcePeaShooterPlant -> 175
+  | WalnutPlant -> 50
 
 (** [get_plant_hp plant] gets the hp of the specific plant *)
 let get_plant_hp (plant : plant_type) : int =
   match plant with
-  | SunflowerPlant -> 50
-  | PeaShooterPlant -> 100
-  | IcePeaShooterPlant -> 100
-  | WalnutPlant -> 300
+  | SunflowerPlant -> 300
+  | PeaShooterPlant -> 300
+  | IcePeaShooterPlant -> 600
+  | WalnutPlant -> 4000
 
 (** [get_plant_speed plant_type] gets the speed of the plant *)
 let get_plant_speed = function
-  | SunflowerPlant -> 0
-  | PeaShooterPlant -> 125
-  | IcePeaShooterPlant -> 250
+  (* these go twice as fast as the original game (1.5 seconds / 45 ticks -> 0.75
+     seconds / 22 ticks) *)
+  | SunflowerPlant -> 12 * 30 (* every 12 seconds *)
+  | PeaShooterPlant -> 22
+  | IcePeaShooterPlant -> 22
   | WalnutPlant -> 0
 
 (** [get_plant_width plant_type] gets the width of the plant *)
@@ -127,12 +134,9 @@ let draw_cell row col (x, y) st ev =
       ()
   | None -> ()
 
-let draw_coin x y r text is_top_coin needs_offset =
+let draw_coin ?(text = "$") x y r text_size =
   draw_and_fill_circle ~color:Palette.coin_yellow x y r;
-  if is_top_coin then draw_string_p ~size:text (CenterPlace (x, y)) "$"
-  else
-    let dollar_offset = if needs_offset then 7 else 5 in
-    draw_string_p ~size:text (CenterPlace (x - dollar_offset, y)) "$"
+  draw_string_p ~size:text_size (CenterPlace (x, y)) text
 
 (** [draw_row row st] draws the char that represents each character *)
 
@@ -166,11 +170,6 @@ let draw_row (row : Board.row) (st : State.t) =
          draw_image_with_placement img width height
            (CenterPlace (offset_x, offset_y)))
 
-let draw_coin_amount x y plant_type =
-  draw_string_p ~size:RegularText
-    (CenterPlace (x, y))
-    (string_of_int (get_plant_cost plant_type))
-
 (** [draw_shop_items img w h x y st ev plant_type] draws the five boxes for the
     shop *)
 let draw_shop_item img w h x y (st : State.t) ev plant_type =
@@ -186,9 +185,8 @@ let draw_shop_item img w h x y (st : State.t) ev plant_type =
       ~border_width:15 box
   else draw_rect_b ~bg:Palette.plant_shop_brown box;
   draw_image_with_placement img w h (BottomLeftPlace (x + 35, y + 25));
-  let needs_offset = if get_plant_cost plant_type >= 10 then true else false in
-  draw_coin (x + 150) (y + 120) 15 SmallText false needs_offset;
-  draw_coin_amount (x + 155) (y + 120) plant_type;
+  draw_coin (x + 145) (y + 110) 25 SmallText
+    ~text:("$" ^ (get_plant_cost plant_type |> string_of_int));
   let plant_string, offset =
     match plant_type with
     | SunflowerPlant -> ("Base", 60)
@@ -243,7 +241,7 @@ let draw (st : State.t) ev =
   draw_string_p ~size:BigText (CenterPlace (105, 680)) (string_of_int st.coins);
 
   (* draws top coin that tracks how many coins you have *)
-  draw_coin 50 680 20 BigText true false;
+  draw_coin 50 680 20 BigText;
   draw_string_p ~size:BigText
     (CenterPlace (90, 615))
     ("Level - " ^ string_of_int st.level);
@@ -300,8 +298,9 @@ let check_game_not_lost st = is_game_not_lost st (make_game_not_lost_list st)
     zombie should be spawned. If the timer reaches a certain amount, then a
     zombie is spawned in a random row. This is based on levels *)
 let should_spawn_zombie (st : State.t) (level_number : int) : bool =
+  (* 30 seconds at the beginning to set up *)
   match level_number with
-  | 1 -> st.timer mod 250 = 0
+  | 1 -> st.timer > 30 * 30 && st.timer mod 250 = 0
   | 2 -> st.timer mod 250 = 0
   | 3 -> st.timer mod 250 = 0
   | _ -> failwith "have not implemented those levels"
@@ -317,10 +316,11 @@ let timer_spawns_zombie (st : State.t) : Board.t =
 (** [is_time_to_give_coins level st] is if the timer reaches a certain
     threshold. It depends on the level if we want it to *)
 let is_time_to_give_coins (level_number : int) (st : State.t) : bool =
+  (* 10 seconds in the original game -> twice as fast in ours *)
   match level_number with
-  | 1 -> st.timer mod 250 = 0
-  | 2 -> st.timer mod 250 = 0
-  | 3 -> st.timer mod 250 = 0
+  | 1 -> st.timer mod 150 = 0
+  | 2 -> st.timer mod 150 = 0
+  | 3 -> st.timer mod 150 = 0
   | _ -> failwith "have not implemented more levels"
 
 (** [coin_auto_increment st] increments the coin counter if the timer reaches a
@@ -536,16 +536,19 @@ let tick (st : State.t) : State.t =
                       if is_zombie_colliding_with_entity x 50 z then
                         z.hp <- z.hp - 1000)
            | None -> ());
-    (* Shoot peas from plants. *)
+    (* Trigger timer events of the plants, shooting peas and generating sun from
+       bases. *)
     current_rows
     |> List.iter (fun (r : Board.row) ->
            r.cells
            |> List.iter (fun ({ plant } : Board.cell) ->
                   match plant with
-                  | Some pl ->
+                  | Some pl -> (
                       pl.timer <- pl.timer + 1;
                       if pl.speed <> 0 && pl.timer mod pl.speed = 0 then
-                        r.peas <- Characters.spawn_pea pl :: r.peas
+                        match pl.plant_type with
+                        | SunflowerPlant -> st.coins <- st.coins + 25
+                        | _ -> r.peas <- Characters.spawn_pea pl :: r.peas)
                   | None -> ()));
     (* Check collisions between peas and zombies, and subtract hp from zombies
        as needed *)

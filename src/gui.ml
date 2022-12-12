@@ -1,6 +1,8 @@
 open Gui_util
 module G = Graphics
 
+(* let debug_tick_value : float option ref = ref None *)
+
 let rec handle_event (st : State.t) =
   (* wait *)
   let e = G.wait_next_event [ G.Poll ] in
@@ -29,25 +31,36 @@ let rec handle_event (st : State.t) =
   G.synchronize ();
   (* tick - state is being reassigned on the tick, or else the state will never
      change *)
+  let raw_time = Unix.gettimeofday () in
+  let should_tick = raw_time -. st.raw_last_tick_time > 1. /. 30. in
   let st =
-    match st.screen with
-    | Screen.HomeScreen -> Screen_home.tick st
-    | Screen.TutorialScreen1 -> Screen_tutorial1.tick st
-    | Screen.TutorialScreen2 -> Screen_tutorial2.tick st
-    | Screen.PlayScreen -> Screen_play.tick st
-    | Screen.PauseScreen -> Screen_pause.tick st
-    | Screen.LevelChangeScreen -> Level_change_screen.tick st
-    | Screen.EndScreenLost -> Screen_end_lost.tick st
-    | Screen.EndScreenWin -> Screen_end_win.tick st
+    if should_tick then
+      match st.screen with
+      | Screen.HomeScreen -> Screen_home.tick st
+      | Screen.TutorialScreen1 -> Screen_tutorial1.tick st
+      | Screen.TutorialScreen2 -> Screen_tutorial2.tick st
+      | Screen.PlayScreen -> Screen_play.tick st
+      | Screen.PauseScreen -> Screen_pause.tick st
+      | Screen.LevelChangeScreen -> Level_change_screen.tick st
+      | Screen.EndScreenLost -> Screen_end_lost.tick st
+      | Screen.EndScreenWin -> Screen_end_win.tick st
+    else st
   in
-  (* handle events like quitting *)
-  if e.keypressed && e.key == 'q' then exit 0;
+  (* if e.keypressed && e.key == 'q' then exit 0; *)
   let st =
     if e.button && not st.was_mouse_pressed then Events.handle_click st ev
     else st
   in
   (* makes sure the mouse held down is only one click *)
   let st = { st with was_mouse_pressed = e.button } in
+  if should_tick then st.raw_last_tick_time <- raw_time;
+  (* (if should_tick then *)
+  (*  match !debug_tick_value with *)
+  (*  | None -> debug_tick_value := Some (Unix.gettimeofday ()) *)
+  (*  | Some t -> *)
+  (*      let t2 = Unix.gettimeofday () in *)
+  (*      debug_tick_value := Some t2; *)
+  (*      1. /. (t2 -. t) |> string_of_float |> print_endline); *)
   handle_event st
 
 (* launches the game, handle event waits for you to do something, and then it

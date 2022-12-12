@@ -75,7 +75,7 @@ let spawn_pea (pl : plant) : pea =
   | IcePeaShooterPlant ->
       {
         pea_type = FreezePea;
-        damage = 4;
+        damage = 20;
         location = pl.location;
         speed = 5;
         width = 5;
@@ -83,11 +83,22 @@ let spawn_pea (pl : plant) : pea =
   | PeaShooterPlant ->
       {
         pea_type = RegularPea;
-        damage = 4;
+        damage = 20;
         location = pl.location;
         speed = 5;
         width = 5;
       }
+
+let spawn_zombie (location : Gui_util.point) (zombie_type : zombie_type) :
+    zombie =
+  let hp, damage, speed =
+    match zombie_type with
+    | RegularZombie ->
+        (200, 2, 4) (* in the original game, 100 damage per second *)
+    | TrafficConeHeadZombie -> (640, 2, 4)
+    | BucketHeadZombie -> (1370, 2, 4)
+  in
+  { zombie_type; hp; damage; speed; location; frame = 0; width = 15 }
 
 let pea_walk ({ location = x, y } as p : pea) : unit =
   p.location <- (x + p.speed, y)

@@ -55,15 +55,9 @@ let spawn_zombie (level : int) (t : t) =
   let row_id = Random.int 5 in
   let row = row_id |> List.nth t.rows in
   let new_zombie =
-    {
-      zombie_type = spawn_zombie_by_level level;
-      hp = 10;
-      damage = 1;
-      location = (1280, (720 / num_rows / 2) + (row_id * (720 / num_rows)));
-      speed = 2;
-      frame = 0;
-      width = 15;
-    }
+    Characters.spawn_zombie
+      (1280, (720 / num_rows / 2) + (row_id * (720 / num_rows)))
+      (spawn_zombie_by_level level)
   in
   row.zombies <- new_zombie :: row.zombies;
   t

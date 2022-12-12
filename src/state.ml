@@ -49,6 +49,7 @@ type t = {
   mutable message : string option;
   mutable message_length : int option;
   images : gui_images;
+  mutable raw_last_tick_time : float;
 }
 
 let init () =
@@ -65,6 +66,7 @@ let init () =
     zombies_on_board = 0;
     message = None;
     message_length = None;
+    raw_last_tick_time = Unix.gettimeofday ();
     images =
       (* background color *)
       {

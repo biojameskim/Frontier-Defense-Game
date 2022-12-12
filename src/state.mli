@@ -50,6 +50,7 @@ type t = {
   mutable message : string option;
   mutable message_length : int option;
   images : gui_images;
+  mutable raw_last_tick_time : float;
 }
 (** [t] is the type that represents the current state of the game. *)
 
