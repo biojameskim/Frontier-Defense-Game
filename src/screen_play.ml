@@ -46,9 +46,6 @@ let can_buy (st : State.t) (plant : plant_type) : bool =
 let decrement_coins (st : State.t) (plant : plant_type) : unit =
   st.coins <- st.coins - get_plant_cost plant
 
-(* [buy_from_shop (x,y) box st cell] handles clicking the shop boxes and placing
-   if coins are sufficient. *)
-(*use shovel as well *)
 let handle_clickable box (st : State.t) (cell : Board.cell) (ev : Events.t) =
   Events.add_clickable_return_hover (get_box_corners box)
     (fun st ->
@@ -210,7 +207,6 @@ let manage_shovel st ev =
       (State.update_shovel false)
       ev
 
-(** [draw st ev] draws the grid *)
 let draw (st : State.t) ev =
   draw_grid
     (BottomLeftPlace (180, 0))
@@ -246,9 +242,6 @@ let draw (st : State.t) ev =
   display_message st;
   manage_shovel st ev
 
-(** [make_game_not_lost_list st] is the list of booleans (one boolean for each
-    zombie that is false if the zombie is at the x position of the end of the
-    lawn.)*)
 let make_game_not_lost_list (st : State.t) =
   st.board.rows
   |> List.map (fun (row : Board.row) ->
@@ -260,9 +253,6 @@ let make_game_not_lost_list (st : State.t) =
                | x, y -> x > 50)
              row.zombies)
 
-(** [is_game_not_lost st blist] pattern matches over blist (the bool list made
-    from make_game_lost_list) and if any are true then a zombie has reached the
-    end of the lawn, and the state switches screens to the end_lost screen *)
 let rec is_game_not_lost (st : State.t) blist =
   match blist with
   | [] -> st
@@ -274,42 +264,29 @@ let rec is_game_not_lost (st : State.t) blist =
         st.zombies_killed <- 0;
         st |> State.change_screen Screen.EndScreenLost)
 
-(** [check_game_not_lost st] checks to see if the game is lost at the current
-    game state *)
 let check_game_not_lost st = is_game_not_lost st (make_game_not_lost_list st)
 
-(** [should_spawn_zombie st level_number] checks the timer to see if another
-    zombie should be spawned. If the timer reaches a certain amount, then a
-    zombie is spawned in a random row. This is based on levels *)
 let should_spawn_zombie (st : State.t) (level_number : int) : bool =
   (* 30 seconds at the beginning to set up *)
   match level_number with
   | 1 -> st.timer > 30 * 30 && st.timer mod 250 = 0
   | 2 -> st.timer mod 250 = 0
   | 3 -> st.timer mod 250 = 0
-  | _ -> failwith "have not implemented those levels"
+  | _ -> failwith "Have not implemented those levels"
 
-(** [timer_spawns_zombie st] checks the timer to see if another zombie should be
-    spawned. If the timer reaches a certain amount, then a zombie is spawned in
-    a random row *)
 let timer_spawns_zombie (st : State.t) : Board.t =
   if should_spawn_zombie st st.level then
     Board.spawn_zombie st.level { rows = st.board.rows }
   else { rows = st.board.rows }
 
-(** [is_time_to_give_coins level st] is if the timer reaches a certain
-    threshold. It depends on the level if we want it to *)
 let is_time_to_give_coins (level_number : int) (st : State.t) : bool =
   (* 10 seconds in the original game -> twice as fast in ours *)
   match level_number with
   | 1 -> st.timer mod 150 = 0
   | 2 -> st.timer mod 150 = 0
   | 3 -> st.timer mod 150 = 0
-  | _ -> failwith "have not implemented more levels"
+  | _ -> failwith "Have not implemented more levels"
 
-(** [coin_auto_increment st] increments the coin counter if the timer reaches a
-    certain threshold. The amount of coins you get and the timer multiple needed
-    depends on the level *)
 let coin_auto_increment (st : State.t) (level_number : int) : unit =
   if is_time_to_give_coins level_number st then st.coins <- st.coins + 25
   else ()
@@ -320,61 +297,45 @@ let rec zombies_on_board_row (rows : Board.row list) : int =
   | row :: rest_of_rows ->
       List.length row.zombies + zombies_on_board_row rest_of_rows
 
-(** [zombies_in_level level_number] is the amount of zombies that are in each
-    level *)
 let zombies_in_level level_number : int =
   match level_number with
   | 1 -> 10
   | 2 -> 25
   | 3 -> 50
-  | _ -> failwith "have not implemented more levels "
+  | _ -> failwith "Have not implemented more levels "
 
-(** [all_lvl_zombs_spawned st level_number] is if all zombies for that level are
-    on the board or have been killed *)
 let all_lvl_zombs_spawned (st : State.t) (level_number : int) : bool =
   match level_number with
   | 1 | 2 | 3 ->
       st.zombies_killed + st.zombies_on_board = zombies_in_level level_number
-  | _ -> failwith "have not implemented more levels"
+  | _ -> failwith "Have not implemented more levels"
 
-(** [change_level_screen st] changes the state screen to the level_change screen *)
 let change_level_screen (st : State.t) =
   match st.level with
   | 1 | 2 -> st.screen <- LevelChangeScreen
   | 3 -> st.screen <- EndScreenWin
-  | _ -> failwith "levels not implemented"
+  | _ -> failwith "Levels not implemented"
 
-(** [change_level st] determines if all zombies in that level were killed *)
 let change_level (st : State.t) =
   if st.zombies_killed = zombies_in_level st.level then change_level_screen st
   else ()
 
-(** [is_zombie_colliding_with_entity entity_x entity_width zombie] Check whether
-    a zombie is colliding with an entity. *)
 let is_zombie_colliding_with_entity (entity_x : int) (entity_width : int)
     ({ location = zombie_x, _; width = zombie_width } : zombie) : bool =
   abs (zombie_x - entity_x) < (entity_width / 2) + (zombie_width / 2)
 
-(** [is_pea_colliding_with_zombie] checks whether a zombie is colliding with a
-    pea if nt is false, and checks if a zombie is NOT colliding with a pea if nt
-    is true *)
 let is_zombie_colliding_with_pea (nt : bool) (pea : pea)
     ({ location = zombie_x, zombie_y; width = zombie_width } : zombie) : bool =
   let pea_x = fst pea.location in
   let check = abs (zombie_x - pea_x) < (zombie_width / 2) + (pea.width / 2) in
   if nt then not check else check
 
-(** [is_pea_colliding_with_zombie] checks whether a pea is NOT colliding with a
-    zombie. This is the same method as [is_zombie_colliding_with_pea], but with
-    inputs in different order since it's needed in [tick] as helper function *)
 let is_pea_not_colliding_with_zombie
     ({ location = zombie_x, zombie_y; width = zombie_width } : zombie)
     (pea : pea) : bool =
   let pea_x = fst pea.location in
   not (abs (zombie_x - pea_x) < (zombie_width / 2) + (pea.width / 2))
 
-(** [damage_zombie] subtracts a pea's damage from a zombie's hp if they are
-    colliding*)
 let damage_zombie (zombie : zombie) (pea : pea) : unit =
   if not (is_pea_not_colliding_with_zombie zombie pea) then
     zombie.hp <- zombie.hp - pea.damage
@@ -391,7 +352,6 @@ let rec add_to_zombies_killed (st : State.t) (zlist : zombie list) =
 
 let manage_message_length = reduce_message_durations
 
-(** [tick st] refreshes and updates the state of the game *)
 let tick (st : State.t) : State.t =
   (* Increment the timer, add free coins, and change the level if necessary. *)
   st.timer <- st.timer + 1;
