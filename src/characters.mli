@@ -38,7 +38,7 @@ type plant = {
 (** [pea_type] is the type representing the category of peas. *)
 type pea_type =
   | RegularPea
-  | FreezePea
+  | RocketPea
 
 type pea = {
   pea_type : pea_type;

@@ -32,7 +32,7 @@ type plant = {
 
 type pea_type =
   | RegularPea
-  | FreezePea
+  | RocketPea
 
 (* speed should be just constant because the speed of the pea is the same for
    all plants (at least for now) *)
@@ -74,7 +74,7 @@ let spawn_pea (pl : plant) : pea =
   | WalnutPlant -> failwith "Cannot spawn a pea from a walnut plant"
   | IcePeaShooterPlant ->
       {
-        pea_type = FreezePea;
+        pea_type = RocketPea;
         damage = 20;
         location = pl.location;
         speed = 5;

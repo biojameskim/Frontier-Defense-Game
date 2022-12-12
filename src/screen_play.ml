@@ -15,7 +15,6 @@ let num_cols = 10
 let draw_dummy_graphic (x, y) str =
   draw_string_p (CenterPlace (x + 50, y + 50)) ~size:BigText str
 
-(** [get_plant_cost plant] gets the cost of the specific plant *)
 let get_plant_cost (plant : plant_type) : int =
   match plant with
   | SunflowerPlant -> 50
@@ -23,7 +22,6 @@ let get_plant_cost (plant : plant_type) : int =
   | IcePeaShooterPlant -> 175
   | WalnutPlant -> 50
 
-(** [get_plant_hp plant] gets the hp of the specific plant *)
 let get_plant_hp (plant : plant_type) : int =
   match plant with
   | SunflowerPlant -> 300
@@ -31,7 +29,6 @@ let get_plant_hp (plant : plant_type) : int =
   | IcePeaShooterPlant -> 600
   | WalnutPlant -> 4000
 
-(** [get_plant_speed plant_type] gets the speed of the plant *)
 let get_plant_speed = function
   (* these go twice as fast as the original game (1.5 seconds / 45 ticks -> 0.75
      seconds / 22 ticks) *)
@@ -40,25 +37,18 @@ let get_plant_speed = function
   | IcePeaShooterPlant -> 22
   | WalnutPlant -> 0
 
-(** [get_plant_width plant_type] gets the width of the plant *)
 let get_plant_width = function
   | SunflowerPlant -> 15
   | PeaShooterPlant -> 15
   | IcePeaShooterPlant -> 15
   | WalnutPlant -> 15
 
-(** [can_buy plant st plant] is whether they have enough coins to buy the plant *)
 let can_buy (st : State.t) (plant : plant_type) : bool =
   st.coins - get_plant_cost plant >= 0
 
-(** [decrement_coins st plant] decrements the coin counter by the amount that
-    the defense costs *)
 let decrement_coins (st : State.t) (plant : plant_type) : unit =
   st.coins <- st.coins - get_plant_cost plant
 
-(* [buy_from_shop (x,y) box st cell] handles clicking the shop boxes and placing
-   if coins are sufficient. *)
-(*use shovel as well *)
 let handle_clickable (x, y) box (st : State.t) (cell : Board.cell)
     (ev : Events.t) =
   Events.add_clickable_return_hover (get_box_corners box)
@@ -97,7 +87,6 @@ let handle_clickable (x, y) box (st : State.t) (cell : Board.cell)
       st1)
     ev
 
-(** [draw_cell row col (x,y) st ev] draw single cell and add a clickable *)
 let draw_cell row col (x, y) st ev =
   let cell = State.get_cell row col st in
   let box = CornerDimBox ((x, y), (1100 / num_cols, 720 / num_rows)) in
@@ -138,8 +127,6 @@ let draw_coin ?(text = "$") x y r text_size =
   draw_and_fill_circle ~color:Palette.coin_yellow x y r;
   draw_string_p ~size:text_size (CenterPlace (x, y)) text
 
-(** [draw_row row st] draws the char that represents each character *)
-
 let draw_row (row : Board.row) (st : State.t) =
   row.zombies
   |> List.iter (fun { zombie_type; location } ->
@@ -162,7 +149,7 @@ let draw_row (row : Board.row) (st : State.t) =
          let info =
            match pea_type with
            | RegularPea -> (st.images.regular_bullet, 19, 10, 42, 25)
-           | FreezePea -> (st.images.rocket_bullet, 20, 10, 38, 20)
+           | RocketPea -> (st.images.rocket_bullet, 20, 10, 38, 20)
          in
          let img, width, height, offset_x, offset_y = info in
          let offset_x = x + 50 + offset_x in
@@ -170,8 +157,6 @@ let draw_row (row : Board.row) (st : State.t) =
          draw_image_with_placement img width height
            (CenterPlace (offset_x, offset_y)))
 
-(** [draw_shop_items img w h x y st ev plant_type] draws the five boxes for the
-    shop *)
 let draw_shop_item img w h x y (st : State.t) ev plant_type =
   let box = CornerDimBox ((x, y), (180, 144)) in
   let is_hovering =
@@ -201,7 +186,6 @@ let draw_shop_item img w h x y (st : State.t) ev plant_type =
       { st with shop_selection = Some plant_type })
     ev
 
-(** [draw_shop_items st ev] calls draw_shop_item five times *)
 let draw_shop_items (st : State.t) ev =
   draw_shop_item st.images.shield_soldier_shop 58 100 0 0 st ev WalnutPlant;
   draw_shop_item st.images.rocket_launcher_soldier_shop 76 100 0 144 st ev

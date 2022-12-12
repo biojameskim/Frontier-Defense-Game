@@ -24,14 +24,14 @@ let trivial_tests =
           damage = 0;
           location = (0, 0);
           speed = 0;
-          pea_type = FreezePea;
+          pea_type = RocketPea;
           width = 15;
         }
         {
           damage = 0;
           location = (0, 0);
           speed = 0;
-          pea_type = FreezePea;
+          pea_type = RocketPea;
           width = 15;
         } );
   ]
