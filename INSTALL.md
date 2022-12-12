@@ -57,7 +57,7 @@ At this point, restart your computer.
 </br>
 
 ## Installing camlimages
-For this project, we used a library called camlimages to load png files onto our gui.  
+For this project, we used a library called camlimages to load png files onto our gui.
 
 First, install camlimages using the following command:
 ``` sh
@@ -67,7 +67,7 @@ Next, install additional dependencies for loading png files:
 ``` sh
 % opam install conf-libpng
 ```
-You will also need to install the libpng library using your computer's package manager.  
+You will also need to install the libpng library using your computer's package manager.
 For MacOS devices using Homebrew, that would be:
 ``` sh
 % brew install libpng
@@ -75,15 +75,15 @@ For MacOS devices using Homebrew, that would be:
 
 ## Usage
 
-- Run `make build` to build the project if it isn't built already. 
-- Then, run `make play` to play the game.  
+- Run `make build` to build the project if it isn't built already.
+- Then, run `make play` to play the game.
 </br>
 
 ## Troubleshooting
 
-### If the graphics window does not work on macOS  
+### If the graphics window does not work on macOS
 
-**These instructions are for macOS only**  
+**These instructions are for macOS only**
 
 Verify that the X11 libraries exist by running the following command:
 ``` sh

@@ -23,7 +23,8 @@ let rec handle_event (st : State.t) =
   | Screen.PlayScreen -> Screen_play.draw st ev
   | Screen.PauseScreen -> Screen_pause.draw st ev
   | Screen.LevelChangeScreen -> Level_change_screen.draw st ev
-  | Screen.EndScreenLost -> Screen_end_lost.draw st ev);
+  | Screen.EndScreenLost -> Screen_end_lost.draw st ev
+  | Screen.EndScreenWin -> Screen_end_win.draw st ev);
   (* makes contents of the screen update *)
   G.synchronize ();
   (* tick - state is being reassigned on the tick, or else the state will never
@@ -37,6 +38,7 @@ let rec handle_event (st : State.t) =
     | Screen.PauseScreen -> Screen_pause.tick st
     | Screen.LevelChangeScreen -> Level_change_screen.tick st
     | Screen.EndScreenLost -> Screen_end_lost.tick st
+    | Screen.EndScreenWin -> Screen_end_win.tick st
   in
   (* handle events like quitting *)
   if e.keypressed && e.key == 'q' then exit 0;

@@ -6,7 +6,11 @@ open Images
 let draw (st : State.t) ev =
   let on_quit _ = exit 0 in
   let on_home st = st |> State.change_screen Screen.HomeScreen in
-  let on_play st = st |> State.change_screen Screen.PlayScreen in
+  let on_play (st : State.t) =
+    st.message <- Some "Level 1";
+    st.message_length <- Some 120;
+    st |> State.change_screen Screen.PlayScreen
+  in
   draw_string_p
     (CenterPlace (1280 / 2, 580))
     ~size:BigText "Use your currency to buy defense before it is too late";
