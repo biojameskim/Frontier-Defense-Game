@@ -149,8 +149,8 @@ let draw_row (row : Board.row) (st : State.t) =
            | RocketPea -> (st.images.rocket_bullet, 20, 10, 38, 20)
          in
          let img, width, height, offset_x, offset_y = info in
-         let offset_x = x + 50 + offset_x in
-         let offset_y = y + 75 + offset_y in
+         let offset_x = x + 5 + offset_x in
+         let offset_y = y + 3 + offset_y in
          draw_image_with_placement img width height
            (CenterPlace (offset_x, offset_y)))
 
