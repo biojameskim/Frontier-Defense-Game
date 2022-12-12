@@ -1,5 +1,7 @@
 # Frontier Defense
 
+Welcome to the frontier!
+
 This project is a GUI-based clone of Plants vs. Zombies. 
 
 Enemy soldiers (Zombies) spawn, move across the screen, and are killed by Soldiers (Plants) which 
@@ -7,7 +9,7 @@ the user buys and places into a grid. Plants may generate currency (coins),
 block zombies, or shoot bullets at them. The user may click plants to buy, 
 view the quantity of coins (sun), and select a level of difficulty.
   
-This game was created in OCaml for a Final Project for CS 3110 - Functional Programming
+This game was created in OCaml for a Final Project for CS 3110 - Data Structures and Functional Programming
 
 Members:
 
