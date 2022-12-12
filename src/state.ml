@@ -46,6 +46,8 @@ type t = {
   mutable level : int;
   mutable zombies_killed : int;
   mutable zombies_on_board : int;
+  mutable message : string option;
+  mutable message_length : int option;
   images : gui_images;
 }
 
@@ -61,6 +63,8 @@ let init () =
     level = 1;
     zombies_killed = 0;
     zombies_on_board = 0;
+    message = None;
+    message_length = None;
     images =
       (* background color *)
       {
