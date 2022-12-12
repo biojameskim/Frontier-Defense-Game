@@ -11,10 +11,8 @@ let draw (st : State.t) ev =
     (draw_button (placed_box (CenterPlace (1280 / 2, 320)) 200 50) "Play Again")
     (fun st ->
       let new_game = State.init () in
-      new_game.screen <- PlayScreen;
-      new_game.message <- Some "Level 1";
-      new_game.message_length <- Some 120;
-      new_game)
+      State.add_message "Level 1" 120 new_game;
+      State.change_screen PlayScreen new_game)
     ev;
   Events.add_clickable
     (draw_button (placed_box (CenterPlace (565, 180)) 130 50) "Home")

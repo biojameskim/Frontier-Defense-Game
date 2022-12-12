@@ -124,16 +124,17 @@ let add_to_zombies_killed_test (name : string) (st : State.t)
 let shovel_message_test (name : string) (st : State.t)
     (expected_output : string option) : test =
   name >:: fun _ ->
-  assert_equal expected_output
-    (shovel_message st;
-     st.message)
+  match (st |> State.update_shovel true).messages with
+  | [] -> assert_equal expected_output None
+  | (msg, _) :: _ -> assert_equal expected_output (Some msg)
 
 let manage_message_length_test (name : string) (st : State.t)
     (expected_output : int option) : test =
   name >:: fun _ ->
-  assert_equal expected_output
-    (manage_message_length st;
-     st.message_length)
+  manage_message_length st;
+  match st.messages with
+  | [] -> assert_equal expected_output None
+  | (_, duration) :: _ -> assert_equal expected_output (Some duration)
 
 let screen_play_tests =
   let init_state = State.init () in
@@ -300,7 +301,7 @@ let screen_play_tests =
     shovel_message_test "should have a message" init_state None;
     manage_message_length_test "no message length" init_state None;
     manage_message_length_test "should be one less"
-      { init_state with message_length = Some 100 }
+      { init_state with messages = [ ("My message", 100) ] }
       (Some 99)
     (*(let (changed_level = {init_state with }))*)
     (* have not tested buy_from_shop, draw_cell or draw_row, stopped at
