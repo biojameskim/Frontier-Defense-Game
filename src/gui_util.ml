@@ -19,15 +19,6 @@ let int_of_text_size text_size =
   | TinyText -> 12
   | CustomSizeText x -> x
 
-(** Represents a place on the screen and an instruction for how items with width
-    [w] and height [h] should be placed relative to it. For instance,
-    [draw_rect_from_placement ScreenCenter 50 50] places a 50x50 box at the
-    center of the screen. [draw_rect_from_placement (Centered 300 300) 50 50]
-    places the box centered at [(300, 300)].
-    [draw_string_from_placement (CenterLeftAligned 100 100) "hello world"]
-    places the text so that the center of the left edge is at [(100, 100)]. I
-    think this makes the code more readable. *)
-
 type point = int * int
 type dim = int * int
 

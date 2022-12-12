@@ -1,4 +1,6 @@
-(** Represents utilities for the gui *)
+(** Represents utilities for the GUI. The most important types are [point],
+    [placement], and [box], which allow for simple alignment and geometry
+    operations. *)
 
 module G := Graphics
 
@@ -19,33 +21,44 @@ type point = int * int
 (** [point] is the type of points (x,y). *)
 
 type dim = int * int
-(** [dim] is the type representing the dimension (w,h). *)
+(** [dim] is a type such that [(w, h)] represents a pair of dimensions: width
+    [w] and height [h]. *)
 
-(** [placement] is the type representing various ways to place a box on the
-    screen. *)
+(** A placement represents a strategy for placing rectangles with fixed
+    dimensions (width and height) on the screen. [CenterPlace (x, y)] represents
+    the strategy of centering the rectangle on [(x, y)],
+    [BottomLeftPlace (x, y)] represents the strategy of aligning the bottom-left
+    corner of the rectangle on [(x, y)], etc. *)
 type placement =
   | CenterPlace of point
   | BottomLeftPlace of point
   | CenterLeftPlace of point
   | TopCenterPlace of point
 
-(** [box] is the type representing various boxes that can be constructed. *)
+(** [box] represents a 2D region on the screen. A [CornerBox] is defined by two
+    points, a [PlacedBox] is defined by a placement and a dimension, and a
+    [CornerDimBox] is defined by a lower-left corner, a width, and a height. *)
 and box =
   | CornerBox of point * point
   | PlacedBox of placement * dim
   | CornerDimBox of point * dim
 
+val int_of_text_size : text_size -> int
+(** Convert a text size to an int. GiantText is the largest, and TinyText is the
+    smallest. *)
+
 val get_box_corners : box -> point * point
-(** [get_box_corners b] returns the corners of a box [b]. *)
+(** [get_box_corners b] returns the lower-left and upper-right corners of a box
+    [b]. *)
 
 val placed_box : placement -> int -> int -> box
 (** [placed_box p w h] returns a [PlacedBox] with placement [p] and dim [(w,h)]. *)
 
-val get_box_center : box -> int * int
+val get_box_center : box -> point
 (** [get_box_center b] returns a point that represents the center of the box
     [b]. *)
 
-val is_point_in_box : box -> int * int -> bool
+val is_point_in_box : box -> point -> bool
 (** [is_point_in_box b p] returns a bool that represents whether point [p]
     exists within box [b]. *)
 
@@ -86,9 +99,9 @@ val draw_button :
   ?text_size:text_size ->
   string ->
   point * point
-(** [draw_button b ~text_color:ts ~border:bd ~bg:bg ~text_size:ts msg] returns
-    the corners of a box given a box [b], text color [ts], border [bd],
-    background color [bg], text size [ts], and message [msg]. *)
+(** [draw_button b ~text_color:ts ~border:bd ~bg:bg ~text_size:ts msg] draws a
+    button given a box [b], text color [ts], border [bd], background color [bg],
+    text size [ts], and message [msg]. *)
 
 val draw_image_with_placement : G.image -> int -> int -> placement -> unit
 (** [draw_image_with_placement img w h p] draws a Graphics.image [img] given a

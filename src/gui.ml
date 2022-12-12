@@ -3,11 +3,9 @@ module G = Graphics
 
 (* let debug_tick_value : float option ref = ref None *)
 
-let rec handle_event (st : State.t) =
+let handle_event_init (st : State.t) =
   (* wait *)
   let e = G.wait_next_event [ G.Poll ] in
-  (* initialize event handlers *)
-  let ev = Events.make (G.mouse_pos ()) in
   (* initialize draw *)
   G.clear_graph ();
   G.moveto 0 0;
@@ -15,10 +13,10 @@ let rec handle_event (st : State.t) =
   G.set_line_width 100;
   (* helps discover failure to explicitly set line width *)
   G.set_text_size 18;
+  e
 
-  (* draw takes a state, and draws the thing on the screen given the state, and
-     has an accumator of events *)
-  (match st.screen with
+let handle_event_draw (st : State.t) ev =
+  match st.screen with
   | Screen.HomeScreen -> Screen_home.draw st ev
   | Screen.TutorialScreen1 -> Screen_tutorial1.draw st ev
   | Screen.TutorialScreen2 -> Screen_tutorial2.draw st ev
@@ -26,26 +24,31 @@ let rec handle_event (st : State.t) =
   | Screen.PauseScreen -> Screen_pause.draw st ev
   | Screen.LevelChangeScreen -> Level_change_screen.draw st ev
   | Screen.EndScreenLost -> Screen_end_lost.draw st ev
-  | Screen.EndScreenWin -> Screen_end_win.draw st ev);
+  | Screen.EndScreenWin -> Screen_end_win.draw st ev
+
+let handle_event_tick (st : State.t) =
+  match st.screen with
+  | Screen.HomeScreen -> Screen_home.tick st
+  | Screen.TutorialScreen1 -> Screen_tutorial1.tick st
+  | Screen.TutorialScreen2 -> Screen_tutorial2.tick st
+  | Screen.PlayScreen -> Screen_play.tick st
+  | Screen.PauseScreen -> Screen_pause.tick st
+  | Screen.LevelChangeScreen -> Level_change_screen.tick st
+  | Screen.EndScreenLost -> Screen_end_lost.tick st
+  | Screen.EndScreenWin -> Screen_end_win.tick st
+
+let rec handle_event (st : State.t) =
+  let e = handle_event_init st in
+  (* initialize event handlers *)
+  let ev = Events.make (G.mouse_pos ()) in
+  handle_event_draw st ev;
   (* makes contents of the screen update *)
   G.synchronize ();
   (* tick - state is being reassigned on the tick, or else the state will never
      change *)
   let raw_time = Unix.gettimeofday () in
   let should_tick = raw_time -. st.raw_last_tick_time > 1. /. 30. in
-  let st =
-    if should_tick then
-      match st.screen with
-      | Screen.HomeScreen -> Screen_home.tick st
-      | Screen.TutorialScreen1 -> Screen_tutorial1.tick st
-      | Screen.TutorialScreen2 -> Screen_tutorial2.tick st
-      | Screen.PlayScreen -> Screen_play.tick st
-      | Screen.PauseScreen -> Screen_pause.tick st
-      | Screen.LevelChangeScreen -> Level_change_screen.tick st
-      | Screen.EndScreenLost -> Screen_end_lost.tick st
-      | Screen.EndScreenWin -> Screen_end_win.tick st
-    else st
-  in
+  let st = if should_tick then handle_event_tick st else st in
   (* if e.keypressed && e.key == 'q' then exit 0; *)
   let st =
     if e.button && not st.was_mouse_pressed then Events.handle_click st ev

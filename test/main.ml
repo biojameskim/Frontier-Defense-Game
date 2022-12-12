@@ -296,10 +296,10 @@ let screen_play_tests =
     manage_message_length_test "no message length" init_state None;
     manage_message_length_test "should be one less"
       { init_state with messages = [ ("My message", 100) ] }
-      (Some 99);
+      (Some 99)
     (*(let (changed_level = {init_state with }))*)
     (* have not tested buy_from_shop, draw_cell or draw_row, stopped at
-       changed_level *)
+       changed_level *);
   ]
 
 let tests =

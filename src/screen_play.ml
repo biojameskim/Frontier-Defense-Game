@@ -12,7 +12,6 @@ module G = Graphics
 let num_rows = 5
 let num_cols = 10
 
-(** [can_buy plant st plant] is whether they have enough coins to buy the plant *)
 let can_buy (st : State.t) (plant : plant_type) : bool =
   st.coins - Characters.get_plant_cost plant >= 0
 
@@ -64,7 +63,6 @@ let draw_cell_plant col box st plant_type =
   draw_image_with_placement img width height (CenterPlace (get_box_center box));
   ()
 
-(** [draw_cell row col (x,y) st ev] draw single cell and add a clickable *)
 let draw_cell row col (x, y) st ev =
   let cell = State.get_cell row col st in
   let box = CornerDimBox ((x, y), (1100 / num_cols, 720 / num_rows)) in
@@ -84,7 +82,6 @@ let draw_coin ?(text = "$") x y r text_size =
   draw_and_fill_circle ~color:Palette.coin_yellow x y r;
   draw_string_p ~size:text_size (CenterPlace (x, y)) text
 
-(** [draw_row_zombies zs st] draws a row's zombies [zs]. *)
 let draw_row_zombies zs st =
   zs
   |> List.iter (fun { zombie_type; location } ->
@@ -97,7 +94,6 @@ let draw_row_zombies zs st =
          let img, width, height = info in
          draw_image_with_placement img width height (CenterPlace location))
 
-(** [draw_row_zombies zs st] draws a row's peas [ps]. *)
 let draw_row_peas ps st =
   ps
   |> List.iter (fun { location; pea_type } ->
@@ -109,7 +105,6 @@ let draw_row_peas ps st =
          let img, width, height = info in
          draw_image_with_placement img width height (CenterPlace location))
 
-(** [draw_row row st] draws the char that represents each character *)
 let draw_row (row : Board.row) (st : State.t) =
   st |> draw_row_zombies row.zombies;
   (match row.lawnmower with
@@ -135,8 +130,6 @@ let draw_shop_item_init x y st ev plant_type =
       ~border_width:15 box
   else draw_rect_b ~bg:Palette.plant_shop_brown box
 
-(** [draw_shop_items img w h x y st ev plant_type] draws the five boxes for the
-    shop *)
 let draw_shop_item img w h x y (st : State.t) ev plant_type =
   draw_shop_item_init x y st ev plant_type;
   draw_image_with_placement img w h (BottomLeftPlace (x + 35, y + 25));
@@ -173,7 +166,6 @@ let manage_shovel st ev =
       (State.update_shovel false)
       ev
 
-(** [draw_shovel st ev] handles shovel drawing. *)
 let draw_shovel st ev =
   let shovel_box = PlacedBox (CenterPlace (1228, 65), (52, 100)) in
   let is_shovel_hovered =
@@ -186,14 +178,12 @@ let draw_shovel st ev =
     let shovel_border_box = PlacedBox (CenterPlace (1228, 65), (78, 126)) in
     draw_rect_b shovel_border_box ~color:Palette.coin_yellow ~border_width:8
 
-(** [draw_coin_track st ev] draws the big coin tracker. *)
-let draw_coin_track st ev =
+let draw_coin_track st =
   let box = CornerDimBox ((0, 576), (180, 144)) in
   draw_rect_b ~bg:Palette.stone_grey box;
   draw_string_p ~size:BigText (CenterPlace (105, 680)) (string_of_int st.coins);
   draw_coin 50 680 20 BigText
 
-(** [draw st ev] draws the grid *)
 let draw (st : State.t) ev =
   draw_grid
     (BottomLeftPlace (180, 0))
@@ -205,7 +195,7 @@ let draw (st : State.t) ev =
     (draw_button (placed_box (CenterPlace (1265, 700)) 40 40) "||")
     (State.change_screen PauseScreen)
     ev;
-  draw_coin_track st ev;
+  draw_coin_track st;
   draw_string_p ~size:BigText
     (CenterPlace (90, 615))
     ("Level - " ^ string_of_int st.level);
@@ -245,9 +235,6 @@ let should_spawn_zombie (st : State.t) (level_number : int) : bool =
   | 3 -> st.timer mod 250 = 0
   | _ -> failwith "Have not implemented those levels"
 
-(** [timer_spawns_zombie st] checks the timer to see if another zombie should be
-    spawned. If the timer reaches a certain amount, then a zombie is spawned in
-    a random row *)
 let timer_spawns_zombie (st : State.t) : unit =
   if should_spawn_zombie st st.level then
     st.board |> Board.spawn_zombie st.level
@@ -325,8 +312,6 @@ let rec add_to_zombies_killed (st : State.t) (zlist : zombie list) =
 
 let manage_message_length = reduce_message_durations
 
-(** Increment the timer, add free coins, change the level if necessary, and do
-    other actions. *)
 let tick_init (st : State.t) =
   st.timer <- st.timer + 1;
   coin_auto_increment st st.level;
@@ -343,8 +328,6 @@ let tick_init (st : State.t) =
   current_rows
   |> List.iter (fun (row : Board.row) -> row.peas |> List.iter pea_walk)
 
-(** Facilitate collisions between plants and zombies, including everything to be
-    done*)
 let tick_zombie_plant_collisions (row : Board.row) =
   let rec iter_zombie (zombies : zombie list) =
     match zombies with
@@ -382,8 +365,6 @@ let tick_zombie_plant_collisions (row : Board.row) =
   in
   iter_zombie row.zombies
 
-(** Check collisions between peas and zombies, and subtract hp from zombies as
-    needed *)
 let tick_collision_peas_zombies_hp (row : Board.row) =
   match row.zombies with
   | [] -> ()
@@ -405,7 +386,6 @@ let tick_collision_peas_zombies_hp (row : Board.row) =
       in
       iter_peas row.peas
 
-(** Check collisions between peas and zombies, and remove peas if needed*)
 let tick_collision_peas_zombies_remove_peas (row : Board.row) =
   match row.peas with
   | [] -> ()
@@ -419,7 +399,6 @@ let tick_collision_peas_zombies_remove_peas (row : Board.row) =
       in
       destroy row.zombies
 
-(** Make lawnmowers collide with zombies and walk. *)
 let tick_collision_zombies_lawnmowers (row : Board.row) =
   (match row.lawnmower with
   | Some lm ->
@@ -436,8 +415,6 @@ let tick_collision_zombies_lawnmowers (row : Board.row) =
              if is_zombie_colliding_with_entity x 50 z then z.hp <- z.hp - 1000)
   | None -> ()
 
-(** Removes all plants that have non-positive HP on board. Trigger timer events
-    of the plants, shooting peas and generating sun from bases. *)
 let tick_plants (st : State.t) (row : Board.row) =
   List.iter
     (fun (cell : Board.cell) ->
@@ -457,7 +434,6 @@ let tick_plants (st : State.t) (row : Board.row) =
                | _ -> r.peas <- Characters.spawn_pea pl :: r.peas)
          | None -> ())
 
-(** Perform post-tick actions. *)
 let tick_post (st : State.t) =
   let current_rows = st.board.rows in
   (* changes the field for number of zombies on the board *)
@@ -477,7 +453,6 @@ let tick_post (st : State.t) =
   (* Finally, change the state if the game is lost. *)
   check_game_not_lost st
 
-(** [tick st] refreshes and updates the state of the game *)
 let tick (st : State.t) : State.t =
   let current_rows = st.board.rows in
 

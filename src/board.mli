@@ -1,4 +1,4 @@
-(** Represents the board grid in the game. *)
+(** Represents the state of the board (the large green field). *)
 
 open Characters
 
