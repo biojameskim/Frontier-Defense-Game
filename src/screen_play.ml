@@ -447,7 +447,9 @@ let tick (st : State.t) : State.t =
                let rec iter_plants (pls : Board.cell list) =
                  match pls with
                  | [] -> ()
-                 | { plant = None } :: t -> iter_plants t
+                 | { plant = None } :: t ->
+                     h.speed <- 5;
+                     iter_plants t
                  | cell :: t -> (
                      match cell.plant with
                      | None -> ()
