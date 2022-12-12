@@ -8,17 +8,6 @@ val num_rows : int
 val num_cols : int
 (** [num_cols] is the number of columns in the board grid (field). *)
 
-val get_plant_cost : Characters.plant_type -> int
-(** [get_plant_cost p] returns the cost of plant_type [p]. *)
-
-val get_plant_hp : Characters.plant_type -> int
-(** [get_plant_hp p] returns the hp of plant_type [p]. *)
-
-val get_plant_speed : Characters.plant_type -> int
-(** [get_plant_speed p] returns the speed of plant_type [p]. *)
-
-val get_plant_width : Characters.plant_type -> int
-(** [get_plant_width p] returns the width of plant_type [p]. *)
 
 val can_buy : State.t -> Characters.plant_type -> bool
 (** [can_buy st p] returns whether you have enough coins to buy plant [p] in
@@ -95,7 +84,7 @@ val should_spawn_zombie : State.t -> int -> bool
     reaches a certain amount, then a zombie is spawned in a random row. This is
     based on the level number [ln]. *)
 
-val timer_spawns_zombie : State.t -> Board.t
+val timer_spawns_zombie : State.t -> unit
 (** [timer_spawns_zombie st] spawns a zombie in state [st] if another zombie
     should be spawned according to [should_spawn_zombie st ln]. If the timer
     reaches a certain amount, then a zombie is spawned in a random row. *)

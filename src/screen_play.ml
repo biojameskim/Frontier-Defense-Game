@@ -104,7 +104,7 @@ let draw_row_peas ps st =
          let info =
            match pea_type with
            | RegularPea -> (st.images.regular_bullet, 19, 10)
-           | FreezePea -> (st.images.rocket_bullet, 20, 10)
+           | RocketPea -> (st.images.rocket_bullet, 20, 10)
          in
          let img, width, height = info in
          draw_image_with_placement img width height (CenterPlace location))
