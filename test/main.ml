@@ -114,6 +114,27 @@ let change_level_test (name : string) (st : State.t)
     (change_level st;
      st.screen)
 
+let add_to_zombies_killed_test (name : string) (st : State.t)
+    (zlist : zombie list) (expected_output : int) : test =
+  name >:: fun _ ->
+  assert_equal expected_output
+    (add_to_zombies_killed st zlist;
+     st.zombies_killed)
+
+let shovel_message_test (name : string) (st : State.t)
+    (expected_output : string option) : test =
+  name >:: fun _ ->
+  assert_equal expected_output
+    (shovel_message st;
+     st.message)
+
+let manage_message_length_test (name : string) (st : State.t)
+    (expected_output : int option) : test =
+  name >:: fun _ ->
+  assert_equal expected_output
+    (manage_message_length st;
+     st.message_length)
+
 let screen_play_tests =
   let init_state = State.init () in
   let changed_coin_amt = { init_state with coins = 50 } in
@@ -127,8 +148,8 @@ let screen_play_tests =
     get_plant_hp_test "hp - PeaShooterPlant" PeaShooterPlant 100;
     get_plant_hp_test "hp - IcePeaShooterPlant" IcePeaShooterPlant 100;
     get_plant_hp_test "hp - WalnutPlant" WalnutPlant 300;
-    get_plant_speed_test "speed - PeaShooterPlant" PeaShooterPlant 50;
-    get_plant_speed_test "speed - IcePeaShooterPlant" IcePeaShooterPlant 50;
+    get_plant_speed_test "speed - PeaShooterPlant" PeaShooterPlant 125;
+    get_plant_speed_test "speed - IcePeaShooterPlant" IcePeaShooterPlant 250;
     get_plant_speed_test "speed - WalnutPlant" WalnutPlant 0;
     can_buy_test "not enough money" init_state PeaShooterPlant false;
     can_buy_test "enough money" changed_coin_amt PeaShooterPlant true;
@@ -231,7 +252,56 @@ let screen_play_tests =
      time_to_give_coins_test "level three should give coins"
        lvl_three_coins_works.level lvl_three_coins_works true);
     zombies_in_lvl_test "level 1 zombies" 1 10;
-    zombies_in_lvl_test "level 1 zombies" 2 25
+    zombies_in_lvl_test "level 1 zombies" 2 25;
+    add_to_zombies_killed_test "zombies_killed - 2" init_state
+      [
+        {
+          zombie_type = RegularZombie;
+          hp = -10;
+          damage = 1;
+          location = (49, 100);
+          speed = 1;
+          frame = 0;
+          width = 15;
+        };
+        {
+          zombie_type = RegularZombie;
+          hp = -10;
+          damage = 1;
+          location = (49, 100);
+          speed = 1;
+          frame = 0;
+          width = 15;
+        };
+      ]
+      2;
+    add_to_zombies_killed_test "zombies_killed - 0" init_state
+      [
+        {
+          zombie_type = RegularZombie;
+          hp = 10;
+          damage = 1;
+          location = (49, 100);
+          speed = 1;
+          frame = 0;
+          width = 15;
+        };
+      ]
+      0;
+    (let changed_lvl_screen =
+       { init_state with level = 3; zombies_killed = 50 }
+     in
+     change_level_test "end game" changed_lvl_screen EndScreenWin);
+    (let shovel_message_tester =
+       { init_state with is_shovel_selected = true }
+     in
+     shovel_message_test "should have a message" shovel_message_tester
+       (Some "Select cell to delete defense"));
+    shovel_message_test "should have a message" init_state None;
+    manage_message_length_test "no message length" init_state None;
+    manage_message_length_test "should be one less"
+      { init_state with message_length = Some 100 }
+      (Some 99)
     (*(let (changed_level = {init_state with }))*)
     (* have not tested buy_from_shop, draw_cell or draw_row, stopped at
        changed_level *);
