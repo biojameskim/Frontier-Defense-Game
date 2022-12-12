@@ -356,7 +356,8 @@ let all_lvl_zombs_spawned (st : State.t) (level_number : int) : bool =
 (** [change_level_screen st] changes the state screen to the level_change screen *)
 let change_level_screen (st : State.t) =
   match st.level with
-  | 1 | 2 | 3 -> st.screen <- LevelChangeScreen
+  | 1 | 2 -> st.screen <- LevelChangeScreen
+  | 3 -> st.screen <- EndScreenWin
   | _ -> failwith "levels not implemented"
 
 (** [change_level st] determines if all zombies in that level were killed *)
