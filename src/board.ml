@@ -59,5 +59,4 @@ let spawn_zombie (level : int) (t : t) =
       (1280, (720 / num_rows / 2) + (row_id * (720 / num_rows)))
       (spawn_zombie_by_level level)
   in
-  row.zombies <- new_zombie :: row.zombies;
-  t
+  row.zombies <- new_zombie :: row.zombies

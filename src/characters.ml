@@ -6,7 +6,7 @@ type zombie_type =
 type zombie = {
   mutable hp : int;
   damage : int;
-  location : int * int;
+  mutable location : int * int;
   mutable speed : int;
   frame : int;
   zombie_type : zombie_type;
@@ -57,9 +57,9 @@ type sun = {
   row : int;
 }
 
-let zombie_walk (z : zombie) : zombie =
+let zombie_walk (z : zombie) : unit =
   let x, y = z.location in
-  { z with location = (x - z.speed, y) }
+  z.location <- (x - z.speed, y)
 
 let lawnmower_walk (l : lawnmower option) : lawnmower option =
   match l with
@@ -68,7 +68,7 @@ let lawnmower_walk (l : lawnmower option) : lawnmower option =
       Some { lm with location = (x + lm.speed, y) }
   | None -> None
 
-let spawn_pea (pl : plant) : pea =
+let spawn_pea ({ location = x, y } as pl : plant) : pea =
   match pl.plant_type with
   | SunflowerPlant -> failwith "Cannot spawn a pea from a sunflower"
   | WalnutPlant -> failwith "Cannot spawn a pea from a walnut plant"
@@ -76,7 +76,7 @@ let spawn_pea (pl : plant) : pea =
       {
         pea_type = RocketPea;
         damage = 20;
-        location = pl.location;
+        location = (x + 38, y + 20);
         speed = 5;
         width = 5;
       }
@@ -84,7 +84,7 @@ let spawn_pea (pl : plant) : pea =
       {
         pea_type = RegularPea;
         damage = 20;
-        location = pl.location;
+        location = (x + 42, y + 25);
         speed = 5;
         width = 5;
       }
@@ -98,7 +98,46 @@ let spawn_zombie (location : Gui_util.point) (zombie_type : zombie_type) :
     | TrafficConeHeadZombie -> (640, 2, 4)
     | BucketHeadZombie -> (1370, 2, 4)
   in
-  { zombie_type; hp; damage; speed; location; frame = 0; width = 15 }
+  { zombie_type; hp; damage; speed; location; frame = 0; width = 80 }
 
 let pea_walk ({ location = x, y } as p : pea) : unit =
   p.location <- (x + p.speed, y)
+
+let get_plant_cost (plant : plant_type) : int =
+  match plant with
+  | SunflowerPlant -> 50
+  | PeaShooterPlant -> 100
+  | IcePeaShooterPlant -> 175
+  | WalnutPlant -> 50
+
+let get_plant_hp (plant : plant_type) : int =
+  match plant with
+  | SunflowerPlant -> 300
+  | PeaShooterPlant -> 300
+  | IcePeaShooterPlant -> 600
+  | WalnutPlant -> 4000
+
+let get_plant_speed = function
+  (* these go twice as fast as the original game (1.5 seconds / 45 ticks -> 0.75
+     seconds / 22 ticks) *)
+  | SunflowerPlant -> 12 * 30 (* every 12 seconds *)
+  | PeaShooterPlant -> 22
+  | IcePeaShooterPlant -> 22
+  | WalnutPlant -> 0
+
+let get_plant_width = function
+  | SunflowerPlant -> 15
+  | PeaShooterPlant -> 15
+  | IcePeaShooterPlant -> 15
+  | WalnutPlant -> 15
+
+let spawn_plant box (plant_type : plant_type) =
+  {
+    hp = get_plant_hp plant_type;
+    location = Gui_util.get_box_center box;
+    plant_type;
+    speed = get_plant_speed plant_type;
+    cost = get_plant_cost plant_type;
+    timer = 0;
+    width = get_plant_width plant_type;
+  }

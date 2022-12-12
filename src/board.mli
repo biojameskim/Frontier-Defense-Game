@@ -29,12 +29,9 @@ val init_row : int -> row
 val init : unit -> t
 (** [init] calls the init_row function num_rows times. *)
 
-val spawn_zombie : int -> zombie_type
-(* [spawn_zombie category] is the category of zombie that spawns *)
-
 val spawn_zombie_by_level : int -> zombie_type
 (** [spawn_zombie_by_level level] spawns zombies based on level. Random.int i
     chooses a random integer between 0 and (i - 1) inclusive. *)
 
-val spawn_zombie : int -> t -> t
+val spawn_zombie : int -> t -> unit
 (** [spawn_zombie level t] spawns a zombie based on level. *)

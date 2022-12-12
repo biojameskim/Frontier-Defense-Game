@@ -9,7 +9,7 @@ type zombie_type =
 type zombie = {
   mutable hp : int;
   damage : int;
-  location : int * int;
+  mutable location : int * int;
   mutable speed : int;
   frame : int;
   zombie_type : zombie_type;
@@ -64,10 +64,8 @@ type sun = {
 }
 (** [sun] is the type of *)
 
-val zombie_walk : zombie -> zombie
-(** [zombie_walk zombie] returns a new zombie with updated location. This can be
-    used to update the zombies on the screen, making it appear as if they are
-    moving across the screen.*)
+val zombie_walk : zombie -> unit
+(** [zombie_walk zombie] mutates the zombie to update the location. *)
 
 val lawnmower_walk : lawnmower option -> lawnmower option
 (** [lawnmower_walk lawnmower] returns a new lawnmower with updated location.
@@ -85,3 +83,18 @@ val pea_walk : pea -> unit
 val spawn_zombie : Gui_util.point -> zombie_type -> zombie
 (** [spawn_zombie location zombie_type] returns a zombie at the given location
     and with the given type. *)
+
+val get_plant_cost : plant_type -> int
+(** [get_plant_cost plant] gets the cost of the specific plant *)
+
+val get_plant_hp : plant_type -> int
+(** [get_plant_hp plant] gets the hp of the specific plant *)
+
+val get_plant_speed : plant_type -> int
+(** [get_plant_speed plant_type] gets the speed of the plant *)
+
+val get_plant_width : plant_type -> int
+(** [get_plant_width plant_type] gets the width of the plant *)
+
+val spawn_plant : Gui_util.box -> plant_type -> plant
+(** [spawn_plant box plant_type] spawns a plant of a certain type given its box. *)
