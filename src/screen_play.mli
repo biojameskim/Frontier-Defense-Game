@@ -8,7 +8,6 @@ val num_rows : int
 val num_cols : int
 (** [num_cols] is the number of columns in the board grid (field). *)
 
-
 val can_buy : State.t -> Characters.plant_type -> bool
 (** [can_buy st p] returns whether you have enough coins to buy plant [p] in
     state [st]. *)
