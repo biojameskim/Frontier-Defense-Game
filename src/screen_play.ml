@@ -72,7 +72,10 @@ let handle_clickable (x, y) box (st : State.t) (cell : Board.cell)
                     timer = 0;
                     width = get_plant_width plant_type;
                   };
-              decrement_coins st plant_type);
+              decrement_coins st plant_type)
+            else if cell.plant = None then (
+              st.message <- Some "Not enough currency";
+              st.message_length <- Some 80);
             st.shop_selection <- None;
             st
       in
@@ -211,7 +214,16 @@ let draw_shop_items (st : State.t) ev =
 let display_message st =
   match st.message with
   | None -> ()
-  | Some str -> draw_string_p (CenterPlace (1280 / 2, 360)) ~size:MediumText str
+  | Some str -> draw_string_p (CenterPlace (1280 / 2, 360)) ~size:BigText str
+
+let manage_shovel st ev =
+  if st.is_shovel_selected then
+    Events.add_clickable
+      (draw_button (placed_box (CenterPlace (1225, 70)) 110 50) "Cancel")
+      (fun st ->
+        st.is_shovel_selected <- false;
+        st)
+      ev
 
 (** [draw st ev] draws the grid *)
 let draw (st : State.t) ev =
@@ -249,7 +261,8 @@ let draw (st : State.t) ev =
   (if is_shovel_hovered then
    let shovel_border_box = PlacedBox (CenterPlace (1228, 65), (78, 126)) in
    draw_rect_b shovel_border_box ~color:Palette.coin_yellow ~border_width:8);
-  display_message st
+  display_message st;
+  manage_shovel st ev
 
 (** [make_game_not_lost_list st] is the list of booleans (one boolean for each
     zombie that is false if the zombie is at the x position of the end of the
@@ -393,10 +406,9 @@ let rec add_to_zombies_killed (st : State.t) (zlist : zombie list) =
 
 let shovel_message st =
   if st.is_shovel_selected then (
-    st.message <- Some "Select cell to delete defense, press c to cancel";
+    st.message <- Some "Select cell to delete defense";
     st.message_length <- Some 99999)
-  else if st.message = Some "Select cell to delete defense, press c to cancel"
-  then (
+  else if st.message = Some "Select cell to delete defense" then (
     st.message <- None;
     st.message_length <- None)
 
@@ -404,7 +416,6 @@ let manage_message_length st =
   match st.message_length with
   | None -> ()
   | Some i ->
-      print_endline (string_of_int i);
       if i <= 0 then (
         st.message_length <- None;
         st.message <- None)

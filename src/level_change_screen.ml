@@ -4,6 +4,8 @@ let draw (st : State.t) ev =
   let on_resume _ =
     st.screen <- Screen.PlayScreen;
     st.level <- st.level + 1;
+    st.message <- Some ("Level " ^ string_of_int st.level);
+    st.message_length <- Some 120;
     st
   in
   let on_quit _ = exit 0 in
