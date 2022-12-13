@@ -53,6 +53,9 @@ type t = {
   images : gui_images;
   mutable raw_last_tick_time : float;
   mutable warnings_given : warning list;
+  mutable bases_on_screen : Characters.plant list;
+  mutable is_base_message_time : bool;
+  mutable base_message_length : int option;
 }
 
 let init () =
@@ -70,6 +73,9 @@ let init () =
     messages = [];
     raw_last_tick_time = Unix.gettimeofday ();
     warnings_given = [];
+    bases_on_screen = [];
+    is_base_message_time = false;
+    base_message_length = None;
     images =
       (* background color *)
       {
@@ -216,7 +222,12 @@ let reduce_message_durations t =
   t.messages <-
     t.messages
     |> List.filter_map (fun (msg, duration) ->
-           if duration <= 0 then None else Some (msg, duration - 1))
+           if duration <= 0 then None else Some (msg, duration - 1));
+  match t.base_message_length with
+  | None -> ()
+  | Some i ->
+      if i = 0 then t.is_base_message_time <- false;
+      t.base_message_length <- Some (i - 2)
 
 let update_shovel is_shovel_selected t =
   t.is_shovel_selected <- is_shovel_selected;

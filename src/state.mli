@@ -58,6 +58,9 @@ type t = {
   images : gui_images;
   mutable raw_last_tick_time : float;
   mutable warnings_given : warning list;
+  mutable bases_on_screen : Characters.plant list;
+  mutable is_base_message_time : bool;
+  mutable base_message_length : int option;
 }
 (** [t] is the type that represents the current state of the game. *)
 

@@ -18,6 +18,13 @@ let can_buy (st : State.t) (plant : plant_type) : bool =
 let decrement_coins (st : State.t) (plant : plant_type) : unit =
   st.coins <- st.coins - Characters.get_plant_cost plant
 
+let update_base_list st (plant : Characters.plant) =
+  st.bases_on_screen <-
+    List.filter
+      (fun (compare_plant : Characters.plant) ->
+        compare_plant.location <> plant.location)
+      st.bases_on_screen
+
 let handle_clickable box (st : State.t) (cell : Board.cell) (ev : Events.t) =
   Events.add_clickable_return_hover (get_box_corners box)
     (fun st ->
@@ -30,7 +37,10 @@ let handle_clickable box (st : State.t) (cell : Board.cell) (ev : Events.t) =
             if st.timer < 40 * 30 && plant_type <> SunflowerPlant then
               st
               |> State.trigger_warning BuyBasesWarning
-                   "Suggestion: buy more bases to get coins faster" 80)
+                   "Suggestion: buy more bases to get coins faster" 80;
+            if plant_type = SunflowerPlant then
+              st.bases_on_screen <-
+                Characters.spawn_plant box plant_type :: st.bases_on_screen)
           else if cell.plant = None then
             st |> State.add_message "Not enough currency" 80;
           st.shop_selection <- None);
@@ -39,7 +49,13 @@ let handle_clickable box (st : State.t) (cell : Board.cell) (ev : Events.t) =
         st.shop_selection <- None;
         if cell.plant = None then
           st |> State.add_message "Cell is already empty!" 80;
-        cell.plant <- None);
+        let potential_sunflower = cell.plant in
+        cell.plant <- None;
+        match potential_sunflower with
+        | None -> ()
+        | Some compare_plant ->
+            if compare_plant.plant_type = SunflowerPlant then
+              update_base_list st compare_plant);
       st)
     ev
 
@@ -184,6 +200,14 @@ let draw_coin_track st =
   draw_string_p ~size:BigText (CenterPlace (105, 680)) (string_of_int st.coins);
   draw_coin 50 680 20 BigText
 
+let manage_base_messages st =
+  if st.is_base_message_time then
+    List.iter
+      (fun (plant : Characters.plant) ->
+        let x, y = plant.location in
+        draw_string_p ~size:RegularText (CenterPlace (x + 47, y + 50)) "+ 25")
+      st.bases_on_screen
+
 let draw (st : State.t) ev =
   draw_grid
     (BottomLeftPlace (180, 0))
@@ -201,7 +225,8 @@ let draw (st : State.t) ev =
     ("Level - " ^ string_of_int st.level);
   draw_shovel st ev;
   display_message st;
-  manage_shovel st ev
+  manage_shovel st ev;
+  manage_base_messages st
 
 let make_game_not_lost_list (st : State.t) =
   st.board.rows
@@ -313,7 +338,7 @@ let rec add_to_zombies_killed (st : State.t) (zlist : zombie list) =
 let manage_message_length = reduce_message_durations
 
 let tick_init (st : State.t) =
-  st.timer <- st.timer + 1;
+  st.timer <- st.timer + 4;
   coin_auto_increment st st.level;
   change_level st;
   manage_message_length st;
@@ -420,7 +445,11 @@ let tick_plants (st : State.t) (row : Board.row) =
     (fun (cell : Board.cell) ->
       match cell.plant with
       | None -> ()
-      | Some plant -> if plant.hp <= 0 then cell.plant <- None else ())
+      | Some plant ->
+          if plant.hp <= 0 then (
+            cell.plant <- None;
+            if plant.plant_type = SunflowerPlant then update_base_list st plant
+            else ()))
     row.cells;
   let r = row in
   r.cells
@@ -430,7 +459,10 @@ let tick_plants (st : State.t) (row : Board.row) =
              pl.timer <- pl.timer + 1;
              if pl.speed <> 0 && pl.timer mod pl.speed = 0 then
                match pl.plant_type with
-               | SunflowerPlant -> st.coins <- st.coins + 25
+               | SunflowerPlant ->
+                   st.coins <- st.coins + (25 * List.length st.bases_on_screen);
+                   st.is_base_message_time <- true;
+                   st.base_message_length <- Some 50
                | _ -> r.peas <- Characters.spawn_pea pl :: r.peas)
          | None -> ())
 
