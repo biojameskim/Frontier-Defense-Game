@@ -24,29 +24,32 @@ val draw_coin_track : State.t -> unit
 (** [draw_coin_track st] draws the big coin tracker. *)
 
 val tick_init : State.t -> unit
-(** Increment the timer, add free coins, change the level if necessary, and do
-    other actions. *)
+(** [tick_init] increments the timer, adds free coins, changes the level if
+    necessary, and does other actions. *)
 
 val tick_zombie_plant_collisions : Board.row -> unit
-(** Facilitate collisions between plants and zombies, including everything to be
-    done*)
+(** [tick_zombie_plant_collisions] facilitates collisions between plants and
+    zombies, including everything to be done. *)
 
 val tick_collision_peas_zombies_hp : Board.row -> unit
-(** Check collisions between peas and zombies, and subtract hp from zombies as
-    needed *)
+(** [tick_collision_peas_zombies_hp] checks collisions between peas and zombies,
+    and subtracts hp from zombies as needed. *)
 
 val tick_collision_peas_zombies_remove_peas : Board.row -> unit
-(** Check collisions between peas and zombies, and remove peas if needed*)
+(** [tick_collision_peas_zombies_remove_peas] checks collisions between peas and
+    zombies, and removes peas if needed. *)
 
 val tick_collision_zombies_lawnmowers : Board.row -> unit
-(** Make lawnmowers collide with zombies and walk. *)
+(** [tick_collision_zombies_lawnmowers] makes lawnmowers collide with zombies
+    and walk. *)
 
 val tick_plants : State.t -> Board.row -> unit
-(** Removes all plants that have non-positive HP on board. Trigger timer events
-    of the plants, shooting peas and generating sun from bases. *)
+(** [tick_plants] removes all plants that have non-positive HP on board.
+    Triggers timer events of the plants which include shooting peas and
+    generating sun from bases. *)
 
 val tick_post : State.t -> State.t
-(** Perform post-tick actions. *)
+(** [tick_post] performs post-tick actions. *)
 
 val num_rows : int
 (** [num_rows] is the number of rows in the board grid (field). *)
