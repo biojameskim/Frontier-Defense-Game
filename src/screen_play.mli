@@ -1,6 +1,52 @@
 (** Represents the main play screen in the game. *)
 
-module G = Graphics
+module G := Graphics
+
+val draw_cell_plant :
+  int -> Gui_util.box -> State.t -> Characters.plant_type -> unit
+(** [draw_cell_plant col box st plant_type] draws a plant within a cell given
+    its column, box, state, and plant type. *)
+
+val draw_row_zombies : Characters.zombie list -> State.t -> unit
+(** [draw_row_zombies zs st] draws the zombies in a row. *)
+
+val draw_row_peas : Characters.pea list -> State.t -> unit
+(** [draw_row_peas ps st] draws the peas in a row. *)
+
+val draw_shop_item_init :
+  int -> int -> State.t -> Events.t -> Characters.plant_type -> unit
+(** [draw_shop_item_init x y st ev plant_type] draws a single shop item. *)
+
+val draw_shovel : State.t -> Events.t -> unit
+(** [draw_shovel st ev] draws the shovel icon and adds clickables for it. *)
+
+val draw_coin_track : State.t -> unit
+(** [draw_coin_track st] draws the big coin tracker. *)
+
+val tick_init : State.t -> unit
+(** Increment the timer, add free coins, change the level if necessary, and do
+    other actions. *)
+
+val tick_zombie_plant_collisions : Board.row -> unit
+(** Facilitate collisions between plants and zombies, including everything to be
+    done*)
+
+val tick_collision_peas_zombies_hp : Board.row -> unit
+(** Check collisions between peas and zombies, and subtract hp from zombies as
+    needed *)
+
+val tick_collision_peas_zombies_remove_peas : Board.row -> unit
+(** Check collisions between peas and zombies, and remove peas if needed*)
+
+val tick_collision_zombies_lawnmowers : Board.row -> unit
+(** Make lawnmowers collide with zombies and walk. *)
+
+val tick_plants : State.t -> Board.row -> unit
+(** Removes all plants that have non-positive HP on board. Trigger timer events
+    of the plants, shooting peas and generating sun from bases. *)
+
+val tick_post : State.t -> State.t
+(** Perform post-tick actions. *)
 
 val num_rows : int
 (** [num_rows] is the number of rows in the board grid (field). *)

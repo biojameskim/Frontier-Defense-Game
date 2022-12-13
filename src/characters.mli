@@ -1,4 +1,5 @@
-(** Represents the characters in the game. *)
+(** Represents the characters or entities in the game: zombies, plants, peas,
+    and lawnmowers. Implements utilities related to these characters. *)
 
 (** [zombie_type] is the type representing the category of zombies. *)
 type zombie_type =
@@ -57,12 +58,6 @@ type lawnmower = {
   width : int;
 }
 (** [lawnmower] is the type of a lawnmower *)
-
-type sun = {
-  location : int * int;
-  row : int;
-}
-(** [sun] is the type of *)
 
 val zombie_walk : zombie -> unit
 (** [zombie_walk zombie] mutates the zombie to update the location. *)

@@ -52,11 +52,6 @@ type lawnmower = {
   width : int;
 }
 
-type sun = {
-  location : int * int;
-  row : int;
-}
-
 let zombie_walk (z : zombie) : unit =
   let x, y = z.location in
   z.location <- (x - z.speed, y)
