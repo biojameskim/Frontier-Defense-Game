@@ -1,4 +1,4 @@
-# cs3110-final-project
+# Frontier Defense Game
 Final Project for CS 3110 - Functional Programming
 
 Members:
@@ -79,6 +79,22 @@ For MacOS devices using Homebrew, that would be:
 - Then, run `make play` to play the game.
 </br>
 
+## Documentation
+With so many files in the code base, it might be helpful to read HTML documentation instead of source code.  
+
+To read the HTML documentation of this project, first run:
+``` sh
+% make doc
+```
+This will produce a file `_build/default/_doc/_html/Game/Game/index.html` .  
+
+Next, as a convenient way to open this HTML file, run:
+``` sh
+% make opendoc
+```
+This will open a file browser window to the directory containing the documentation. 
+Simply double click the `index.html` in that directory to open the documentation in your web broswer.
+
 ## Troubleshooting
 
 ### If the graphics window does not work on macOS
@@ -110,3 +126,4 @@ Restart your computer again.
 
 ## Acknowledgements
 - The instructions to set up the OCaml development environment was largely borrowed from Harvard University's CS51 class in "Abstraction and Design in Computation"
+- The instructions in "Documentation" were largely borrowed from the A2 Handout of Cornell University's CS3110 class in "Data Structures and Functional Programming"

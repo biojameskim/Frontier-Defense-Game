@@ -1,3 +1,5 @@
+# This file was borrowed from Assignment 2 in CS3110.
+
 #!/bin/bash
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
