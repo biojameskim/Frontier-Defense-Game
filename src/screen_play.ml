@@ -338,7 +338,7 @@ let rec add_to_zombies_killed (st : State.t) (zlist : zombie list) =
 let manage_message_length = reduce_message_durations
 
 let tick_init (st : State.t) =
-  st.timer <- st.timer + 4;
+  st.timer <- st.timer + 1;
   coin_auto_increment st st.level;
   change_level st;
   manage_message_length st;
