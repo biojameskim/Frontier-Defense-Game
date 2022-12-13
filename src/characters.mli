@@ -29,6 +29,7 @@ type plant = {
   mutable hp : int;
   speed : int;
   mutable timer : int;
+  mutable message_timer : int option;
   location : int * int;
   plant_type : plant_type;
   cost : int;

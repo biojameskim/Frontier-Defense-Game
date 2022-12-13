@@ -24,6 +24,7 @@ type plant = {
   mutable hp : int;
   speed : int;
   mutable timer : int;
+  mutable message_timer : int option;
   location : int * int;
   plant_type : plant_type;
   cost : int;
@@ -132,6 +133,7 @@ let spawn_plant box (plant_type : plant_type) =
     location = Gui_util.get_box_center box;
     plant_type;
     speed = get_plant_speed plant_type;
+    message_timer = None;
     cost = get_plant_cost plant_type;
     timer = 0;
     width = get_plant_width plant_type;
