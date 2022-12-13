@@ -1,5 +1,5 @@
 # Frontier Defense Game
-Final Project for CS 3110 - Functional Programming
+Final Project for Cornell University's CS 3110 - Data Structures and Functional Programming
 
 Members:
 
@@ -74,10 +74,8 @@ For MacOS devices using Homebrew, that would be:
 ```
 
 ## Usage
-
 - Run `make build` to build the project if it isn't built already.
 - Then, run `make play` to play the game.
-</br>
 
 ## Documentation
 With so many files in the code base, it might be helpful to read HTML documentation instead of source code.  
