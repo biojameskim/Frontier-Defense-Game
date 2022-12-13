@@ -224,6 +224,33 @@ let manage_message_length_test (name : string) (st : State.t)
   | [] -> assert_equal expected_output None
   | (_, duration) :: _ -> assert_equal expected_output (Some duration)
 
+let zombie_pea_collision_fn_test (name : string) (nt : bool)
+    (pea : Characters.pea) (zombie : Characters.zombie) (expected_output : bool)
+    : test =
+  name >:: fun _ ->
+  assert_equal expected_output (is_zombie_colliding_with_pea nt pea zombie)
+
+let pea_zombie_not_collision_fn_test (name : string)
+    (zombie : Characters.zombie) (pea : Characters.pea) (expected_output : bool)
+    : test =
+  name >:: fun _ ->
+  assert_equal expected_output (is_pea_not_colliding_with_zombie zombie pea)
+
+let damage_zombie_test (name : string) (zombie : Characters.zombie)
+    (pea : Characters.pea) (expected_output : int) : test =
+  name >:: fun _ ->
+  damage_zombie zombie pea;
+  assert_equal expected_output zombie.hp
+
+let pea1 =
+  {
+    pea_type = RegularPea;
+    damage = 1;
+    location = (50, 50);
+    speed = 5;
+    width = 50;
+  }
+
 let screen_play_tests =
   let init_state = State.init () in
   let changed_coin_amt = { init_state with coins = 1000 } in
@@ -231,6 +258,72 @@ let screen_play_tests =
     { init_state with coins = 1000; screen = PlayScreen; zombies_killed = 15 }
   in
   [
+    zombie_pea_collision_fn_test "non-collision at edge" true pea1
+      {
+        hp = 50;
+        damage = 1;
+        location = (150, 50);
+        speed = 5;
+        frame = 5;
+        zombie_type = RegularZombie;
+        width = 50;
+      }
+      false;
+    zombie_pea_collision_fn_test "collision at edge" true pea1
+      {
+        hp = 50;
+        damage = 1;
+        location = (149, 50);
+        speed = 5;
+        frame = 5;
+        zombie_type = RegularZombie;
+        width = 50;
+      }
+      true;
+    pea_zombie_not_collision_fn_test "non-collision at edge true"
+      {
+        hp = 50;
+        damage = 1;
+        location = (150, 50);
+        speed = 5;
+        frame = 5;
+        zombie_type = RegularZombie;
+        width = 50;
+      }
+      pea1 true;
+    pea_zombie_not_collision_fn_test "collision at edge false"
+      {
+        hp = 50;
+        damage = 1;
+        location = (148, 50);
+        speed = 5;
+        frame = 5;
+        zombie_type = RegularZombie;
+        width = 50;
+      }
+      pea1 false;
+    damage_zombie_test "collision damage zombie"
+      {
+        hp = 50;
+        damage = 1;
+        location = (148, 50);
+        speed = 5;
+        frame = 5;
+        zombie_type = RegularZombie;
+        width = 50;
+      }
+      pea1 45;
+    damage_zombie_test "non-collision do NOT damage zombie"
+      {
+        hp = 50;
+        damage = 1;
+        location = (153, 50);
+        speed = 5;
+        frame = 5;
+        zombie_type = RegularZombie;
+        width = 50;
+      }
+      pea1 50;
     get_plant_cost_test "cost - PeaShooterPlant" PeaShooterPlant 100;
     get_plant_cost_test "cost - IcePeaShooterPlant" IcePeaShooterPlant 175;
     get_plant_cost_test "cost - WalnutPlant" WalnutPlant 50;
