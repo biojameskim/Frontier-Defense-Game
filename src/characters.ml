@@ -98,7 +98,7 @@ let spawn_zombie (location : Gui_util.point) (zombie_type : zombie_type) :
     | TrafficConeHeadZombie -> (640, 2, 4)
     | BucketHeadZombie -> (1370, 2, 4)
   in
-  { zombie_type; hp; damage; speed; location; frame = 0; width = 80 }
+  { zombie_type; hp; damage; speed; location; frame = 0; width = 85 }
 
 let pea_walk ({ location = x, y } as p : pea) : unit =
   p.location <- (x + p.speed, y)
