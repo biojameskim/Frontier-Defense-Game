@@ -22,7 +22,7 @@ let handle_event_draw (st : State.t) ev =
   | Screen.TutorialScreen2 -> Screen_tutorial2.draw st ev
   | Screen.PlayScreen -> Screen_play.draw st ev
   | Screen.PauseScreen -> Screen_pause.draw st ev
-  | Screen.LevelChangeScreen -> Level_change_screen.draw st ev
+  | Screen.LevelChangeScreen -> Screen_level_change.draw st ev
   | Screen.EndScreenLost -> Screen_end_lost.draw st ev
   | Screen.EndScreenWin -> Screen_end_win.draw st ev
 
@@ -33,7 +33,7 @@ let handle_event_tick (st : State.t) =
   | Screen.TutorialScreen2 -> Screen_tutorial2.tick st
   | Screen.PlayScreen -> Screen_play.tick st
   | Screen.PauseScreen -> Screen_pause.tick st
-  | Screen.LevelChangeScreen -> Level_change_screen.tick st
+  | Screen.LevelChangeScreen -> Screen_level_change.tick st
   | Screen.EndScreenLost -> Screen_end_lost.tick st
   | Screen.EndScreenWin -> Screen_end_win.tick st
 
