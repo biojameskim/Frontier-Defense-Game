@@ -15,29 +15,117 @@ let compare_states (st1 : State.t) (st2 : State.t) =
   && st1.coins = st2.coins && st1.level = st2.level
   && st1.zombies_killed = st2.zombies_killed
 
-let trivial_tests =
-  [
-    ("trivial test" >:: fun _ -> assert_equal "abc" "abc");
-    ( "trivial test 2" >:: fun _ ->
-      assert_equal
-        {
-          damage = 0;
-          location = (0, 0);
-          speed = 0;
-          pea_type = RocketPea;
-          width = 15;
-        }
-        {
-          damage = 0;
-          location = (0, 0);
-          speed = 0;
-          pea_type = RocketPea;
-          width = 15;
-        } );
-  ]
-
 let gui_tests = []
-let character_tests = []
+
+let zombie_walk_test (name : string) (zomb : Characters.zombie)
+    (expected_output : Characters.zombie) : test =
+  name >:: fun _ ->
+  assert_equal expected_output
+    (zombie_walk zomb;
+     zomb)
+
+let lawnmower_walk_test (name : string) (lmw : Characters.lawnmower option)
+    (expected_output : Characters.lawnmower option) : test =
+  name >:: fun _ -> assert_equal expected_output (lawnmower_walk lmw)
+
+let zombie_spawn_test (name : string) (location : Gui_util.point)
+    (zombie_type : Characters.zombie_type) (expected_output : Characters.zombie)
+    : test =
+  name >:: fun _ ->
+  assert_equal expected_output (spawn_zombie location zombie_type)
+
+let pea_spawn_test (name : string) (plant : Characters.plant)
+    (expected_output : Characters.pea) : test =
+  name >:: fun _ -> assert_equal expected_output (spawn_pea plant)
+
+let character_tests =
+  let reg_zomb =
+    {
+      zombie_type = RegularZombie;
+      hp = 200;
+      damage = 2;
+      location = (1280, 100);
+      speed = 4;
+      frame = 0;
+      width = 85;
+    }
+  in
+  let reg_pea =
+    {
+      pea_type = RegularPea;
+      damage = 20;
+      location = (1042, 625);
+      speed = 5;
+      width = 5;
+    }
+  in
+  let reg_plant =
+    {
+      hp = get_plant_hp PeaShooterPlant;
+      speed = get_plant_speed PeaShooterPlant;
+      timer = 0;
+      message_timer = Some 0;
+      location = (1000, 600);
+      plant_type = PeaShooterPlant;
+      cost = get_plant_cost PeaShooterPlant;
+      width = get_plant_width PeaShooterPlant;
+    }
+  in
+  [
+    zombie_walk_test "reg zombie x should decrease" reg_zomb
+      { reg_zomb with location = (1276, 100) };
+    (let bucket_zomb =
+       {
+         zombie_type = BucketHeadZombie;
+         hp = 10;
+         damage = 1;
+         location = (1280, 100);
+         speed = 4;
+         frame = 0;
+         width = 50;
+       }
+     in
+     zombie_walk_test "reg zombie x should decrease" bucket_zomb
+       { bucket_zomb with location = (1276, 100) });
+    (let lmw =
+       Some
+         {
+           damage = 99999;
+           speed = 10;
+           location = (144, 650);
+           row = 1;
+           width = 50;
+         }
+     in
+     let new_lmw =
+       match lmw with
+       | None -> failwith "impossible"
+       | Some non_option_lmw -> non_option_lmw
+     in
+     lawnmower_walk_test "lawnmower x decreases" lmw
+       (Some { new_lmw with location = (154, 650) }));
+    zombie_spawn_test "spawns reg zombie" (1280, 100) RegularZombie reg_zomb;
+    pea_spawn_test "regular plant shoots pea" reg_plant reg_pea;
+    (let rocket_pea =
+       {
+         reg_pea with
+         location = (1038, 620);
+         pea_type = RocketPea;
+         damage = 30;
+       }
+     in
+     let ice_pea_plant =
+       {
+         reg_plant with
+         hp = get_plant_hp IcePeaShooterPlant;
+         speed = get_plant_speed IcePeaShooterPlant;
+         plant_type = IcePeaShooterPlant;
+         cost = get_plant_cost IcePeaShooterPlant;
+         width = get_plant_width IcePeaShooterPlant;
+       }
+     in
+     pea_spawn_test "" ice_pea_plant rocket_pea);
+  ]
 
 let state_tests =
   let init_state = State.init () in
@@ -305,12 +393,6 @@ let screen_play_tests =
 let tests =
   "frontier_defense test suite"
   >::: List.flatten
-         [
-           trivial_tests;
-           gui_tests;
-           character_tests;
-           state_tests;
-           screen_play_tests;
-         ]
+         [ gui_tests; character_tests; state_tests; screen_play_tests ]
 
 let _ = run_test_tt_main tests
