@@ -1,3 +1,21 @@
+(* Testing methodology: We demonstrate the correctness of our system through
+   both automatic and manual testing. Automatic testing is applied for basic
+   transformations of entities/characters such as lawnmower, pea, and zombie
+   movement, the proper initialization and screen changes for the state,
+   plant-buying logic, game loss conditions, functions related to level
+   progression conditions (e.g., the number of zombies currently in view), GUI
+   message-handling logic, and entity collisions. Manual testing is applied to
+   many other parts of the systems such as the proper behavior of GUI buttons,
+   pea spawning, hover indicators, and the logic to ensure the frame rate
+   remains consistent. We tested the Characters, State, Board, and Screen_play
+   modules. Our test approach was mostly glass-box testing, reading the
+   implementation of the functions and implementing tests that would cover the
+   different cases. We did not use randomized testing. We believe our testing
+   demonstrates the correctness of the system because during our manual testing,
+   we tried dozens of different behaviors to try to trigger bugs and corner
+   cases, and our automatic testing ensures proper behavior for aspects of the
+   game that may not be clearly visible from playtesting. *)
+
 open OUnit2
 open Game
 open Characters
