@@ -236,11 +236,30 @@ let pea_zombie_not_collision_fn_test (name : string)
   name >:: fun _ ->
   assert_equal expected_output (is_pea_not_colliding_with_zombie zombie pea)
 
+let zombie_entity_collision_test (name : string) (entity_x : int)
+    (entity_width : int) (zombie : Characters.zombie) (expected_output : bool) :
+    test =
+  name >:: fun _ ->
+  assert_equal expected_output
+    (is_zombie_colliding_with_entity entity_x entity_width zombie)
+
 let damage_zombie_test (name : string) (zombie : Characters.zombie)
     (pea : Characters.pea) (expected_output : int) : test =
   name >:: fun _ ->
   damage_zombie zombie pea;
   assert_equal expected_output zombie.hp
+
+let tick_collision_peas_zombies_hp_test (name : string) (row : Board.row)
+    (expected_output : int) : test =
+  name >:: fun _ ->
+  tick_collision_peas_zombies_hp row;
+  assert_equal (List.nth row.zombies 0).hp expected_output
+
+let tick_collision_peas_zombies_remove_test (name : string) (row : Board.row)
+    (expected_output : pea list) : test =
+  name >:: fun _ ->
+  tick_collision_peas_zombies_remove_peas row;
+  assert_equal row.peas expected_output
 
 let pea1 =
   {
@@ -258,72 +277,6 @@ let screen_play_tests =
     { init_state with coins = 1000; screen = PlayScreen; zombies_killed = 15 }
   in
   [
-    zombie_pea_collision_fn_test "non-collision at edge" true pea1
-      {
-        hp = 50;
-        damage = 1;
-        location = (150, 50);
-        speed = 5;
-        frame = 5;
-        zombie_type = RegularZombie;
-        width = 50;
-      }
-      false;
-    zombie_pea_collision_fn_test "collision at edge" true pea1
-      {
-        hp = 50;
-        damage = 1;
-        location = (149, 50);
-        speed = 5;
-        frame = 5;
-        zombie_type = RegularZombie;
-        width = 50;
-      }
-      true;
-    pea_zombie_not_collision_fn_test "non-collision at edge true"
-      {
-        hp = 50;
-        damage = 1;
-        location = (150, 50);
-        speed = 5;
-        frame = 5;
-        zombie_type = RegularZombie;
-        width = 50;
-      }
-      pea1 true;
-    pea_zombie_not_collision_fn_test "collision at edge false"
-      {
-        hp = 50;
-        damage = 1;
-        location = (148, 50);
-        speed = 5;
-        frame = 5;
-        zombie_type = RegularZombie;
-        width = 50;
-      }
-      pea1 false;
-    damage_zombie_test "collision damage zombie"
-      {
-        hp = 50;
-        damage = 1;
-        location = (148, 50);
-        speed = 5;
-        frame = 5;
-        zombie_type = RegularZombie;
-        width = 50;
-      }
-      pea1 45;
-    damage_zombie_test "non-collision do NOT damage zombie"
-      {
-        hp = 50;
-        damage = 1;
-        location = (153, 50);
-        speed = 5;
-        frame = 5;
-        zombie_type = RegularZombie;
-        width = 50;
-      }
-      pea1 50;
     get_plant_cost_test "cost - PeaShooterPlant" PeaShooterPlant 100;
     get_plant_cost_test "cost - IcePeaShooterPlant" IcePeaShooterPlant 175;
     get_plant_cost_test "cost - WalnutPlant" WalnutPlant 50;
@@ -470,6 +423,172 @@ let screen_play_tests =
         };
       ]
       0;
+    zombie_pea_collision_fn_test "non-collision at edge" false pea1
+      {
+        hp = 50;
+        damage = 1;
+        location = (100, 50);
+        speed = 5;
+        frame = 5;
+        zombie_type = RegularZombie;
+        width = 50;
+      }
+      false;
+    zombie_pea_collision_fn_test "collision at edge" false pea1
+      {
+        hp = 50;
+        damage = 1;
+        location = (99, 50);
+        speed = 5;
+        frame = 5;
+        zombie_type = RegularZombie;
+        width = 50;
+      }
+      true;
+    pea_zombie_not_collision_fn_test "non-collision at edge true"
+      {
+        hp = 50;
+        damage = 1;
+        location = (100, 50);
+        speed = 5;
+        frame = 5;
+        zombie_type = RegularZombie;
+        width = 50;
+      }
+      pea1 true;
+    pea_zombie_not_collision_fn_test "collision at edge false"
+      {
+        hp = 50;
+        damage = 1;
+        location = (98, 50);
+        speed = 5;
+        frame = 5;
+        zombie_type = RegularZombie;
+        width = 50;
+      }
+      pea1 false;
+    damage_zombie_test "collision edge damage zombie"
+      {
+        hp = 50;
+        damage = 1;
+        location = (99, 50);
+        speed = 5;
+        frame = 5;
+        zombie_type = RegularZombie;
+        width = 50;
+      }
+      pea1 49;
+    damage_zombie_test "non-collision do NOT damage zombie"
+      {
+        hp = 50;
+        damage = 1;
+        location = (100, 50);
+        speed = 5;
+        frame = 5;
+        zombie_type = RegularZombie;
+        width = 50;
+      }
+      pea1 50;
+    zombie_entity_collision_test "non-collision at edge any entity" 50 50
+      {
+        hp = 50;
+        damage = 1;
+        location = (100, 50);
+        speed = 5;
+        frame = 5;
+        zombie_type = RegularZombie;
+        width = 50;
+      }
+      false;
+    zombie_entity_collision_test "collision at edge any entity" 50 50
+      {
+        hp = 50;
+        damage = 1;
+        location = (97, 50);
+        speed = 5;
+        frame = 5;
+        zombie_type = RegularZombie;
+        width = 50;
+      }
+      true;
+    tick_collision_peas_zombies_hp_test "collision subtract hp from zombie"
+      {
+        cells = [];
+        zombies =
+          [
+            {
+              zombie_type = RegularZombie;
+              hp = 10;
+              damage = 1;
+              location = (99, 50);
+              speed = 1;
+              frame = 0;
+              width = 50;
+            };
+          ];
+        peas = [ pea1 ];
+        lawnmower = None;
+      }
+      9;
+    tick_collision_peas_zombies_hp_test
+      "non-collision do not subtract hp from zombie"
+      {
+        cells = [];
+        zombies =
+          [
+            {
+              zombie_type = RegularZombie;
+              hp = 10;
+              damage = 1;
+              location = (100, 50);
+              speed = 1;
+              frame = 0;
+              width = 50;
+            };
+          ];
+        peas = [ pea1 ];
+        lawnmower = None;
+      }
+      10;
+    tick_collision_peas_zombies_remove_test "collision remove pea1"
+      {
+        cells = [];
+        zombies =
+          [
+            {
+              zombie_type = RegularZombie;
+              hp = 5;
+              damage = 1;
+              location = (99, 50);
+              speed = 1;
+              frame = 0;
+              width = 50;
+            };
+          ];
+        peas = [ pea1 ];
+        lawnmower = None;
+      }
+      [];
+    tick_collision_peas_zombies_remove_test
+      "non-collision pea list remains unchanged"
+      {
+        cells = [];
+        zombies =
+          [
+            {
+              zombie_type = RegularZombie;
+              hp = 5;
+              damage = 1;
+              location = (101, 50);
+              speed = 1;
+              frame = 0;
+              width = 50;
+            };
+          ];
+        peas = [ pea1 ];
+        lawnmower = None;
+      }
+      [ pea1 ];
     (let changed_lvl_screen =
        { init_state with level = 3; zombies_killed = 50 }
      in
