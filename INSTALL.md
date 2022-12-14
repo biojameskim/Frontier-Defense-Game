@@ -73,9 +73,15 @@ For MacOS devices using Homebrew, that would be:
 % brew install libpng
 ```
 
+For Linux devices, that would be:
+```sh
+% sudo apt-get install libpng-dev
+```
+
 ## Usage
 - Run `make build` to build the project if it isn't built already.
 - Then, run `make play` to play the game.
+- Run `make test` to test the project.
 
 ## Documentation
 With so many files in the code base, it might be helpful to read HTML documentation instead of source code.  
