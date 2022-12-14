@@ -53,15 +53,17 @@ Finally, run the following command to install opam, the OCaml package manager.
 ```
 </br>
 
-## Installing graphics
+## Installing graphics and other OPAM dependencies
 
 If you do not already have OPAM set up, run the following command:
 ``` sh
 % opam init -a
 ```
-Now, install the graphics library that you will need to see the gui.
+
+Now, install the following dependencies.
+
 ``` sh
-% opam install -y graphics
+% opam install -y graphics ANSITerminal yojson ounit2
 ```
 At this point, restart your computer.
 
@@ -69,15 +71,8 @@ At this point, restart your computer.
 
 For this project, we used a library called camlimages to load png files onto our gui.
 
-First, install camlimages using the following command:
-``` sh
-% opam install camlimages
-```
-Next, install additional dependencies for loading png files:
-``` sh
-% opam install conf-libpng
-```
-You will also need to install the libpng library using your computer's package manager.
+First, install the libpng library using your computer's package manager.
+
 For MacOS devices using Homebrew, that would be:
 ``` sh
 % brew install libpng
@@ -86,6 +81,16 @@ For MacOS devices using Homebrew, that would be:
 For Linux or Windows devices, that would be:
 ```sh
 % sudo apt-get install libpng-dev
+```
+
+Next, install additional dependencies for loading png files:
+``` sh
+% opam install conf-libpng
+```
+
+Finally, install camlimages using the following command:
+``` sh
+% opam install camlimages
 ```
 
 ## Usage
