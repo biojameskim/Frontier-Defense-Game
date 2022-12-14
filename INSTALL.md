@@ -53,6 +53,10 @@ Now, install the graphics library that you will need to see the gui.
 % opam install -y graphics
 ```
 At this point, restart your computer.
+
+For Windows, use this link and download MobaXTerm: https://mobaxterm.mobatek.net/download.html
+
+Then, run ubuntu WSL through MobaXterm to make play with graphics
 </br>
 </br>
 
