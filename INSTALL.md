@@ -5,6 +5,16 @@ Members:
 
 James Kim (jjk297), Eric Zhang (esz8), Derek Liu (dtl54), Suhao Jeffrey Huang (sjh292)
 
+## Note for Windows devices
+
+For Windows devices, set up Windows Subsystem for Linux and then follow the instructions in this guide for Linux.
+
+Windows devices need to use the terminal emulator MobaXTerm so that graphics will function properly.
+
+First, use the following link to download the free portable version of MobaXTerm. All subsequent commands, including `make test` and `make play`, should be run in the app's virtual terminal. This is accessed by clicking a tab labeled `wsl-ubuntu` or similar.
+
+https://mobaxterm.mobatek.net/download.html
+
 ## Installing software
 
 ### macOS
@@ -24,7 +34,7 @@ You must now install opam. opam is the package manager for OCaml itself, and you
 ```
 At this point, restart your computer.
 
-### Linux
+### Linux and Windows
 First, update Linux’s index of available packages to make sure that everything you need can be found.
 ``` sh
 % sudo apt-get update -y
@@ -43,47 +53,55 @@ Finally, run the following command to install opam, the OCaml package manager.
 ```
 </br>
 
-## Installing graphics
+## Installing graphics and other OPAM dependencies
+
 If you do not already have OPAM set up, run the following command:
 ``` sh
 % opam init -a
 ```
-Now, install the graphics library that you will need to see the gui.
+
+Now, install the following dependencies.
+
 ``` sh
-% opam install -y graphics
+% opam install -y graphics ANSITerminal yojson ounit2
 ```
 At this point, restart your computer.
-</br>
-</br>
 
 ## Installing camlimages
+
 For this project, we used a library called camlimages to load png files onto our gui.
 
-First, install camlimages using the following command:
-``` sh
-% opam install camlimages
-```
-Next, install additional dependencies for loading png files:
-``` sh
-% opam install conf-libpng
-```
-You will also need to install the libpng library using your computer's package manager.
+First, install the libpng library using your computer's package manager.
+
 For MacOS devices using Homebrew, that would be:
 ``` sh
 % brew install libpng
 ```
 
-For Linux devices, that would be:
+For Linux or Windows devices, that would be:
 ```sh
 % sudo apt-get install libpng-dev
 ```
 
+Next, install additional dependencies for loading png files:
+``` sh
+% opam install conf-libpng
+```
+
+Finally, install camlimages using the following command:
+``` sh
+% opam install camlimages
+```
+
 ## Usage
+
+- If using a Windows device, make sure you are running commands through MobaXTerm.
 - Run `make build` to build the project if it isn't built already.
 - Then, run `make play` to play the game.
 - Run `make test` to test the project.
 
 ## Documentation
+
 With so many files in the code base, it might be helpful to read HTML documentation instead of source code.  
 
 To read the HTML documentation of this project, first run:
